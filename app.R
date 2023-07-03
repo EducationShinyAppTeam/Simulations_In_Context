@@ -17,12 +17,12 @@ ui <- list(
   dashboardPage(
     skin = "blue",
     dashboardHeader(
-      title = "APP NAME",
+      title = "Simulations in Context",
       titleWidth = 250,
       tags$li(class = "dropdown", actionLink("info", icon("info"))),
       tags$li(
         class = "dropdown",
-        boastUtils::surveyLink(name = "APP NAME")
+        boastUtils::surveyLink(name = "Simulations_In_Context")
       ),
       tags$li(
         class = "dropdown",
@@ -53,12 +53,14 @@ ui <- list(
         tabItem(
           tabName = "overview",
           withMathJax(),
-          h1("APP NAME"), 
+          h1("Simulations in Context"), 
           p("APP DESC."),
           h2("Instructions"),
           tags$ol(
             tags$li("Review the prereqisities as needed."),
-            tags$li("INSTRUCTIONS")
+            tags$li("Next, go to the explore page and go through each tab."),
+            tags$li("For each tab, read the context, identify components of the 
+                    context, and view possible simulations.")
           ),
           ##### Overview to Explore Button
           div(
@@ -96,33 +98,59 @@ ui <- list(
             collapsed = TRUE,
             width = "100%",
             tags$ul(
-              tags$li("text"),
+              tags$li("Population: The entire group that we want information about. "),
+              tags$li("Population Parameter(s): A measurement that describes 
+                      something about the population. "),
+              tags$li("Sample: The part of the population that we are actually examining"),
+              tags$li("Statistic(s): A measurement that describes something about 
+                      the sample"),
+              tags$li("Bootrap: Type of resampling with replacement. You take samples 
+                      from the original sample using the same sample size."),
+              tags$li("Confidence Interval: The range that you expect the true 
+                      population parameter to lie between with a certain level of
+                      confidence. "),
+              
+              
             ),
           ),
-          box(
-            title = strong("Simulations for Calculating Probailities"),
-            status = "primary",
-            collapsible = TRUE,
-            collapsed = TRUE,
-            width = "100%",          
-            tags$ul(
-              tags$li("WORDS"),
-            )
-          ),
-          box(
-            title = strong("Bootstrapping Confidence Intervals"),
-            status = "primary",
-            collapsible = TRUE,
-            collapsed = TRUE,
-            width = "100%",          
-            tags$ul(
-              tags$li("WORDS"),
-            )
+          fluidRow(
+            column(
+              width = 6,
+              box(
+                title = strong("Simulations for Calculating Probailities"),
+                status = "primary",
+                collapsible = TRUE,
+                collapsed = TRUE,
+                width = "100%",          
+                tags$ul(
+                  tags$li("WORDS"),
+                )
+              ),
+            ),
+            column(
+              width = 6,
+              box(
+                title = strong("Bootstrapping"),
+                status = "primary",
+                collapsible = TRUE,
+                collapsed = TRUE,
+                width = "100%",          
+                tags$ul(
+                  tags$li("Bootrapping can be useful to 
+                          get estimates of standard error, confidence intervals, 
+                          and other statistics. It is very heplful when the 
+                          sample is small or not normally distributed"),
+                  tags$li("When bootstrappong you want use the mean of the 
+                          original sample and standard error from the bootstrapped 
+                          sample."),
+                )
+              ),
+            ),
           )
         ),
         ####  Game ----
         tabItem(
-          tabName = "game",
+          tabName = "explore",
           withMathJax(),
           h3("GAME"),
           p("Read the context of each scenario and then correctly identify the components
@@ -209,12 +237,34 @@ server <- function(input, output, session) {
   observeEvent(
     eventExpr = input$info,
     handlerExpr = {
-      sendSweetAlert(
-        session = session,
-        type = "info",
-        title = "Information",
-        text = "This app will help you learn more about Taryn McHugh"
-      )
+      tab <- input$pages
+      if (tab == "prerequisites") {
+        sendSweetAlert(
+          session = session, 
+          type = "info",
+          title = "Information",
+          text = "View the definitions and terms as needed. Once ready 
+          go to the explore tab to identify compoents and practice different types of simulations."
+        )
+      } else if (tab == "explore") {
+        sendSweetAlert(
+          session = session,
+          type = "info",
+          title = "Information",
+          text = "Click through each tab to view different type of simulations. 
+          Read the context, identify components, and practice different simulation
+          types."
+        )
+      } else {
+        sendSweetAlert(
+          session = session,
+          type = "info",
+          title = "Information",
+          text = "View the prerequisties as needed and then go to the explore page
+          to practice identifying context and different simulations."
+        )
+      }
+
     }
   )
   
