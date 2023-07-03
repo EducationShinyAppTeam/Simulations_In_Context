@@ -148,34 +148,49 @@ ui <- list(
             ),
           )
         ),
-        ####  Game ----
+        ####  Explore ----
         tabItem(
           tabName = "explore",
-          withMathJax(),
-          h3("GAME"),
-          p("Read the context of each scenario and then correctly identify the components
-            and plots that match the scenario."),
-          hr(),
-          fluidRow(
-            wellPanel(
-              p("CONTEXT HERE")
-            )
-          ),
-          fluidRow(
-            column(
-              width = 6,
-              h4("Identifying Components"),
-              wellPanel(
-                p("IDENTIFIER HERE")
+          tabsetPanel(
+            id = "simulationType",
+            ##### SIMULATION ONE ----
+            tabPanel(
+              title = "SIMULATION TYPE",
+              value = "b",
+              fluidRow(
+                wellPanel(
+                  p("CONTEXT HERE")
+                )
+              ),
+              fluidRow(
+                column(
+                  width = 6,
+                  h4("Identifying Components"),
+                  wellPanel(
+                    p("IDENTIFIER HERE")
+                  )
+                ),
+                column(
+                  width = 6,
+                  h4("Identifying Plots"),
+                  wellPanel(
+                    p("Simulation Output Here")
+                  )
+                )
               )
             ),
-            column(
-              width = 6,
-              h4("Identifying Plots"),
-              wellPanel(
-                p("Simulation Output Here")
-              )
-            )
+            ##### SIMULATION TWO  ----
+            tabPanel(
+              title = "SIMULATION TYPE",
+              value = "c",
+              
+            ),
+            ##### SIMULATION THREE ----
+            tabPanel(
+              title = "SIMULATION TYPE",
+              value = "D",
+              
+            ),
           )
         ),
         #### References Page ----
