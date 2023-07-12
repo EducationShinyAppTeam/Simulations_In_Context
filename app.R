@@ -124,7 +124,10 @@ ui <- list(
                 width = "100%",          
                 tags$ul(
                   tags$li("An easy way to help test probabilities is by using simulations."),
-                  tags$li("more..."),
+                  tags$li("You can use these simulaitons to create probability tables
+                          to see the liklihood of real life outcomes."),
+                  tags$li("Some simulation examples are coin flipping, card drawing, 
+                          spinners, etc. ")
                 )
               ),
             ),
@@ -154,11 +157,18 @@ ui <- list(
           tabName = "explore",
           tabsetPanel(
             id = "simulationType",
-            ##### SIMULATION ONE ----
+            ##### Example One ----
             tabPanel(
-              title = "SIMULATION TYPE",
+              title = "Example 1",
+              value = "b",
+            ),
+            ##### Example Two ----
+            tabPanel(
+              title = "Example 2",
               value = "b",
               fluidRow(
+                column(
+                  width = 9,
                 wellPanel(
                   p("A large city is deciding on whether to add a HOV lane on weekdays
                     between 8 and 10 a.m. to a section of a four-lane highway with 
@@ -174,89 +184,23 @@ ui <- list(
                     had only one person (the driver); 208 had two people; 43 had 
                     three people; 8 had four people and 1 had five people. The city
                     would like to make an 80% confidence interval for the average
-                    number of people per car between 8 an 10 on weekdays. They are
-                    also interested in creating a confidence interval for the percentage 
-                    of cars that would be eligible to use the HOV lane, which also 
+                    number of people per car between 8 an 10 on weekdays. 
+                    (CI #2?) They are also interested in creating a 
+                    confidence interval for the percentage of cars that would be
+                    eligible to use the HOV lane, which also 
                     might change after installing it.")
                 )
-              ),
-              fluidRow(
-                column(
-                  width = 4,
-                  h4("Identifying Components"),
-                  wellPanel(
-                    selectInput(
-                      inputId = "tab1Pop",
-                      label = "Population",
-                      choices = c(" ","Option 1","Option 2","Option 3","Option 4")
-                    ),
-                    selectInput(
-                      inputId = "tab1Para",
-                      label = "Population Parameter",
-                      choices = c(" ","Option 1","Option 2","Option 3","Option 4")
-                    ),
-                    selectInput(
-                      inputId = "tab1Samp",
-                      label = "Sample",
-                      choices = c(" ","Option 1","Option 2","Option 3","Option 4")
-                    ),
-                    selectInput(
-                      inputId = "tab1Stat",
-                      label = "Sample Statistic",
-                      choices = c(" ","Option 1","Option 2","Option 3","Option 4")
-                    ),
-                    fluidRow(
-                      column(
-                        width = 2,
-                        offset = 7,
-                        bsButton(
-                          inputId = "tab1Reset",
-                          label = "Reset"
-                        )
-                      ),
-                      column(
-                        width = 2,
-                        bsButton(
-                          inputId = "tab1Submit",
-                          label = "Submit"
-                        )
-                      )
-                    )
-                  ),
                 ),
                 column(
-                  width = 8,
-                  h4("Simulation"),
-                  wellPanel(
-                    p("Simulation Output Here")
+                  width = 3,
+                  tags$figure(
+                    tags$img(
+                      src = "hov2.jpg",
+                      width = "100%",
+                      alt = "HOV lane street sign"
+                    )
                   )
-                )
-              )
-            ),
-            ##### SIMULATION ONE (LAYOUT 2) ----
-            tabPanel(
-              title = "SIMULATION TYPE",
-              value = "b",
-              fluidRow(
-                wellPanel(
-                  p("A large city is deciding on whether to add a HOV lane on weekdays
-                    between 8 and 10 a.m. to a section of a four-lane highway with 
-                    heavy traffic (HOV = High Occupancy Vehicles where only cars
-                    with at least two passengers are allowed). The idea of a HOV 
-                    lane is to encourage an increase in the number of passengers
-                    per car in order to reduce air pollution and traffic. Before 
-                    installing the HOV lane, the city decides to collect baseline 
-                    data on the number of passengers per car so they will have 
-                    information to compare with after the installation. Cameras
-                    are set up along the road and photographs of 1000 cars are taken
-                    on weekdays between 8 and 10 a.m.. It turned out that 740 cars
-                    had only one person (the driver); 208 had two people; 43 had 
-                    three people; 8 had four people and 1 had five people. The city
-                    would like to make an 80% confidence interval for the average
-                    number of people per car between 8 an 10 on weekdays. They are
-                    also interested in creating a confidence interval for the percentage 
-                    of cars that would be eligible to use the HOV lane, which also 
-                    might change after installing it.")
+                  
                 )
               ),
               fluidRow(
@@ -265,7 +209,7 @@ ui <- list(
                   column(
                     width = 3, 
                     selectInput(
-                      inputId = "tab1Pop",
+                      inputId = "ex2Pop",
                       label = "Population",
                       choices = c(" ","Option 1","Option 2","Option 3","Option 4")
                     )
@@ -273,7 +217,7 @@ ui <- list(
                   column(
                     width = 3, 
                     selectInput(
-                      inputId = "tab1Para",
+                      inputId = "ex2Para",
                       label = "Population Parameter",
                       choices = c(" ","Option 1","Option 2","Option 3","Option 4")
                     )
@@ -281,7 +225,7 @@ ui <- list(
                   column(
                     width = 3, 
                     selectInput(
-                      inputId = "tab1Samp",
+                      inputId = "ex2Samp",
                       label = "Sample",
                       choices = c(" ","Option 1","Option 2","Option 3","Option 4")
                     )
@@ -289,24 +233,32 @@ ui <- list(
                   column(
                     width = 3, 
                     selectInput(
-                      inputId = "tab1Stat",
+                      inputId = "ex2Stat",
                       label = "Sample Statistic",
                       choices = c(" ","Option 1","Option 2","Option 3","Option 4")
                     )
                   ),
                   fluidRow(
                     column(
-                      offset = 10,
+                      width = 3, 
+                      selectInput(
+                        inputId = "ex2Sim",
+                        label = "Simulation Type",
+                        choices = c(" ","Option 1","Option 2","Option 3","Option 4")
+                      )
+                    ),
+                    column(
+                      offset = 7,
                       width = 1,
                       bsButton(
-                        inputId = "tab1Reset",
+                        inputId = "ex2Reset",
                         label = "Reset"
                       )
                     ),
                     column(
                       width = 1,
                       bsButton(
-                        inputId = "tab1Submit",
+                        inputId = "ex2Submit",
                         label = "Submit"
                       )
                     )
@@ -317,7 +269,7 @@ ui <- list(
                     width = 4,
                     h4("Simulation"),
                     wellPanel(
-                      p("Simluation Options Here")
+                      p("Simulation Options Here")
                     )
                   ),
                   column(
@@ -329,15 +281,15 @@ ui <- list(
                 )
               )
             ),
-            ##### SIMULATION TWO  ----
+            ##### Example Three  ----
             tabPanel(
-              title = "SIMULATION TYPE",
+              title = "Example 3",
               value = "c",
               
             ),
-            ##### SIMULATION THREE ----
+            ##### Example Four ----
             tabPanel(
-              title = "SIMULATION TYPE",
+              title = "Example 4",
               value = "D",
               
             ),
