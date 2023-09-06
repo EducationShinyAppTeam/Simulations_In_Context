@@ -7,9 +7,8 @@ library(boastUtils)
 library(ggplot2) 
 
 # Load additional dependencies and setup functions
-# source("global.R")
 
-## Datasets ----
+# Datasets ----
 
 # Define UI for App ----
 ui <- list(
@@ -31,14 +30,17 @@ ui <- list(
         )
       )
     ),
-    ### Navigation menu ----
+    ## Navigation menu ----
     dashboardSidebar(
       width = 250,
       sidebarMenu(
         id = "pages",
         menuItem("Overview", tabName = "overview", icon = icon("gauge-high")),
         menuItem("Prerequisites", tabName = "prerequisites", icon = icon("book")),
-        menuItem("Explore", tabName = "explore", icon = icon("wpexplorer")),
+        menuItem("CI for Mean", tabName = "ciMean", icon = icon("wpexplorer")),
+        menuItem("CI for Proportion", tabName = "ciProp", icon = icon("wpexplorer")),
+        menuItem("Hypothesis Test", tabName = "hypTest", icon = icon("wpexplorer")),
+        menuItem("Probability", tabName = "prob", icon = icon("wpexplorer")),
         menuItem("References", tabName = "references", icon = icon("leanpub"))
       ),
       tags$div(
@@ -46,10 +48,10 @@ ui <- list(
         boastUtils::sidebarFooter()
       )
     ),
-    ### Create the content ----
+    ## Create the content ----
     dashboardBody(
       tabItems(
-        #### Overview Page ----
+        ### Overview Page ----
         tabItem(
           tabName = "overview",
           withMathJax(),
@@ -62,7 +64,7 @@ ui <- list(
             tags$li("For each tab, read the context, identify components of the 
                     context, and view possible simulations.")
           ),
-          ##### Overview to Explore Button
+          #### Overview to Explore Button
           div(
             style = "text-align: center;",
             bsButton(
@@ -87,7 +89,7 @@ ui <- list(
             div(class = "updated", "Last Update: 06/26/2023 by T.M.")
           )
         ),
-        #### Prerequisites ----
+        ### Prerequisites ----
         tabItem(
           tabName = "prerequisites",
           withMathJax(),
@@ -152,60 +154,53 @@ ui <- list(
             ),
           )
         ),
-        ####  Explore ----
+        ### Confidence Interval for Mean ----
         tabItem(
-          tabName = "explore",
+          tabName = "ciMean",
+          fluidRow(
+            column(
+              width = 9,
+              h4("1. Context"),
+              p("A large city is deciding on whether to add a HOV lane on weekdays
+            between 8 and 10 a.m. to a section of a four-lane highway with 
+            heavy traffic (HOV = High Occupancy Vehicles where only cars
+            with at least two passengers are allowed). The idea of a HOV 
+            lane is to encourage an increase in the number of passengers
+            per car in order to reduce air pollution and traffic. Before 
+            installing the HOV lane, the city decides to collect baseline 
+            data on the number of passengers per car so they will have 
+            information to compare with after the installation. Cameras
+            are set up along the road and photographs of 1000 cars are taken
+            on weekdays between 8 and 10 a.m.. It turned out that 740 cars
+            had only one person (the driver); 208 had two people; 43 had 
+            three people; 8 had four people and 1 had five people. The city
+            would like to make an 80% confidence interval for the average
+            number of people per car between 8 an 10 on weekdays. 
+            (CI #2?) They are also interested in creating a 
+            confidence interval for the percentage of cars that would be
+            eligible to use the HOV lane, which also 
+            might change after installing it."),
+            ),
+            column(
+              width = 3,
+              tags$figure(
+                tags$img(
+                  src = "hov2.jpg",
+                  width = "100%",
+                  alt = "HOV lane street sign"
+                )
+              )
+            )
+          ),
           tabsetPanel(
             id = "simulationType",
-            ##### Example One ----
+            ##### Identifying Components ----
             tabPanel(
-              title = "Example 1",
+              title = "2. Identifying Components",
               value = "b",
-            ),
-            ##### Example Two ----
-            tabPanel(
-              title = "Example 2",
-              value = "b",
-              fluidRow(
-                column(
-                  width = 9,
-                wellPanel(
-                  p("A large city is deciding on whether to add a HOV lane on weekdays
-                    between 8 and 10 a.m. to a section of a four-lane highway with 
-                    heavy traffic (HOV = High Occupancy Vehicles where only cars
-                    with at least two passengers are allowed). The idea of a HOV 
-                    lane is to encourage an increase in the number of passengers
-                    per car in order to reduce air pollution and traffic. Before 
-                    installing the HOV lane, the city decides to collect baseline 
-                    data on the number of passengers per car so they will have 
-                    information to compare with after the installation. Cameras
-                    are set up along the road and photographs of 1000 cars are taken
-                    on weekdays between 8 and 10 a.m.. It turned out that 740 cars
-                    had only one person (the driver); 208 had two people; 43 had 
-                    three people; 8 had four people and 1 had five people. The city
-                    would like to make an 80% confidence interval for the average
-                    number of people per car between 8 an 10 on weekdays. 
-                    (CI #2?) They are also interested in creating a 
-                    confidence interval for the percentage of cars that would be
-                    eligible to use the HOV lane, which also 
-                    might change after installing it.")
-                )
-                ),
-                column(
-                  width = 3,
-                  tags$figure(
-                    tags$img(
-                      src = "hov2.jpg",
-                      width = "100%",
-                      alt = "HOV lane street sign"
-                    )
-                  )
-                  
-                )
-              ),
-              fluidRow(
-                h4("Identifying Components"),
-                wellPanel(
+              h4("Identifying Components"), 
+              wellPanel(
+                fluidRow(
                   column(
                     width = 3, 
                     selectInput(
@@ -237,65 +232,94 @@ ui <- list(
                       label = "Sample Statistic",
                       choices = c(" ","Option 1","Option 2","Option 3","Option 4")
                     )
-                  ),
-                  fluidRow(
-                    column(
-                      width = 3, 
-                      selectInput(
-                        inputId = "ex2Sim",
-                        label = "Simulation Type",
-                        choices = c(" ","Option 1","Option 2","Option 3","Option 4")
-                      )
-                    ),
-                    column(
-                      offset = 7,
-                      width = 1,
-                      bsButton(
-                        inputId = "ex2Reset",
-                        label = "Reset"
-                      )
-                    ),
-                    column(
-                      width = 1,
-                      bsButton(
-                        inputId = "ex2Submit",
-                        label = "Submit"
-                      )
-                    )
                   )
                 ),
                 fluidRow(
                   column(
-                    width = 4,
-                    h4("Simulation"),
-                    wellPanel(
-                      p("Simulation Options Here")
+                    width = 3, 
+                    selectInput(
+                      inputId = "ex2Sim",
+                      label = "Simulation Type",
+                      choices = c(" ","Option 1","Option 2","Option 3","Option 4")
                     )
                   ),
                   column(
-                    width = 8,
-                    br(),
-                    br(),
-                    p("Simulation Output Here")
+                    offset = 7,
+                    width = 1,
+                    bsButton(
+                      inputId = "ex2Reset",
+                      label = "Reset"
+                    )
+                  ),
+                  column(
+                    width = 1,
+                    bsButton(
+                      inputId = "ex2Submit",
+                      label = "Submit"
+                    )
                   )
                 )
+              ),
+            ),
+            ##### Simulation  ----
+            tabPanel(
+              title = "3. Simulation",
+              value = "b",
+              fluidRow(
+                column(
+                  width = 4,
+                  h4("Simulation"),
+                  wellPanel(
+                    p("Simulation Options Here")
+                  )
+                ),
+                column(
+                  width = 8,
+                  br(),
+                  br(),
+                  p("Simulation Output Here")
+                )
               )
-            ),
-            ##### Example Three  ----
-            tabPanel(
-              title = "Example 3",
-              value = "c",
-              
-            ),
-            ##### Example Four ----
-            tabPanel(
-              title = "Example 4",
-              value = "D",
-              
-            ),
+            )
           )
         ),
-        #### References Page ----
+        ### CI for Prop ----
+        tabItem(
+          tabName = "ciProp",
+          tabsetPanel(
+            id = "simulationType",
+            ##### Example One ----
+            tabPanel(
+              title = "Example 1",
+              value = "b",
+            )
+          )
+        ),
+        ### Hypothesis Test ----
+        tabItem(
+          tabName = "hypTest",
+          tabsetPanel(
+            id = "simulationType",
+            ##### Example One ----
+            tabPanel(
+              title = "Example 1",
+              value = "b",
+            )
+          )
+        ),
+        ### Probability ----
+        tabItem(
+          tabName = "Prob",
+          tabsetPanel(
+            id = "simulationType",
+            ##### Example One ----
+            tabPanel(
+              title = "Example 1",
+              value = "b",
+            )
+          )
+        ),
+        ### References Page ----
         tabItem(
           tabName = "references",
           withMathJax(),
@@ -350,7 +374,7 @@ ui <- list(
 # Define server logic ----
 server <- function(input, output, session) {
   
-  ## Set up Info button ----
+  ## Info button ----
   observeEvent(
     eventExpr = input$info,
     handlerExpr = {
@@ -385,7 +409,7 @@ server <- function(input, output, session) {
     }
   )
   
-  ## Overview to  Button----
+  ## Overview to Prereq Button----
   observeEvent(
     eventExpr = input$overviewPrereq,
     handlerExpr = {
