@@ -68,8 +68,8 @@ ui <- list(
           div(
             style = "text-align: center;",
             bsButton(
-              inputId = "overviewToExplore",
-              label = "Explore",
+              inputId = "overviewToPrereq",
+              label = "Prerequisites",
               size = "large",
               icon = icon("book")
             )
@@ -161,25 +161,7 @@ ui <- list(
             column(
               width = 9,
               h4("1. Context"),
-              p("A large city is deciding on whether to add a HOV lane on weekdays
-            between 8 and 10 a.m. to a section of a four-lane highway with 
-            heavy traffic (HOV = High Occupancy Vehicles where only cars
-            with at least two passengers are allowed). The idea of a HOV 
-            lane is to encourage an increase in the number of passengers
-            per car in order to reduce air pollution and traffic. Before 
-            installing the HOV lane, the city decides to collect baseline 
-            data on the number of passengers per car so they will have 
-            information to compare with after the installation. Cameras
-            are set up along the road and photographs of 1000 cars are taken
-            on weekdays between 8 and 10 a.m.. It turned out that 740 cars
-            had only one person (the driver); 208 had two people; 43 had 
-            three people; 8 had four people and 1 had five people. The city
-            would like to make an 80% confidence interval for the average
-            number of people per car between 8 an 10 on weekdays. 
-            (CI #2?) They are also interested in creating a 
-            confidence interval for the percentage of cars that would be
-            eligible to use the HOV lane, which also 
-            might change after installing it."),
+              p("CONTEXT"),
             ),
             column(
               width = 3,
@@ -198,13 +180,12 @@ ui <- list(
             tabPanel(
               title = "2. Identifying Components",
               value = "b",
-              h4("Identifying Components"), 
               wellPanel(
                 fluidRow(
                   column(
                     width = 3, 
                     selectInput(
-                      inputId = "ex2Pop",
+                      inputId = "ciMeanPop",
                       label = "Population",
                       choices = c(" ","Option 1","Option 2","Option 3","Option 4")
                     )
@@ -212,7 +193,7 @@ ui <- list(
                   column(
                     width = 3, 
                     selectInput(
-                      inputId = "ex2Para",
+                      inputId = "ciMeanPara",
                       label = "Population Parameter",
                       choices = c(" ","Option 1","Option 2","Option 3","Option 4")
                     )
@@ -220,7 +201,7 @@ ui <- list(
                   column(
                     width = 3, 
                     selectInput(
-                      inputId = "ex2Samp",
+                      inputId = "ciMeanSamp",
                       label = "Sample",
                       choices = c(" ","Option 1","Option 2","Option 3","Option 4")
                     )
@@ -228,7 +209,7 @@ ui <- list(
                   column(
                     width = 3, 
                     selectInput(
-                      inputId = "ex2Stat",
+                      inputId = "ciMeanStat",
                       label = "Sample Statistic",
                       choices = c(" ","Option 1","Option 2","Option 3","Option 4")
                     )
@@ -238,8 +219,8 @@ ui <- list(
                   column(
                     width = 3, 
                     selectInput(
-                      inputId = "ex2Sim",
-                      label = "Simulation Type",
+                      inputId = "ciMeanFind",
+                      label = "What are you calculating?",
                       choices = c(" ","Option 1","Option 2","Option 3","Option 4")
                     )
                   ),
@@ -259,7 +240,7 @@ ui <- list(
                     )
                   )
                 )
-              ),
+              )
             ),
             ##### Simulation  ----
             tabPanel(
@@ -268,7 +249,6 @@ ui <- list(
               fluidRow(
                 column(
                   width = 4,
-                  h4("Simulation"),
                   wellPanel(
                     p("Simulation Options Here")
                   )
@@ -286,36 +266,277 @@ ui <- list(
         ### CI for Prop ----
         tabItem(
           tabName = "ciProp",
+          fluidRow(
+            column(
+              width = 9,
+              h4("1. Context"),
+              p("CONTEXT"),
+            ),
+            column(
+              width = 3,
+              tags$figure(
+                tags$img(
+                  src = "hov2.jpg",
+                  width = "100%",
+                  alt = "HOV lane street sign"
+                )
+              )
+            )
+          ),
           tabsetPanel(
             id = "simulationType",
-            ##### Example One ----
+            ##### Identifying Components ----
             tabPanel(
-              title = "Example 1",
+              title = "2. Identifying Components",
               value = "b",
+              wellPanel(
+                fluidRow(
+                  column(
+                    width = 3, 
+                    selectInput(
+                      inputId = "ciMeanPop",
+                      label = "Population",
+                      choices = c(" ","Option 1","Option 2","Option 3","Option 4")
+                    )
+                  ),
+                  column(
+                    width = 3, 
+                    selectInput(
+                      inputId = "ciMeanPara",
+                      label = "Population Parameter",
+                      choices = c(" ","Option 1","Option 2","Option 3","Option 4")
+                    )
+                  ),
+                  column(
+                    width = 3, 
+                    selectInput(
+                      inputId = "ciMeanSamp",
+                      label = "Sample",
+                      choices = c(" ","Option 1","Option 2","Option 3","Option 4")
+                    )
+                  ),
+                  column(
+                    width = 3, 
+                    selectInput(
+                      inputId = "ciMeanStat",
+                      label = "Sample Statistic",
+                      choices = c(" ","Option 1","Option 2","Option 3","Option 4")
+                    )
+                  )
+                ),
+                fluidRow(
+                  column(
+                    width = 3, 
+                    selectInput(
+                      inputId = "ciMeanFind",
+                      label = "What are you calculating?",
+                      choices = c(" ","Option 1","Option 2","Option 3","Option 4")
+                    )
+                  ),
+                  column(
+                    offset = 7,
+                    width = 1,
+                    bsButton(
+                      inputId = "ex2Reset",
+                      label = "Reset"
+                    )
+                  ),
+                  column(
+                    width = 1,
+                    bsButton(
+                      inputId = "ex2Submit",
+                      label = "Submit"
+                    )
+                  )
+                )
+              )
+            ),
+            ##### Simulation  ----
+            tabPanel(
+              title = "3. Simulation",
+              value = "b",
+              fluidRow(
+                column(
+                  width = 4,
+                  wellPanel(
+                    p("Simulation Options Here")
+                  )
+                ),
+                column(
+                  width = 8,
+                  br(),
+                  br(),
+                  p("Simulation Output Here")
+                )
+              )
             )
           )
-        ),
+        ),      
         ### Hypothesis Test ----
         tabItem(
           tabName = "hypTest",
+          fluidRow(
+            column(
+              width = 9,
+              h4("1. Context"),
+              p("CONTEXT"),
+            ),
+            column(
+              width = 3,
+              tags$figure(
+                tags$img(
+                  src = "hov2.jpg",
+                  width = "100%",
+                  alt = "HOV lane street sign"
+                )
+              )
+            )
+          ),
           tabsetPanel(
             id = "simulationType",
-            ##### Example One ----
+            ##### Identifying Components ----
             tabPanel(
-              title = "Example 1",
+              title = "2. Identifying Components",
               value = "b",
+              wellPanel(
+                fluidRow(
+                  column(
+                    width = 3, 
+                    selectInput(
+                      inputId = "ciMeanPop",
+                      label = "Population",
+                      choices = c(" ","Option 1","Option 2","Option 3","Option 4")
+                    )
+                  ),
+                  column(
+                    width = 3, 
+                    selectInput(
+                      inputId = "ciMeanPara",
+                      label = "Population Parameter",
+                      choices = c(" ","Option 1","Option 2","Option 3","Option 4")
+                    )
+                  ),
+                  column(
+                    width = 3, 
+                    selectInput(
+                      inputId = "ciMeanSamp",
+                      label = "Sample",
+                      choices = c(" ","Option 1","Option 2","Option 3","Option 4")
+                    )
+                  ),
+                  column(
+                    width = 3, 
+                    selectInput(
+                      inputId = "ciMeanStat",
+                      label = "Sample Statistic",
+                      choices = c(" ","Option 1","Option 2","Option 3","Option 4")
+                    )
+                  )
+                ),
+                fluidRow(
+                  column(
+                    width = 3, 
+                    selectInput(
+                      inputId = "ciMeanFind",
+                      label = "What are you calculating?",
+                      choices = c(" ","Option 1","Option 2","Option 3","Option 4")
+                    )
+                  ),
+                  column(
+                    offset = 7,
+                    width = 1,
+                    bsButton(
+                      inputId = "ex2Reset",
+                      label = "Reset"
+                    )
+                  ),
+                  column(
+                    width = 1,
+                    bsButton(
+                      inputId = "ex2Submit",
+                      label = "Submit"
+                    )
+                  )
+                )
+              )
+            ),
+            ##### Simulation  ----
+            tabPanel(
+              title = "3. Simulation",
+              value = "b",
+              fluidRow(
+                column(
+                  width = 4,
+                  wellPanel(
+                    p("Simulation Options Here")
+                  )
+                ),
+                column(
+                  width = 8,
+                  br(),
+                  br(),
+                  p("Simulation Output Here")
+                )
+              )
             )
           )
         ),
+        
         ### Probability ----
         tabItem(
-          tabName = "Prob",
+          tabName = "prob",
           tabsetPanel(
             id = "simulationType",
             ##### Example One ----
-            tabPanel(
-              title = "Example 1",
-              value = "b",
+            fluidRow(
+              column(
+                width = 9,
+                h4("1. Context"),
+                p("A large city is deciding on whether to add a HOV lane on weekdays
+            between 8 and 10 a.m. to a section of a four-lane highway with 
+            heavy traffic (HOV = High Occupancy Vehicles where only cars
+            with at least two passengers are allowed). The idea of a HOV 
+            lane is to encourage an increase in the number of passengers
+            per car in order to reduce air pollution and traffic. Before 
+            installing the HOV lane, the city decides to collect baseline 
+            data on the number of passengers per car so they will have 
+            information to compare with after the installation. Cameras
+            are set up along the road and photographs of 1000 cars are taken
+            on weekdays between 8 and 10 a.m.. It turned out that 740 cars
+            had only one person (the driver); 208 had two people; 43 had 
+            three people; 8 had four people and 1 had five people. The city
+            would like to make an 80% confidence interval for the average
+            number of people per car between 8 an 10 on weekdays. 
+            (CI #2?) They are also interested in creating a 
+            confidence interval for the percentage of cars that would be
+            eligible to use the HOV lane, which also 
+            might change after installing it."),
+              ),
+            column(
+              width = 3,
+              tags$figure(
+                tags$img(
+                  src = "hov2.jpg",
+                  width = "100%",
+                  alt = "HOV lane street sign"
+                )
+              )
+            )
+            ),
+            h4("2. Simulation"),
+            fluidRow(
+              column(
+                width = 4,
+                wellPanel(
+                  p("Simulation Options Here")
+                )
+              ),
+              column(
+                width = 8,
+                br(),
+                br(),
+                p("Simulation Output Here")
+              )
             )
           )
         ),
@@ -385,33 +606,34 @@ server <- function(input, output, session) {
           type = "info",
           title = "Information",
           text = "View the definitions and terms as needed. Once ready 
-          go to the explore tab to identify compoents and practice different types of simulations."
+          go trhough each simulation left on the tab options, identify components
+          and practice different types of simulations."
         )
-      } else if (tab == "explore") {
+      } else if (tab %in% c("ciMean", "ciProb", "hypTest", "prob")) {
         sendSweetAlert(
           session = session,
           type = "info",
           title = "Information",
           text = "Click through each tab to view different type of simulations. 
-          Read the context, identify components, and practice different simulation
-          types."
+          Read the context, identify components, and practice  each simulation
+          type."
         )
       } else {
         sendSweetAlert(
           session = session,
           type = "info",
           title = "Information",
-          text = "View the prerequisties as needed and then go to the explore page
-          to practice identifying context and different simulations."
+          text = "View the prerequisties as needed. Once ready 
+          go trhough each simulation left on the tab options, identify components
+          and practice different types of simulations."
         )
       }
-
     }
   )
   
   ## Overview to Prereq Button----
   observeEvent(
-    eventExpr = input$overviewPrereq,
+    eventExpr = input$overviewToPrereq,
     handlerExpr = {
       updateTabItems(
         session = session,
