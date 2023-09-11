@@ -487,55 +487,82 @@ ui <- list(
           tabName = "prob",
           tabsetPanel(
             id = "simulationType",
-            ##### Example One ----
             fluidRow(
               column(
                 width = 9,
                 h4("1. Context"),
-                p("A large city is deciding on whether to add a HOV lane on weekdays
-            between 8 and 10 a.m. to a section of a four-lane highway with 
-            heavy traffic (HOV = High Occupancy Vehicles where only cars
-            with at least two passengers are allowed). The idea of a HOV 
-            lane is to encourage an increase in the number of passengers
-            per car in order to reduce air pollution and traffic. Before 
-            installing the HOV lane, the city decides to collect baseline 
-            data on the number of passengers per car so they will have 
-            information to compare with after the installation. Cameras
-            are set up along the road and photographs of 1000 cars are taken
-            on weekdays between 8 and 10 a.m.. It turned out that 740 cars
-            had only one person (the driver); 208 had two people; 43 had 
-            three people; 8 had four people and 1 had five people. The city
-            would like to make an 80% confidence interval for the average
-            number of people per car between 8 an 10 on weekdays. 
-            (CI #2?) They are also interested in creating a 
-            confidence interval for the percentage of cars that would be
-            eligible to use the HOV lane, which also 
-            might change after installing it."),
+                p("Nick and Jennifer were rolling dice to see who could get
+                  a higher total. Nick claims that he can get a higher total with
+                  less dice rolls, but Jennifer does not believe him. So Nick rolls 
+                  5 die  while Jennifer rolls 6 at once. What is the probability 
+                  that Nick gets a higher total than Jennifer?"),
+                numericInput(
+                  inputId = 'guessProb',
+                  label = 'Probability that Nick wins: ',
+                  value = 0.0
+                ),
+                fluidRow(
+                  column(
+                    width = 2,
+                    bsButton(
+                      inputId = "guessSubmitProb",
+                      label = 'Submit'
+                    )
+                  ),
+                  column(width = 1, uiOutput(outputId = "guessIconProb")
+                  )
+                )
               ),
-            column(
-              width = 3,
-              tags$figure(
-                tags$img(
-                  src = "hov2.jpg",
-                  width = "100%",
-                  alt = "HOV lane street sign"
+              column(
+                width = 3,
+                tags$figure(
+                  tags$img(
+                    src = "die.jpg",
+                    width = "100%",
+                    alt = "2 die rolling. "
+                  )
                 )
               )
-            )
             ),
             h4("2. Simulation"),
             fluidRow(
               column(
                 width = 4,
                 wellPanel(
-                  p("Simulation Options Here")
+                  sliderInput(
+                    inputId = 'trialsProb', 
+                    label = "Number of Trials:",
+                    min = 2, 
+                    max = 1000,
+                    value = 2
+                  ),
+                  sliderInput(
+                    inputId = 'nickRollsProb', 
+                    label = "Nick Number of Rolls:",
+                    min = 1, 
+                    max = 10,
+                    value = 1
+                  ),
+                  sliderInput(
+                    inputId = 'jennRollsProb', 
+                    label = "Jennifer Number of Rolls:",
+                    min = 1, 
+                    max = 10,
+                    value = 1
+                  ),
+                  bsButton(
+                    inputId = 'simProb',
+                    label = 'Simulate'
+                  )
+                  
                 )
               ),
               column(
                 width = 8,
                 br(),
                 br(),
-                p("Simulation Output Here")
+                plotOutput('probSim'),
+                textOutput('resultProb'),
               )
             )
           )
@@ -642,6 +669,63 @@ server <- function(input, output, session) {
       )
     }
   )
+  
+  ## Probability ----
+  
+  observeEvent(input$guessSubmitProb, {
+    guess <- input$guessProb
+    if (0.22 <= guess && guess <= 0.26) {
+      output$guessIconProb <- renderIcon(icon = "correct", width = 30)
+    } else {
+      output$guessIconProb <- renderIcon(icon = "incorrect", width = 30)
+    }
+  }
+  )
+  
+  observeEvent(input$simProb, {
+    trials <- input$trialsProb
+    nickRolls<- input$nickRollsProb
+    jennRolls <- input$jennRollsProb
+    
+    nickWin <- 0
+    tie <- 0 
+    jennWin <- 0
+    total_scores <- numeric(trials)
+    
+    for (i in 1:trials) {
+      nickResults <- sample(1:6, nickRolls, replace = TRUE)
+      jennResults <- sample(1:6, jennRolls, replace = TRUE)
+      nickSum <- sum(nickResults)
+      jennSum <- sum(jennResults)
+      
+      if (nickSum > jennSum) {
+        nickWin <- nickWin + 1
+      } else if (jennSum > nickSum) {
+        jennWin <- jennWin + 1
+      } else {
+        tie <- tie + 1
+      }
+      total_scores[i] <- nickSum - jennSum
+    }
+    
+    probability <- nickWin / trials
+    
+    output$resultProb <- renderText({
+      paste("Probability that Nick gets a higher total:", probability, "\n")
+    })
+    
+    output$probSim <- renderPlot({
+      result_df <- data.frame(
+        Outcome = c("Nick Wins", "Jennifer Wins", "Tie"),
+        Frequency = c(nickWin, jennWin, tie))
+      barplot(result_df$Frequency, names.arg = result_df$Outcome,
+              main = "Distribution of Outcomes",
+              xlab = "Outcome", 
+              ylab = "Frequency", 
+              col = "blue", 
+              ylim = c(0, max(result_df$Frequency) * 1.1))
+    })
+  })
 }
 
 # Boast App Call ----
