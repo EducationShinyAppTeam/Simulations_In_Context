@@ -5,6 +5,7 @@ library(shinyBS)
 library(shinyWidgets)
 library(boastUtils)
 library(ggplot2) 
+library(boot)
 
 # Load additional dependencies and setup functions
 
@@ -110,10 +111,8 @@ ui <- list(
                       from the original sample using the same sample size."),
               tags$li("Confidence Interval: The range that you expect the true 
                       population parameter to lie between with a certain level of
-                      confidence. "),
-              
-              
-            ),
+                      confidence. ")
+            )
           ),
           fluidRow(
             column(
@@ -131,7 +130,7 @@ ui <- list(
                   tags$li("Some simulation examples are coin flipping, card drawing, 
                           spinners, etc. ")
                 )
-              ),
+              )
             ),
             column(
               width = 6,
@@ -148,10 +147,10 @@ ui <- list(
                           sample is small or not normally distributed"),
                   tags$li("When bootstrappong you want use the mean of the 
                           original sample and standard error from the bootstrapped 
-                          sample."),
+                          sample.")
                 )
-              ),
-            ),
+              )
+            )
           )
         ),
         ### Confidence Interval for Mean ----
@@ -161,7 +160,13 @@ ui <- list(
             column(
               width = 9,
               h4("1. Context"),
-              p("CONTEXT"),
+              p("Every year thousands of airplanes takeoff and land at international
+                airports. 6 international airports from the northeast region of the
+                USA were samples. It would found that the mean number of planes 
+                that landed and took off at this airport was 22253.162, the median 
+                of 20600 with sd of 11398.343. Create a 90% confidence interval 
+                for the numbers of flights departing/arriving at northeast airports
+                from Q4 of the fiscal year. ")
             ),
             column(
               width = 3,
@@ -183,59 +188,63 @@ ui <- list(
               wellPanel(
                 fluidRow(
                   column(
-                    width = 3, 
+                    width = 2, 
                     selectInput(
                       inputId = "ciMeanPop",
                       label = "Population",
-                      choices = c(" ","Option 1","Option 2","Option 3","Option 4")
+                      choices = c( " ", "Airports in the Northeast region", 
+                                   "Number of flights arriving/departing", 
+                                   "Number of international airports", 
+                                   "International airports in the Northeast region")
                     )
                   ),
+                  column(width = 1, uiOutput(outputId = "ciMeanPopIcon")), 
                   column(
-                    width = 3, 
+                    width = 2, 
                     selectInput(
                       inputId = "ciMeanPara",
                       label = "Population Parameter",
-                      choices = c(" ","Option 1","Option 2","Option 3","Option 4")
+                      choices = c(" ", "Number of international airports", 
+                                  "Airports in the Northeast region",
+                                  "Number of flights arriving/departing", 
+                                  "International airports in the Northeast region")
                     )
                   ),
+                  column(width = 1, uiOutput(outputId = "ciMeanParaIcon")),
                   column(
-                    width = 3, 
+                    width = 2, 
                     selectInput(
                       inputId = "ciMeanSamp",
                       label = "Sample",
-                      choices = c(" ","Option 1","Option 2","Option 3","Option 4")
+                      choices = c(" ", "22253.162", "20600", "6 International Airports",
+                                  "13 States in Northeast Region")
                     )
                   ),
+                  column(width = 1, uiOutput(outputId = "ciMeanSampIcon")),
                   column(
-                    width = 3, 
+                    width = 2, 
                     selectInput(
                       inputId = "ciMeanStat",
                       label = "Sample Statistic",
-                      choices = c(" ","Option 1","Option 2","Option 3","Option 4")
+                      choices = c( " ", "13 States in Northeast Region", "20600", 
+                                   "6 International Airports", "22253.162")
                     )
-                  )
+                  ),
+                  column(width = 1, uiOutput(outputId = "ciMeanStatIcon"))
                 ),
                 fluidRow(
                   column(
-                    width = 3, 
-                    selectInput(
-                      inputId = "ciMeanFind",
-                      label = "What are you calculating?",
-                      choices = c(" ","Option 1","Option 2","Option 3","Option 4")
-                    )
-                  ),
-                  column(
-                    offset = 7,
+                    offset = 9,
                     width = 1,
                     bsButton(
-                      inputId = "ex2Reset",
+                      inputId = "ciMeanReset",
                       label = "Reset"
                     )
                   ),
                   column(
                     width = 1,
                     bsButton(
-                      inputId = "ex2Submit",
+                      inputId = "ciMeanSubmit",
                       label = "Submit"
                     )
                   )
@@ -250,14 +259,36 @@ ui <- list(
                 column(
                   width = 4,
                   wellPanel(
-                    p("Simulation Options Here")
+                    sliderInput(
+                      inputId = "ciMeanSM",
+                      label = "Sample Mean",
+                      min = 10000, 
+                      max = 30000,
+                      value = 15000
+                    ),
+                    sliderInput(
+                      inputId = "ciMeanNumSamp",
+                      label = "Number of samples",
+                      min = 1, 
+                      max = 5000,
+                      value = 2500
+                    ),
+                    numericInput(
+                      inputId = "ciMeanCL",
+                      label = 'Confidence Level (between 1-99%',
+                      value = 95
+                    ),
+                    bsButton(
+                      inputId = "simCIMean",
+                      label = "Simulate"
+                    )
                   )
                 ),
                 column(
                   width = 8,
                   br(),
                   br(),
-                  p("Simulation Output Here")
+                  plotOutput("ciMeanSim")
                 )
               )
             )
@@ -270,7 +301,14 @@ ui <- list(
             column(
               width = 9,
               h4("1. Context"),
-              p("CONTEXT"),
+              p("Researchers were curious about the retention rate of students with 
+                Science, Technology, Engineering, and Mathematic (STEM) majors.
+                They gathered data on 6 R1 College Instiutions. Of the students 
+                they recorded information on 5.92% transferred into STEM, 15.58% 
+                transferred out of STEM, 46.62% stayed in a nonSTEM major,
+                and 31.88% stayed within a STEM major by the time of graduation. 
+                Create a 95% confidence interval of the proportion of students 
+                switching into STEM or keeping a STEM degree. ")
             ),
             column(
               width = 3,
@@ -292,59 +330,61 @@ ui <- list(
               wellPanel(
                 fluidRow(
                   column(
-                    width = 3, 
+                    width = 2, 
                     selectInput(
-                      inputId = "ciMeanPop",
+                      inputId = "ciPropPop",
                       label = "Population",
-                      choices = c(" ","Option 1","Option 2","Option 3","Option 4")
+                      choices = c(" ", "All Research Institutions",
+                                  "Students who switch into/stay within STEM", 
+                                  "R1 Institutions", "Students who stayed in STEM")
                     )
                   ),
+                  column(width = 1, uiOutput(outputId = "ciPropPopIcon")),
                   column(
-                    width = 3, 
+                    width = 2, 
                     selectInput(
-                      inputId = "ciMeanPara",
+                      inputId = "ciPropPara",
                       label = "Population Parameter",
-                      choices = c(" ","Option 1","Option 2","Option 3","Option 4")
+                      choices = c(" ", "Students who stayed in STEM",
+                                  "Students who switch into/stay within STEM",
+                                  "R1 Institutions", "All Research Institutions")
                     )
                   ),
+                  column(width = 1, uiOutput(outputId = "ciPropParaIcon")),
                   column(
-                    width = 3, 
+                    width = 2, 
                     selectInput(
-                      inputId = "ciMeanSamp",
+                      inputId = "ciPropSamp",
                       label = "Sample",
-                      choices = c(" ","Option 1","Option 2","Option 3","Option 4")
+                      choices = c(" ", "Number of STEM majors", "6 R1 Institutions", 
+                                  "37.80%", "46.62%")
                     )
                   ),
+                  column(width = 1, uiOutput(outputId = "ciPropSampIcon")),
                   column(
-                    width = 3, 
+                    width = 2, 
                     selectInput(
-                      inputId = "ciMeanStat",
+                      inputId = "ciPropStat",
                       label = "Sample Statistic",
-                      choices = c(" ","Option 1","Option 2","Option 3","Option 4")
+                      choices = c(" ", "37.80%", "46.62%", "Number of STEM majors",
+                                  "6 R1 Institutions")
                     )
-                  )
+                  ),
+                  column(width = 1, uiOutput(outputId = "ciPropStatIcon")),
                 ),
                 fluidRow(
                   column(
-                    width = 3, 
-                    selectInput(
-                      inputId = "ciMeanFind",
-                      label = "What are you calculating?",
-                      choices = c(" ","Option 1","Option 2","Option 3","Option 4")
-                    )
-                  ),
-                  column(
-                    offset = 7,
+                    offset = 9,
                     width = 1,
                     bsButton(
-                      inputId = "ex2Reset",
+                      inputId = "ciPropReset",
                       label = "Reset"
                     )
                   ),
                   column(
                     width = 1,
                     bsButton(
-                      inputId = "ex2Submit",
+                      inputId = "ciPropSubmit",
                       label = "Submit"
                     )
                   )
@@ -379,7 +419,7 @@ ui <- list(
             column(
               width = 9,
               h4("1. Context"),
-              p("CONTEXT"),
+              p("CONTEXT")
             ),
             column(
               width = 3,
@@ -435,15 +475,7 @@ ui <- list(
                 ),
                 fluidRow(
                   column(
-                    width = 3, 
-                    selectInput(
-                      inputId = "ciMeanFind",
-                      label = "What are you calculating?",
-                      choices = c(" ","Option 1","Option 2","Option 3","Option 4")
-                    )
-                  ),
-                  column(
-                    offset = 7,
+                    offset = 9,
                     width = 1,
                     bsButton(
                       inputId = "ex2Reset",
@@ -524,6 +556,7 @@ ui <- list(
                 )
               )
             ),
+            #### Simulation ----
             h4("2. Simulation"),
             fluidRow(
               column(
@@ -562,7 +595,7 @@ ui <- list(
                 br(),
                 br(),
                 plotOutput('probSim'),
-                textOutput('resultProb'),
+                textOutput('resultProb')
               )
             )
           )
@@ -619,6 +652,7 @@ ui <- list(
   )
 )
 
+
 # Define server logic ----
 server <- function(input, output, session) {
   
@@ -670,62 +704,168 @@ server <- function(input, output, session) {
     }
   )
   
-  ## Probability ----
-  
-  observeEvent(input$guessSubmitProb, {
-    guess <- input$guessProb
-    if (0.22 <= guess && guess <= 0.26) {
-      output$guessIconProb <- renderIcon(icon = "correct", width = 30)
-    } else {
-      output$guessIconProb <- renderIcon(icon = "incorrect", width = 30)
+  ## Confidence Interval for Mean ----
+  observeEvent(
+    input$ciMeanSubmit,
+    handlerExpr = {
+      selectedOption <- input$ciMeanPop
+      if (selectedOption == "International airports in the Northeast region") {
+        output$ciMeanPopIcon <- renderIcon(icon = "correct", width = 30)
+      } else {
+        output$ciMeanPopIcon <- renderIcon(icon = "incorrect", width = 30)
+      }
     }
-  }
+  )
+  observeEvent(
+    input$ciMeanSubmit,
+    handlerExpr = {
+      selectedOption <- input$ciMeanPara
+      if (selectedOption == "Number of flights arriving/departing") {
+        output$ciMeanParaIcon <- renderIcon(icon = "correct", width = 30)
+      } else {
+        output$ciMeanParaIcon <- renderIcon(icon = "incorrect", width = 30)
+      }
+    }
+  )
+  observeEvent(
+    input$ciMeanSubmit,
+    handlerExpr = {
+      selectedOption <- input$ciMeanSamp
+      if (selectedOption == "6 International Airports") {
+        output$ciMeanSampIcon <- renderIcon(icon = "correct", width = 30)
+      } else {
+        output$ciMeanSampIcon <- renderIcon(icon = "incorrect", width = 30)
+      }
+    }
+  )
+  observeEvent(
+    input$ciMeanSubmit,
+    handlerExpr = {
+      selectedOption <- input$ciMeanStat
+      if (selectedOption == "20600") {
+        output$ciMeanStatIcon <- renderIcon(icon = "correct", width = 30)
+      } else {
+        output$ciMeanStatIcon <- renderIcon(icon = "incorrect", width = 30)
+      }
+    }
   )
   
-  observeEvent(input$simProb, {
-    trials <- input$trialsProb
-    nickRolls<- input$nickRollsProb
-    jennRolls <- input$jennRollsProb
-    
-    nickWin <- 0
-    tie <- 0 
-    jennWin <- 0
-    total_scores <- numeric(trials)
-    
-    for (i in 1:trials) {
-      nickResults <- sample(1:6, nickRolls, replace = TRUE)
-      jennResults <- sample(1:6, jennRolls, replace = TRUE)
-      nickSum <- sum(nickResults)
-      jennSum <- sum(jennResults)
-      
-      if (nickSum > jennSum) {
-        nickWin <- nickWin + 1
-      } else if (jennSum > nickSum) {
-        jennWin <- jennWin + 1
+  ### Simulation ----
+  
+  
+  ## Confidence Interval for Population----
+  observeEvent(
+    input$ciPropSubmit,
+    handlerExpr = {
+      selectedOption <- input$ciPropPop
+      if (selectedOption == "R1 Institutions") {
+        output$ciPropPopIcon <- renderIcon(icon = "correct", width = 30)
       } else {
-        tie <- tie + 1
+        output$ciPropPopIcon <- renderIcon(icon = "incorrect", width = 30)
       }
-      total_scores[i] <- nickSum - jennSum
     }
-    
-    probability <- nickWin / trials
-    
-    output$resultProb <- renderText({
-      paste("Probability that Nick gets a higher total:", probability, "\n")
+  )
+  observeEvent(
+    input$ciPropSubmit,
+    handlerExpr = {
+      selectedOption <- input$ciPropPara
+      if (selectedOption == "Students who switch into/stay within STEM") {
+        output$ciPropParaIcon <- renderIcon(icon = "correct", width = 30)
+      } else {
+        output$ciPropParaIcon <- renderIcon(icon = "incorrect", width = 30)
+      }
+    }
+  )
+  observeEvent(
+    input$ciPropSubmit,
+    handlerExpr = {
+      selectedOption <- input$ciPropSamp
+      if (selectedOption == "6 R1 Institutions") {
+        output$ciPropSampIcon <- renderIcon(icon = "correct", width = 30)
+      } else {
+        output$ciPropSampIcon <- renderIcon(icon = "incorrect", width = 30)
+      }
+    }
+  )
+  observeEvent(
+    input$ciPropSubmit,
+    handlerExpr = {
+      selectedOption <- input$ciPropStat
+      if (selectedOption == "37.80%") {
+        output$ciPropStatIcon <- renderIcon(icon = "correct", width = 30)
+      } else {
+        output$ciPropStatIcon <- renderIcon(icon = "incorrect", width = 30)
+      }
+    }
+  )
+  
+  
+
+  ### Simulation ----
+  
+  ## Hypothesis Test ----
+  ### Simulation ----
+  
+  ## Probability ----
+  
+  observeEvent(
+    input$guessSubmitProb,
+    handlerExpr = {
+      guess <- input$guessProb
+      if (0.22 <= guess && guess <= 0.26) {
+        output$guessIconProb <- renderIcon(icon = "correct", width = 30)
+      } else {
+        output$guessIconProb <- renderIcon(icon = "incorrect", width = 30)
+      }
+    }
+  )
+  
+  observeEvent(
+    input$simProb, 
+    handlerExpr = {
+      trials <- input$trialsProb
+      nickRolls <- input$nickRollsProb
+      jennRolls <- input$jennRollsProb
+      
+      nickWin <- 0
+      tie <- 0 
+      jennWin <- 0
+      total_scores <- numeric(trials)
+      
+      for (i in 1:trials) {
+        nickResults <- sample(1:6, nickRolls, replace = TRUE)
+        jennResults <- sample(1:6, jennRolls, replace = TRUE)
+        nickSum <- sum(nickResults)
+        jennSum <- sum(jennResults)
+        
+        if (nickSum > jennSum) {
+          nickWin <- nickWin + 1
+        } else if (jennSum > nickSum) {
+          jennWin <- jennWin + 1
+        } else {
+          tie <- tie + 1
+        }
+        total_scores[i] <- nickSum - jennSum
+      }
+      
+      probability <- nickWin / trials
+      
+      output$resultProb <- renderText({
+        paste("Estimated probability that Nick gets a higher total:", probability, "\n")
+      })
+      
+      output$probSim <- renderPlot({
+        result_df <- data.frame(
+          Outcome = c("Nick Wins", "Jennifer Wins", "Tie"),
+          Frequency = c(nickWin, jennWin, tie))
+        barplot(result_df$Frequency, names.arg = result_df$Outcome,
+                main = "Distribution of Outcomes",
+                xlab = "Outcome", 
+                ylab = "Frequency", 
+                col = "blue", 
+                ylim = c(0, max(result_df$Frequency) * 1.1))
+      })
     })
-    
-    output$probSim <- renderPlot({
-      result_df <- data.frame(
-        Outcome = c("Nick Wins", "Jennifer Wins", "Tie"),
-        Frequency = c(nickWin, jennWin, tie))
-      barplot(result_df$Frequency, names.arg = result_df$Outcome,
-              main = "Distribution of Outcomes",
-              xlab = "Outcome", 
-              ylab = "Frequency", 
-              col = "blue", 
-              ylim = c(0, max(result_df$Frequency) * 1.1))
-    })
-  })
 }
 
 # Boast App Call ----
