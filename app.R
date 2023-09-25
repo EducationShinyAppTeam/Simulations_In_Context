@@ -903,6 +903,8 @@ server <- function(input, output, session) {
   
   ## Probability ----
 
+  probability <- reactiveVal(0)
+  
   observeEvent(
     input$simProb, 
     handlerExpr = {
@@ -931,10 +933,10 @@ server <- function(input, output, session) {
         totalScore[i] <- nickSum - jennSum
       }
       
-      probability <- nickWin / trials
+      probability(nickWin / trials)
       
       output$resultProb <- renderText({
-        paste("Estimated probability that Nick gets a higher total:", round(probability,4), "\n")
+        paste("Estimated probability that Nick gets a higher total:", round(probability(),4), "\n")
       })
       
       output$probSim <- renderPlot({
@@ -961,21 +963,24 @@ server <- function(input, output, session) {
       
       
       # SET GUESS == PROBABILITY (REACTIVE VAL)
-      if (trials > 100 && nickRolls == 5 && jennRolls == 6 && 0.22 <= guess && guess <= 0.26) {
+      if (trials > 100 && nickRolls == 5 && jennRolls == 6 && abs(probability() - guess) < 0.001) {
         output$guessIconProb <- renderIcon(icon = "correct", width = 30)
+        output$guessProbFeedback <- renderText(" ")
+      } else if (trials > 100 && nickRolls == 5 && jennRolls == 6) { 
+        output$guessIconProb <- renderIcon(icon = "incorrect", width = 30)
+        output$guessProbFeedback <- renderText("Look at the estimated probability below the chart")
       } else if (trials < 100 && nickRolls == 5 && jennRolls == 6) { 
         output$guessIconProb <- renderIcon(icon = "incorrect", width = 30)
         output$guessProbFeedback <- renderText("Keep in mind how many trials should be used")
-      } else if((nickRolls != 5 | jennRolls!= 6) & trials > 100) {
+      } else if ((nickRolls != 5 | jennRolls != 6) & trials > 100) {
         output$guessIconProb <- renderIcon(icon = "incorrect", width = 30)
         output$guessProbFeedback <- renderText("Double check the number of rolls for Nick and Jenn")
       } else {
         output$guessIconProb <- renderIcon(icon = "incorrect", width = 30)
+        output$guessProbFeedback <- renderText("set the simulation options according to the context")
       }
     }
   )
-  
-  
 }
 
 # Boast App Call ----
