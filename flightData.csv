@@ -1,0 +1,254 @@
+IATA,State,Year,Month,Group ,Flights
+PHL,PA,2020,January,Group 3 ,26100
+PHL,PA,2020,February,Group 3 ,25800
+PHL,PA,2020,March,Group 3 ,23700
+PHL,PA,2020,April,Group 4,19600
+PHL,PA,2020,May,Group 4,8140
+PHL,PA,2020,June,Group 4,6850
+PHL,PA,2020,July,Group 1,13700
+PHL,PA,2020,August,Group 1,17400
+PHL,PA,2020,September,Group 1,14800
+PHL,PA,2020,October,Group 2,13200
+PHL,PA,2020,November,Group 2,13900
+PHL,PA,2020,December,Group 2,14400
+PHL,PA,2021,January,Group 3 ,12200
+PHL,PA,2021,February,Group 3 ,11000
+PHL,PA,2021,March,Group 3 ,12000
+PHL,PA,2021,April,Group 4,6420
+PHL,PA,2021,May,Group 4,15200
+PHL,PA,2021,June,Group 4,18900
+PHL,PA,2021,July,Group 1,27400
+PHL,PA,2021,August,Group 1,28200
+PHL,PA,2021,September,Group 1,26600
+PHL,PA,2021,October,Group 2,28200
+PHL,PA,2021,November,Group 2,21000
+PHL,PA,2021,December,Group 2,23000
+PHL,PA,2022,January,Group 3 ,20000
+PHL,PA,2022,February,Group 3 ,20800
+PHL,PA,2022,March,Group 3 ,22000
+PHL,PA,2022,April,Group 4,25500
+PHL,PA,2022,May,Group 4,26200
+PHL,PA,2022,June,Group 4,26600
+PHL,PA,2022,July,Group 1,27000
+PHL,PA,2022,August,Group 1,26100
+PHL,PA,2022,September,Group 1,24000
+PHL,PA,2022,October,Group 2,29700
+PHL,PA,2022,November,Group 2,22700
+PHL,PA,2022,December,Group 2,22200
+PHL,PA,2023,January,Group 3 ,20600
+PHL,PA,2023,February,Group 3 ,18200
+PHL,PA,2023,March,Group 3 ,22000
+PHL,PA,2023,April,Group 4,19200
+PHL,PA,2023,May,Group 4,21100
+PHL,PA,2023,June,Group 4,24400
+PHL,PA,2023,July,Group 1,25300
+PHL,PA,2023,August,Group 1,25400
+EWR,NJ,2020,January,Group 3 ,35100
+EWR,NJ,2020,February,Group 3 ,33600
+EWR,NJ,2020,March,Group 3 ,30500
+EWR,NJ,2020,April,Group 4,8950
+EWR,NJ,2020,May,Group 4,4600
+EWR,NJ,2020,June,Group 4,4970
+EWR,NJ,2020,July,Group 1,12500
+EWR,NJ,2020,August,Group 1,15800
+EWR,NJ,2020,September,Group 1,14000
+EWR,NJ,2020,October,Group 2,16100
+EWR,NJ,2020,November,Group 2,16300
+EWR,NJ,2020,December,Group 2,16900
+EWR,NJ,2021,January,Group 3 ,14400
+EWR,NJ,2021,February,Group 3 ,13300
+EWR,NJ,2021,March,Group 3 ,14400
+EWR,NJ,2021,April,Group 4,7280
+EWR,NJ,2021,May,Group 4,18000
+EWR,NJ,2021,June,Group 4,20800
+EWR,NJ,2021,July,Group 1,28700
+EWR,NJ,2021,August,Group 1,29400
+EWR,NJ,2021,September,Group 1,28800
+EWR,NJ,2021,October,Group 2,33300
+EWR,NJ,2021,November,Group 2,33400
+EWR,NJ,2021,December,Group 2,35900
+EWR,NJ,2022,January,Group 3 ,32800
+EWR,NJ,2022,February,Group 3 ,33100
+EWR,NJ,2022,March,Group 3 ,35300
+EWR,NJ,2022,April,Group 4,39600
+EWR,NJ,2022,May,Group 4,42500
+EWR,NJ,2022,June,Group 4,42700
+EWR,NJ,2022,July,Group 1,39000
+EWR,NJ,2022,August,Group 1,39400
+EWR,NJ,2022,September,Group 1,35400
+EWR,NJ,2022,October,Group 2,44900
+EWR,NJ,2022,November,Group 2,35300
+EWR,NJ,2022,December,Group 2,35400
+EWR,NJ,2023,January,Group 3 ,34700
+EWR,NJ,2023,February,Group 3 ,30600
+EWR,NJ,2023,March,Group 3 ,36900
+EWR,NJ,2023,April,Group 4,29200
+EWR,NJ,2023,May,Group 4,34500
+EWR,NJ,2023,June,Group 4,36400
+EWR,NJ,2023,July,Group 1,37000
+EWR,NJ,2023,August,Group 1,36400
+JFK,NY,2020,January,Group 3 ,34600
+JFK,NY,2020,February,Group 3 ,33200
+JFK,NY,2020,March,Group 3 ,30700
+JFK,NY,2020,April,Group 4,13200
+JFK,NY,2020,May,Group 4,6280
+JFK,NY,2020,June,Group 4,6140
+JFK,NY,2020,July,Group 1,11300
+JFK,NY,2020,August,Group 1,15600
+JFK,NY,2020,September,Group 1,13500
+JFK,NY,2020,October,Group 2,15500
+JFK,NY,2020,November,Group 2,15800
+JFK,NY,2020,December,Group 2,16400
+JFK,NY,2021,January,Group 3 ,14800
+JFK,NY,2021,February,Group 3 ,13500
+JFK,NY,2021,March,Group 3 ,14900
+JFK,NY,2021,April,Group 4,7560
+JFK,NY,2021,May,Group 4,20900
+JFK,NY,2021,June,Group 4,23500
+JFK,NY,2021,July,Group 1,32900
+JFK,NY,2021,August,Group 1,33700
+JFK,NY,2021,September,Group 1,32500
+JFK,NY,2021,October,Group 2,32900
+JFK,NY,2021,November,Group 2,32400
+JFK,NY,2021,December,Group 2,34900
+JFK,NY,2022,January,Group 3 ,36200
+JFK,NY,2022,February,Group 3 ,36800
+JFK,NY,2022,March,Group 3 ,38700
+JFK,NY,2022,April,Group 4,41500
+JFK,NY,2022,May,Group 4,43600
+JFK,NY,2022,June,Group 4,44200
+JFK,NY,2022,July,Group 1,45300
+JFK,NY,2022,August,Group 1,44500
+JFK,NY,2022,September,Group 1,42000
+JFK,NY,2022,October,Group 2,66400
+JFK,NY,2022,November,Group 2,40800
+JFK,NY,2022,December,Group 2,38100
+JFK,NY,2023,January,Group 3 ,37100
+JFK,NY,2023,February,Group 3 ,34100
+JFK,NY,2023,March,Group 3 ,40500
+JFK,NY,2023,April,Group 4,32400
+JFK,NY,2023,May,Group 4,39500
+JFK,NY,2023,June,Group 4,40300
+JFK,NY,2023,July,Group 1,42200
+JFK,NY,2023,August,Group 1,42000
+BOS,MA,2020,January,Group 3 ,31400
+BOS,MA,2020,February,Group 3 ,30900
+BOS,MA,2020,March,Group 3 ,29700
+BOS,MA,2020,April,Group 4,15400
+BOS,MA,2020,May,Group 4,8360
+BOS,MA,2020,June,Group 4,9110
+BOS,MA,2020,July,Group 1,14800
+BOS,MA,2020,August,Group 1,16700
+BOS,MA,2020,September,Group 1,14200
+BOS,MA,2020,October,Group 2,14200
+BOS,MA,2020,November,Group 2,14000
+BOS,MA,2020,December,Group 2,14200
+BOS,MA,2021,January,Group 3 ,12400
+BOS,MA,2021,February,Group 3 ,11500
+BOS,MA,2021,March,Group 3 ,13000
+BOS,MA,2021,April,Group 4,6950
+BOS,MA,2021,May,Group 4,17000
+BOS,MA,2021,June,Group 4,20600
+BOS,MA,2021,July,Group 1,29000
+BOS,MA,2021,August,Group 1,30400
+BOS,MA,2021,September,Group 1,30400
+BOS,MA,2021,October,Group 2,31600
+BOS,MA,2021,November,Group 2,26200
+BOS,MA,2021,December,Group 2,27100
+BOS,MA,2022,January,Group 3 ,26500
+BOS,MA,2022,February,Group 3 ,27200
+BOS,MA,2022,March,Group 3 ,29400
+BOS,MA,2022,April,Group 4,34400
+BOS,MA,2022,May,Group 4,36700
+BOS,MA,2022,June,Group 4,37900
+BOS,MA,2022,July,Group 1,39800
+BOS,MA,2022,August,Group 1,40000
+BOS,MA,2022,September,Group 1,38000
+BOS,MA,2022,October,Group 2,51300
+BOS,MA,2022,November,Group 2,33100
+BOS,MA,2022,December,Group 2,30500
+BOS,MA,2023,January,Group 3 ,28800
+BOS,MA,2023,February,Group 3 ,26800
+BOS,MA,2023,March,Group 3 ,33700
+BOS,MA,2023,April,Group 4,26600
+BOS,MA,2023,May,Group 4,34200
+BOS,MA,2023,June,Group 4,35300
+BOS,MA,2023,July,Group 1,36800
+BOS,MA,2023,August,Group 1,37100
+BWI,MD,2020,January,Group 3 ,17600
+BWI,MD,2020,February,Group 3 ,17000
+BWI,MD,2020,March,Group 3 ,18600
+BWI,MD,2020,April,Group 4,14600
+BWI,MD,2020,May,Group 4,8220
+BWI,MD,2020,June,Group 4,10100
+BWI,MD,2020,July,Group 1,14500
+BWI,MD,2020,August,Group 1,16100
+BWI,MD,2020,September,Group 1,13400
+BWI,MD,2020,October,Group 2,13200
+BWI,MD,2020,November,Group 2,13400
+BWI,MD,2020,December,Group 2,12800
+BWI,MD,2021,January,Group 3 ,11900
+BWI,MD,2021,February,Group 3 ,10500
+BWI,MD,2021,March,Group 3 ,12800
+BWI,MD,2021,April,Group 4,6680
+BWI,MD,2021,May,Group 4,14600
+BWI,MD,2021,June,Group 4,15100
+BWI,MD,2021,July,Group 1,20800
+BWI,MD,2021,August,Group 1,22600
+BWI,MD,2021,September,Group 1,23300
+BWI,MD,2021,October,Group 2,23300
+BWI,MD,2021,November,Group 2,15900
+BWI,MD,2021,December,Group 2,16500
+BWI,MD,2022,January,Group 3 ,15700
+BWI,MD,2022,February,Group 3 ,16000
+BWI,MD,2022,March,Group 3 ,17000
+BWI,MD,2022,April,Group 4,20100
+BWI,MD,2022,May,Group 4,21300
+BWI,MD,2022,June,Group 4,21100
+BWI,MD,2022,July,Group 1,22800
+BWI,MD,2022,August,Group 1,22100
+BWI,MD,2022,September,Group 1,20900
+BWI,MD,2022,October,Group 2,21100
+BWI,MD,2022,November,Group 2,17300
+BWI,MD,2022,December,Group 2,18100
+BWI,MD,2023,January,Group 3 ,16800
+BWI,MD,2023,February,Group 3 ,14000
+BWI,MD,2023,March,Group 3 ,17900
+BWI,MD,2023,April,Group 4,15800
+BWI,MD,2023,May,Group 4,18900
+BWI,MD,2023,June,Group 4,18900
+BWI,MD,2023,July,Group 1,19800
+BWI,MD,2023,August,Group 1,19600
+PIT,PA,2020,December,Group 2,5470
+PIT,PA,2021,January,Group 3 ,5410
+PIT,PA,2021,February,Group 3 ,5020
+PIT,PA,2021,March,Group 3 ,5990
+PIT,PA,2021,April,Group 4,3690
+PIT,PA,2021,May,Group 4,7080
+PIT,PA,2021,June,Group 4,8070
+PIT,PA,2021,July,Group 1,9510
+PIT,PA,2021,August,Group 1,10000
+PIT,PA,2021,September,Group 1,9970
+PIT,PA,2021,October,Group 2,11100
+PIT,PA,2021,November,Group 2,9150
+PIT,PA,2021,December,Group 2,9330
+PIT,PA,2022,January,Group 3 ,8750
+PIT,PA,2022,February,Group 3 ,8750
+PIT,PA,2022,March,Group 3 ,9270
+PIT,PA,2022,April,Group 4,10200
+PIT,PA,2022,May,Group 4,10700
+PIT,PA,2022,June,Group 4,10400
+PIT,PA,2022,July,Group 1,10700
+PIT,PA,2022,August,Group 1,10100
+PIT,PA,2022,September,Group 1,9460
+PIT,PA,2022,October,Group 2,11400
+PIT,PA,2022,November,Group 2,8440
+PIT,PA,2022,December,Group 2,8810
+PIT,PA,2023,January,Group 3 ,8400
+PIT,PA,2023,February,Group 3 ,7260
+PIT,PA,2023,March,Group 3 ,9250
+PIT,PA,2023,April,Group 4,9180
+PIT,PA,2023,May,Group 4,9470
+PIT,PA,2023,June,Group 4,9910
+PIT,PA,2023,July,Group 1,10200
+PIT,PA,2023,August,Group 1,10000
