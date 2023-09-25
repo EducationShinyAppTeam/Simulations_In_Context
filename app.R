@@ -11,6 +11,8 @@ library(boot)
 
 # Datasets ----
 
+flightData <- read.csv(file = "flightData.csv", stringsAsFactors = FALSE)
+
 # Define UI for App ----
 ui <- list(
   ## App page ----
@@ -156,29 +158,54 @@ ui <- list(
         ### Confidence Interval for Mean ----
         tabItem(
           tabName = "ciMean",
+          h4("1. Context"),
           fluidRow(
             column(
               width = 9,
-              h4("1. Context"),
               p("Every year thousands of airplanes takeoff and land at international
                 airports. 6 international airports from the northeast region of the
                 USA were samples. It would found that the mean number of planes 
                 that landed and took off at this airport was 22253.162, the median 
                 of 20600 with sd of 11398.343. Create a 90% confidence interval 
                 for the numbers of flights departing/arriving at northeast airports
-                from Q4 of the fiscal year. ")
+                from Q4 of the fiscal year. "),
             ),
             column(
               width = 3,
               tags$figure(
                 tags$img(
-                  src = "hov2.jpg",
-                  width = "100%",
+                  src = "die.jpg",
+                  width = "50%",
                   alt = "HOV lane street sign"
                 )
               )
             )
           ),
+          fluidRow(
+            column( 
+              width = 2,
+              numericInput(
+                inputId = 'ciMeanLower',
+                label = 'Lower Bound: ',
+                value = 0.0
+              )
+            ),
+            column(width = 1, uiOutput(outputId = "ciMeanLowerIcon")),
+            column(
+              width = 2, 
+              numericInput(
+                inputId = 'ciMeanUpper',
+                label = 'Upper Bound: ',
+                value = 0.0
+              )
+            ),
+            column(width = 1, uiOutput(outputId = "ciMeanUpperIcon")),
+          ),
+          bsButton(
+            inputId = "ciMeanGuessSubmit",
+            label = 'Submit'
+          ),
+          br(),
           tabsetPanel(
             id = "simulationType",
             ##### Identifying Components ----
@@ -262,9 +289,9 @@ ui <- list(
                     sliderInput(
                       inputId = "ciMeanSM",
                       label = "Sample Mean",
-                      min = 10000, 
-                      max = 30000,
-                      value = 15000
+                      min = 20000, 
+                      max = 25000,
+                      value = 22500
                     ),
                     sliderInput(
                       inputId = "ciMeanNumSamp",
@@ -286,8 +313,6 @@ ui <- list(
                 ),
                 column(
                   width = 8,
-                  br(),
-                  br(),
                   plotOutput("ciMeanSim")
                 )
               )
@@ -297,10 +322,10 @@ ui <- list(
         ### CI for Prop ----
         tabItem(
           tabName = "ciProp",
+          h4("1. Context"),
           fluidRow(
             column(
-              width = 9,
-              h4("1. Context"),
+              width = 9, 
               p("Researchers were curious about the retention rate of students with 
                 Science, Technology, Engineering, and Mathematic (STEM) majors.
                 They gathered data on 6 R1 College Instiutions. Of the students 
@@ -314,13 +339,38 @@ ui <- list(
               width = 3,
               tags$figure(
                 tags$img(
-                  src = "hov2.jpg",
-                  width = "100%",
+                  src = "die.jpg",
+                  width = "50%",
                   alt = "HOV lane street sign"
                 )
               )
             )
           ),
+          fluidRow(
+            column( 
+              width = 2,
+              numericInput(
+                inputId = 'ciPropLower',
+                label = 'Lower Bound: ',
+                value = 0.0
+              )
+            ),
+            column(width = 1, uiOutput(outputId = "ciPropLowerIcon")),
+            column(
+              width = 2, 
+              numericInput(
+                inputId = 'ciPropUpper',
+                label = 'Upper Bound: ',
+                value = 0.0
+              )
+            ),
+            column(width = 1, uiOutput(outputId = "ciPropUpperIcon")),
+          ),
+          bsButton(
+            inputId = "ciPropGuessSubmit",
+            label = 'Submit'
+          ),
+          br(),
           tabsetPanel(
             id = "simulationType",
             ##### Identifying Components ----
@@ -404,8 +454,6 @@ ui <- list(
                 ),
                 column(
                   width = 8,
-                  br(),
-                  br(),
                   p("Simulation Output Here")
                 )
               )
@@ -415,18 +463,18 @@ ui <- list(
         ### Hypothesis Test ----
         tabItem(
           tabName = "hypTest",
+          h4("1. Context"),
           fluidRow(
             column(
               width = 9,
-              h4("1. Context"),
               p("CONTEXT")
             ),
             column(
               width = 3,
               tags$figure(
                 tags$img(
-                  src = "hov2.jpg",
-                  width = "100%",
+                  src = "die.jpg",
+                  width = "50%",
                   alt = "HOV lane street sign"
                 )
               )
@@ -505,8 +553,6 @@ ui <- list(
                 ),
                 column(
                   width = 8,
-                  br(),
-                  br(),
                   p("Simulation Output Here")
                 )
               )
@@ -517,45 +563,48 @@ ui <- list(
         ### Probability ----
         tabItem(
           tabName = "prob",
-          tabsetPanel(
-            id = "simulationType",
-            fluidRow(
-              column(
-                width = 9,
-                h4("1. Context"),
-                p("Nick and Jennifer were rolling dice to see who could get
+          h4("1. Context"),
+          fluidRow(
+            column(
+              width = 9,
+              p("Nick and Jennifer were rolling dice to see who could get
                   a higher total. Nick claims that he can get a higher total with
                   less dice rolls, but Jennifer does not believe him. So Nick rolls 
                   5 die  while Jennifer rolls 6 at once. What is the probability 
                   that Nick gets a higher total than Jennifer?"),
-                numericInput(
-                  inputId = 'guessProb',
-                  label = 'Probability that Nick wins: ',
-                  value = 0.0
-                ),
-                fluidRow(
-                  column(
-                    width = 2,
-                    bsButton(
-                      inputId = "guessSubmitProb",
-                      label = 'Submit'
-                    )
-                  ),
-                  column(width = 1, uiOutput(outputId = "guessIconProb")
-                  )
-                )
-              ),
-              column(
-                width = 3,
-                tags$figure(
-                  tags$img(
-                    src = "die.jpg",
-                    width = "100%",
-                    alt = "2 die rolling. "
-                  )
+            ),
+            column(
+              width = 3,
+              tags$figure(
+                tags$img(
+                  src = "die.jpg",
+                  width = "50%",
+                  alt = "2 die rolling. "
                 )
               )
+            )
+          ),
+          fluidRow(
+            column(
+              width = 3, 
+              numericInput(
+                inputId = 'guessProb',
+                label = 'Probability that Nick wins: ',
+                value = 0.0
+              )
             ),
+            column(width = 1, uiOutput(outputId = "guessIconProb")),
+            column(width = 6, textOutput(outputId = "guessProbFeedback"))
+          ),
+          fluidRow(
+            column(
+              width = 2,
+              bsButton(
+                inputId = "guessSubmitProb",
+                label = 'Submit'
+              )
+            )
+          ),
             #### Simulation ----
             h4("2. Simulation"),
             fluidRow(
@@ -592,13 +641,10 @@ ui <- list(
               ),
               column(
                 width = 8,
-                br(),
-                br(),
                 plotOutput('probSim'),
                 textOutput('resultProb')
               )
             )
-          )
         ),
         ### References Page ----
         tabItem(
@@ -651,6 +697,7 @@ ui <- list(
     )
   )
 )
+
 
 
 # Define server logic ----
@@ -749,11 +796,49 @@ server <- function(input, output, session) {
       }
     }
   )
+   
+  #### Reset
+  observeEvent(
+    eventExpr = input$ciMeanReset,
+    handlerExpr = {
+      output$ciMeanPopIcon <- renderIcon()
+      output$ciMeanParaIcon <- renderIcon()
+      output$ciMeanSampIcon <- renderIcon()
+      output$ciMeanStatIcon <- renderIcon()
+    }
+  )
   
   ### Simulation ----
+  observeEvent(
+    input$simCIMean, 
+    handlerExpr = {
+      sampleMean <- input$ciMeanSM
+      numSamp <- input$ciMaeanNumSamp
+      cl <- input$ciMeanCL
+    
+      Bookout<- boot::boot(
+        data = flightData,
+        stat = sampleMean, 
+        strata = rep(1:numSamp)
+      )
+      
+      boot::boot.ci(
+        boot.out = Bookout,
+        conf = cl,
+        type = c("perc")
+      )
+      
+      output$ciMeanSim <- renderPlot(
+        expr = {
+          
+        }
+      )
+      
+      
+  })
   
   
-  ## Confidence Interval for Population----
+  ## Confidence Interval for Proportion----
   observeEvent(
     input$ciPropSubmit,
     handlerExpr = {
@@ -799,6 +884,16 @@ server <- function(input, output, session) {
     }
   )
   
+  #### Reset
+  observeEvent(
+    eventExpr = input$ciPropReset,
+    handlerExpr = {
+      output$ciPropPopIcon <- renderIcon()
+      output$ciPropParaIcon <- renderIcon()
+      output$ciPropSampIcon <- renderIcon()
+      output$ciPropStatIcon <- renderIcon()
+    }
+  )
   
 
   ### Simulation ----
@@ -807,19 +902,7 @@ server <- function(input, output, session) {
   ### Simulation ----
   
   ## Probability ----
-  
-  observeEvent(
-    input$guessSubmitProb,
-    handlerExpr = {
-      guess <- input$guessProb
-      if (0.22 <= guess && guess <= 0.26) {
-        output$guessIconProb <- renderIcon(icon = "correct", width = 30)
-      } else {
-        output$guessIconProb <- renderIcon(icon = "incorrect", width = 30)
-      }
-    }
-  )
-  
+
   observeEvent(
     input$simProb, 
     handlerExpr = {
@@ -830,7 +913,7 @@ server <- function(input, output, session) {
       nickWin <- 0
       tie <- 0 
       jennWin <- 0
-      total_scores <- numeric(trials)
+      totalScore <- numeric(trials)
       
       for (i in 1:trials) {
         nickResults <- sample(1:6, nickRolls, replace = TRUE)
@@ -845,27 +928,54 @@ server <- function(input, output, session) {
         } else {
           tie <- tie + 1
         }
-        total_scores[i] <- nickSum - jennSum
+        totalScore[i] <- nickSum - jennSum
       }
       
       probability <- nickWin / trials
       
       output$resultProb <- renderText({
-        paste("Estimated probability that Nick gets a higher total:", probability, "\n")
+        paste("Estimated probability that Nick gets a higher total:", round(probability,4), "\n")
       })
       
       output$probSim <- renderPlot({
-        result_df <- data.frame(
-          Outcome = c("Nick Wins", "Jennifer Wins", "Tie"),
-          Frequency = c(nickWin, jennWin, tie))
-        barplot(result_df$Frequency, names.arg = result_df$Outcome,
+        results <- data.frame(
+          outcome = c("Nick Wins", "Jennifer Wins", "Tie"),
+          frequency = c(nickWin, jennWin, tie))
+        barplot(results$frequency, names.arg = results$outcome,
                 main = "Distribution of Outcomes",
                 xlab = "Outcome", 
                 ylab = "Frequency", 
                 col = "blue", 
-                ylim = c(0, max(result_df$Frequency) * 1.1))
+                ylim = c(0, max(results$frequency) * 1.1))
       })
+      
     })
+  
+  observeEvent(
+    input$guessSubmitProb,
+    handlerExpr = {
+      guess <- input$guessProb
+      trials <- input$trialsProb
+      nickRolls <- input$nickRollsProb
+      jennRolls <- input$jennRollsProb
+      
+      
+      # SET GUESS == PROBABILITY (REACTIVE VAL)
+      if (trials > 100 && nickRolls == 5 && jennRolls == 6 && 0.22 <= guess && guess <= 0.26) {
+        output$guessIconProb <- renderIcon(icon = "correct", width = 30)
+      } else if (trials < 100 && nickRolls == 5 && jennRolls == 6) { 
+        output$guessIconProb <- renderIcon(icon = "incorrect", width = 30)
+        output$guessProbFeedback <- renderText("Keep in mind how many trials should be used")
+      } else if((nickRolls != 5 | jennRolls!= 6) & trials > 100) {
+        output$guessIconProb <- renderIcon(icon = "incorrect", width = 30)
+        output$guessProbFeedback <- renderText("Double check the number of rolls for Nick and Jenn")
+      } else {
+        output$guessIconProb <- renderIcon(icon = "incorrect", width = 30)
+      }
+    }
+  )
+  
+  
 }
 
 # Boast App Call ----
