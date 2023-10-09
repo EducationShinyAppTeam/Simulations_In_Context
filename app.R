@@ -165,8 +165,8 @@ ui <- list(
               p("Every year thousands of airplanes takeoff and land at international
                 airports. 6 international airports from the northeast region of the
                 USA were samples. It would found that the mean number of planes 
-                that landed and took off at this airport was 22253.162, the median 
-                of 20600 with sd of 11398.343. Create a 90% confidence interval 
+                that landed and took off at this airport was 22,253.162, the median 
+                of 20,600. Create a 90% confidence interval 
                 for the numbers of flights departing/arriving at northeast airports
                 from Q4 of the fiscal year. "),
             ),
@@ -302,8 +302,8 @@ ui <- list(
                     ),
                     numericInput(
                       inputId = "ciMeanCL",
-                      label = 'Confidence Level (between 1-99%',
-                      value = 95
+                      label = 'Confidence Level',
+                      value = 0.95
                     ),
                     bsButton(
                       inputId = "simCIMean",
@@ -449,12 +449,34 @@ ui <- list(
                 column(
                   width = 4,
                   wellPanel(
-                    p("Simulation Options Here")
+                    sliderInput(
+                      inputId = "ciPropSM",
+                      label = "Sample Mean",
+                      min = 0, 
+                      max = 1,
+                      value = .5
+                    ),
+                    sliderInput(
+                      inputId = "ciMeanPropSamp",
+                      label = "Number of samples",
+                      min = 1, 
+                      max = 5000,
+                      value = 2500
+                    ),
+                    numericInput(
+                      inputId = "ciPropCL",
+                      label = 'Confidence Level',
+                      value = 0.95
+                    ),
+                    bsButton(
+                      inputId = "simCIPop",
+                      label = "Simulate"
+                    )
                   )
                 ),
                 column(
                   width = 8,
-                  p("Simulation Output Here")
+                  plotOutput("ciPopSim")
                 )
               )
             )
@@ -569,8 +591,8 @@ ui <- list(
               width = 9,
               p("Nick and Jennifer were rolling dice to see who could get
                   a higher total. Nick claims that he can get a higher total with
-                  less dice rolls, but Jennifer does not believe him. So Nick rolls 
-                  5 die  while Jennifer rolls 6 at once. What is the probability 
+                  less die, but Jennifer does not believe him. So Nick rolls 
+                  5 die  while Jennifer rolls 6 die at once. What is the probability 
                   that Nick gets a higher total than Jennifer?"),
             ),
             column(
@@ -809,34 +831,49 @@ server <- function(input, output, session) {
   )
   
   ### Simulation ----
-  observeEvent(
+    observeEvent(
     input$simCIMean, 
     handlerExpr = {
       sampleMean <- input$ciMeanSM
-      numSamp <- input$ciMaeanNumSamp
+      numSamp <- input$ciMeanNumSamp
       cl <- input$ciMeanCL
-    
-      Bookout<- boot::boot(
+      
+      stat <- function(data, index) {
+        subset_data <- data$Flights[index] 
+        statistic_value <- mean(subset_data) 
+        return(statistic_value)
+      }
+      
+      set.seed(461)
+      
+      flightData
+      bootOut <- boot::boot(
         data = flightData,
-        stat = sampleMean, 
-        strata = rep(1:numSamp)
+        statistic = stat,
+        R = numSamp
       )
       
-      boot::boot.ci(
-        boot.out = Bookout,
+      bootCI <- boot::boot.ci(
+        boot.out = bootOut,
         conf = cl,
-        type = c("perc")
+        type = "perc"
       )
       
+      lower <- (1 - cl)/2
+      upper <- cl + lower 
+
       output$ciMeanSim <- renderPlot(
         expr = {
+          ggplot() +
+            geom_histogram(data = data.frame(x = bootOut$t), aes(x = x), bins = 15) +
+            geom_vline(xintercept = quantile(bootOut$t, c(lower, upper)), color = "red", linetype = "dashed") +
+            labs(x = "Bootstrap", y = "Frequency")
           
         }
       )
-      
-      
-  })
+    })
   
+
   
   ## Confidence Interval for Proportion----
   observeEvent(
@@ -897,6 +934,7 @@ server <- function(input, output, session) {
   
 
   ### Simulation ----
+
   
   ## Hypothesis Test ----
   ### Simulation ----
