@@ -167,8 +167,7 @@ ui <- list(
                 USA were samples. It would found that the mean number of planes 
                 that landed and took off at this airport was 22,253.162, the median 
                 of 20,600. Create a 90% confidence interval 
-                for the numbers of flights departing/arriving at northeast airports
-                from Q4 of the fiscal year. "),
+                for the numbers of flights departing/arriving at northeast airports."),
             ),
             column(
               width = 3,
@@ -201,9 +200,15 @@ ui <- list(
             ),
             column(width = 1, uiOutput(outputId = "ciMeanUpperIcon")),
           ),
-          bsButton(
-            inputId = "ciMeanGuessSubmit",
-            label = 'Submit'
+          fluidRow(
+            column(
+              width = 2,
+              bsButton(
+                inputId = "ciMeanGuessSubmit",
+                label = 'Submit'
+              )
+            ),
+            column(width = 10, textOutput(outputId = "ciMeanGuessFeedback"))
           ),
           br(),
           tabsetPanel(
@@ -294,8 +299,8 @@ ui <- list(
                       value = 22500
                     ),
                     sliderInput(
-                      inputId = "ciMeanNumSamp",
-                      label = "Number of samples",
+                      inputId = "ciMeanNumRep",
+                      label = "Number of Replications",
                       min = 1, 
                       max = 5000,
                       value = 2500
@@ -305,15 +310,21 @@ ui <- list(
                       label = 'Confidence Level',
                       value = 0.95
                     ),
+                    checkboxInput(
+                      inputId = "ciMeanReplications",
+                      label = "Use Replication",
+                      value = FALSE
+                    ),
                     bsButton(
                       inputId = "simCIMean",
                       label = "Simulate"
-                    )
+                    ),
                   )
                 ),
                 column(
                   width = 8,
-                  plotOutput("ciMeanSim")
+                  plotOutput("ciMeanSim"),
+                  textOutput('ciMeanResults')
                 )
               )
             )
@@ -457,8 +468,8 @@ ui <- list(
                       value = .5
                     ),
                     sliderInput(
-                      inputId = "ciMeanPropSamp",
-                      label = "Number of samples",
+                      inputId = "ciPropSamp",
+                      label = "Number of Replicaions",
                       min = 1, 
                       max = 5000,
                       value = 2500
@@ -615,8 +626,7 @@ ui <- list(
                 value = 0.0
               )
             ),
-            column(width = 1, uiOutput(outputId = "guessIconProb")),
-            column(width = 6, textOutput(outputId = "guessProbFeedback"))
+            column(width = 1, uiOutput(outputId = "guessIconProb"))
           ),
           fluidRow(
             column(
@@ -625,7 +635,8 @@ ui <- list(
                 inputId = "guessSubmitProb",
                 label = 'Submit'
               )
-            )
+            ),
+            column(width = 10, textOutput(outputId = "guessProbFeedback"))
           ),
             #### Simulation ----
             h4("2. Simulation"),
@@ -831,11 +842,14 @@ server <- function(input, output, session) {
   )
   
   ### Simulation ----
+    upperCI <- reactiveVal(0)
+    lowerCI <- reactiveVal(0)
+  
     observeEvent(
     input$simCIMean, 
     handlerExpr = {
       sampleMean <- input$ciMeanSM
-      numSamp <- input$ciMeanNumSamp
+      numRep <- input$ciMeanNumRep
       cl <- input$ciMeanCL
       
       stat <- function(data, index) {
@@ -850,7 +864,7 @@ server <- function(input, output, session) {
       bootOut <- boot::boot(
         data = flightData,
         statistic = stat,
-        R = numSamp
+        R = numRep
       )
       
       bootCI <- boot::boot.ci(
@@ -861,17 +875,60 @@ server <- function(input, output, session) {
       
       lower <- (1 - cl)/2
       upper <- cl + lower 
-
+      cii <- quantile(bootOut$t, c(lower, upper)) 
+      
+      upperCI(round(cii[2],2))
+      lowerCI(round(cii[1],2))
+      
+      
+      output$ciMeanResults <- renderText({
+        paste("Lower Confidence Interval:", round(cii[1], 2), "\n",
+              "Upper Confidence Interval:", round(cii[2], 2))
+      })
+      
       output$ciMeanSim <- renderPlot(
         expr = {
           ggplot() +
             geom_histogram(data = data.frame(x = bootOut$t), aes(x = x), bins = 15) +
             geom_vline(xintercept = quantile(bootOut$t, c(lower, upper)), color = "red", linetype = "dashed") +
-            labs(x = "Bootstrap", y = "Frequency")
+            labs(x = "Bootstrap Mean", y = "Frequency")
           
         }
       )
     })
+  
+  observeEvent(
+    input$ciMeanGuessSubmit,
+    handlerExpr = {
+      sampleMean <- input$ciMeanSM
+      numRep <- input$ciMeanNumRep
+      cl <- input$ciMeanCL
+      rep <- input$ciMeanReplications
+      
+      upper <-input$ciMeanUpper
+      lower <- input$ciMeanLower
+      
+
+      if (numRep > 500 && rep && lowerCI() == lower && upperCI() == upper) {
+        output$ciMeanLowerIcon <- renderIcon(icon = "correct", width = 30)
+        output$ciMeanUpperIcon <- renderIcon(icon = "correct", width = 30)
+        output$ciMeanGuessFeedback <- renderText("YAY RIGHT ")
+      } else if (rep == FALSE) {
+        output$ciMeanLowerIcon <- renderIcon(icon = "incorrect", width = 30)
+        output$ciMeanUpperIcon <- renderIcon(icon = "incorrect", width = 30)
+        output$ciMeanGuessFeedback <- renderText("Think of conditions needed to be met, in order to boostrap.")
+      } else if (numRep < 500) {
+        output$ciMeanLowerIcon <- renderIcon(icon = "incorrect", width = 30)
+        output$ciMeanUpperIcon <- renderIcon(icon = "incorrect", width = 30)
+        output$ciMeanGuessFeedback <- renderText("Think of how many replications are needed to be representative.")
+      } else {
+        output$ciMeanLowerIcon <- renderIcon(icon = "incorrect", width = 30)
+        output$ciMeanUpperIcon <- renderIcon(icon = "incorrect", width = 30)
+        output$ciMeanGuessFeedback <- renderText("BOOO WRRONG ")
+      }
+    }
+  )
+  
   
 
   
@@ -1015,7 +1072,7 @@ server <- function(input, output, session) {
         output$guessProbFeedback <- renderText("Double check the number of rolls for Nick and Jenn")
       } else {
         output$guessIconProb <- renderIcon(icon = "incorrect", width = 30)
-        output$guessProbFeedback <- renderText("set the simulation options according to the context")
+        output$guessProbFeedback <- renderText("Set the simulation options according to the context")
       }
     }
   )
