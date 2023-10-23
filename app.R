@@ -147,9 +147,10 @@ ui <- list(
                           get estimates of standard error, confidence intervals, 
                           and other statistics. It is very heplful when the 
                           sample is small or not normally distributed"),
-                  tags$li("When bootstrappong you want use the mean of the 
+                  tags$li("When bootstrapping you want use the mean of the 
                           original sample and standard error from the bootstrapped 
-                          sample.")
+                          sample."),
+                  tags$li("Some condition include, replication, number of samples, number of replications.")
                 )
               )
             )
@@ -292,11 +293,11 @@ ui <- list(
                   width = 4,
                   wellPanel(
                     sliderInput(
-                      inputId = "ciMeanSM",
-                      label = "Sample Mean",
-                      min = 20000, 
-                      max = 25000,
-                      value = 22500
+                      inputId = "ciMeanNS",
+                      label = "Number of Samples",
+                      min = 200, 
+                      max = 300,
+                      value = 250
                     ),
                     sliderInput(
                       inputId = "ciMeanNumRep",
@@ -592,7 +593,6 @@ ui <- list(
             )
           )
         ),
-        
         ### Probability ----
         tabItem(
           tabName = "prob",
@@ -848,13 +848,14 @@ server <- function(input, output, session) {
     observeEvent(
     input$simCIMean, 
     handlerExpr = {
-      sampleMean <- input$ciMeanSM
+      numSamp <- input$ciMeanNS
       numRep <- input$ciMeanNumRep
       cl <- input$ciMeanCL
+      rep <- input$ciMeanReplications
       
       stat <- function(data, index) {
         subset_data <- data$Flights[index] 
-        statistic_value <- mean(subset_data) 
+        statistic_value <- mean(subset_data)
         return(statistic_value)
       }
       
@@ -880,47 +881,63 @@ server <- function(input, output, session) {
       upperCI(round(cii[2],2))
       lowerCI(round(cii[1],2))
       
-      
-      output$ciMeanResults <- renderText({
-        paste("Lower Confidence Interval:", round(cii[1], 2), "\n",
-              "Upper Confidence Interval:", round(cii[2], 2))
-      })
-      
-      output$ciMeanSim <- renderPlot(
-        expr = {
-          ggplot() +
-            geom_histogram(data = data.frame(x = bootOut$t), aes(x = x), bins = 15) +
-            geom_vline(xintercept = quantile(bootOut$t, c(lower, upper)), color = "red", linetype = "dashed") +
-            labs(x = "Bootstrap Mean", y = "Frequency")
-          
-        }
-      )
+      if(rep == FALSE || numRep < 100 || numSamp != 253) {
+        output$ciMeanResults <- renderText(
+          expr = {
+            "Review the conditions. What is a requirement of bootstrapping?"
+          }
+        )
+        output$ciMeanSim <- renderPlot(
+          expr = {
+            ggplot() + 
+              geom_blank()
+            
+          }
+        )
+      } else {
+        output$ciMeanSim <- renderPlot(
+          expr = {
+            ggplot() +
+              geom_histogram(data = data.frame(x = bootOut$t), aes(x = x), bins = 15) +
+              geom_vline(xintercept = quantile(bootOut$t, c(lower, upper)), color = "red", linetype = "dashed") +
+              labs(x = "Bootstrap Mean", y = "Frequency")
+            
+          }
+        )
+        output$ciMeanResults <- renderText({
+          paste("Lower Confidence Interval:", round(cii[1], 2), "\n",
+                "Upper Confidence Interval:", round(cii[2], 2))
+        })
+      }
     })
   
   observeEvent(
     input$ciMeanGuessSubmit,
     handlerExpr = {
-      sampleMean <- input$ciMeanSM
+      numSamp <- input$ciMeanNS
       numRep <- input$ciMeanNumRep
       cl <- input$ciMeanCL
       rep <- input$ciMeanReplications
       
-      upper <-input$ciMeanUpper
+      upper <- input$ciMeanUpper
       lower <- input$ciMeanLower
       
-
-      if (numRep > 500 && rep && lowerCI() == lower && upperCI() == upper) {
+      if (numRep > 500 && rep && lowerCI() == lower && upperCI() == upper && cl == .90 && numSamp == 253) {
         output$ciMeanLowerIcon <- renderIcon(icon = "correct", width = 30)
         output$ciMeanUpperIcon <- renderIcon(icon = "correct", width = 30)
         output$ciMeanGuessFeedback <- renderText("YAY RIGHT ")
-      } else if (rep == FALSE) {
+      } else if (rep == FALSE || numSamp != 253) {
         output$ciMeanLowerIcon <- renderIcon(icon = "incorrect", width = 30)
         output$ciMeanUpperIcon <- renderIcon(icon = "incorrect", width = 30)
-        output$ciMeanGuessFeedback <- renderText("Think of conditions needed to be met, in order to boostrap.")
+        output$ciMeanGuessFeedback <- renderText("Think of conditions needed to be met in order to boostrap.")
       } else if (numRep < 500) {
         output$ciMeanLowerIcon <- renderIcon(icon = "incorrect", width = 30)
         output$ciMeanUpperIcon <- renderIcon(icon = "incorrect", width = 30)
         output$ciMeanGuessFeedback <- renderText("Think of how many replications are needed to be representative.")
+      } else if (cl != .9) {
+        output$ciMeanLowerIcon <- renderIcon(icon = "incorrect", width = 30)
+        output$ciMeanUpperIcon <- renderIcon(icon = "incorrect", width = 30)
+        output$ciMeanGuessFeedback <- renderText("Reread the context and verify inputs match")
       } else {
         output$ciMeanLowerIcon <- renderIcon(icon = "incorrect", width = 30)
         output$ciMeanUpperIcon <- renderIcon(icon = "incorrect", width = 30)
@@ -928,9 +945,6 @@ server <- function(input, output, session) {
       }
     }
   )
-  
-  
-
   
   ## Confidence Interval for Proportion----
   observeEvent(
@@ -991,7 +1005,82 @@ server <- function(input, output, session) {
   
 
   ### Simulation ----
+  observeEvent(
+    input$simCIProp, 
+    handlerExpr = {
+      sampleMean <- input$ciPropSM
+      numRep <- input$ciPropNumRep
+      cl <- input$ciPropCL
+      rep <- input$ciPropReplications
+      
+  data_table <- data.frame(
+    Word = c("intoStem", "outStem", "persistNon", "persistStem"),
+    Count = c(ceiling(6455/2), ceiling(16993/2), ceiling(50855/2), ceiling(34767/2))
+  )
+  
+  data_table <- data_table[rep(1:nrow(data_table), data_table$Count), ]
+  
+  
+  (sum(data_table$Word == "intoStem") + sum(data_table$Word == "persistStem"))/(nrow(data_table))
 
+  # Create a data frame for proportions
+  proportionData <- data.frame(
+    Group = rep(data_table$Word, each = 2), # Each word is associated with two counts
+    Success = c(0, 1), # You need to define success and failure counts for each group
+    Total = rep(data_table$Count, each = 2)
+  )
+  
+  stat <- function(data, index) {
+    subset_data <- data[index, ]
+    successes <- sum(subset_data$Success)
+    total <- sum(subset_data$Total)
+    proportion_value <- successes / total
+    return(proportion_value)
+  }
+  
+    set.seed(461)
+    
+    bootOut <- boot::boot(
+      data = proportionData,
+      statistic = stat,
+      R = numRep
+    )
+    
+    bootCI <- boot::boot.ci(
+      boot.out = bootOut,
+      conf = cl,
+      type = "perc"
+    )
+    
+    lower <- (1 - cl)/2
+    upper <- cl + lower
+    cii <- quantile(bootOut$t, c(lower, upper))
+    
+    upperCI(round(cii[2], 2))
+    lowerCI(round(cii[1], 2))
+    
+    if (rep == FALSE || numRep < 100) {
+      output$ciPropResults <- renderText({
+        "Review the conditions. What is a requirement of bootstrapping?"
+      })
+      output$ciPropSim <- renderPlot({
+        ggplot() +
+          geom_blank()
+      })
+    } else {
+      output$ciPropSim <- renderPlot({
+        ggplot() +
+          geom_histogram(data = data.frame(x = bootOut$t), aes(x = x), bins = 15) +
+          geom_vline(xintercept = quantile(bootOut$t, c(lower, upper)), color = "red", linetype = "dashed") +
+          labs(x = "Bootstrap Proportion", y = "Frequency")
+      })
+      output$ciPropResults <- renderText({
+        paste("Lower Confidence Interval:", round(cii[1], 2), "\n",
+              "Upper Confidence Interval:", round(cii[2], 2))
+      })
+    }
+  })
+  
   
   ## Hypothesis Test ----
   ### Simulation ----
