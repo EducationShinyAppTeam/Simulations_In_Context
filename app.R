@@ -176,9 +176,9 @@ ui <- list(
               width = 3,
               tags$figure(
                 tags$img(
-                  src = "die.jpg",
-                  width = "50%",
-                  alt = "HOV lane street sign"
+                  src = "plane.jpg",
+                  width = "75%",
+                  alt = "Plain filled in black plane."
                 )
               )
             )
@@ -355,9 +355,9 @@ ui <- list(
               width = 3,
               tags$figure(
                 tags$img(
-                  src = "die.jpg",
-                  width = "50%",
-                  alt = "HOV lane street sign"
+                  src = "stem.jpg",
+                  width = "75%",
+                  alt = "STEM logo with a symbol (Mixing glass, Satelliate Dish, Gear, Calculator) for each letter."
                 )
               )
             )
@@ -666,7 +666,7 @@ ui <- list(
               tags$figure(
                 tags$img(
                   src = "die.jpg",
-                  width = "50%",
+                  width = "75%",
                   alt = "2 die rolling. "
                 )
               )
@@ -741,6 +741,10 @@ ui <- list(
           h2("References"),
           p(
             class = "hangingindent",
+            "“American Airports - Guide to Airports in United States.” American Airports - Guide to Airports in United States, www.americanairportguide.com/."
+          ),
+          p(
+            class = "hangingindent",
             "Bailey, E. (2015). shinyBS: Twitter bootstrap components for shiny.
             (v0.61). [R package]. Available from
             https://CRAN.R-project.org/package=shinyBS"
@@ -766,6 +770,10 @@ ui <- list(
           ),
           p(
             class = "hangingindent",
+            "“District Employees and Finance.” The School District of Philadelphia, www.philasd.org/performance/programsservices/open-data/district-information/#employee_data."
+          ),
+          p(
+            class = "hangingindent",
             "Perrier, V., Meyer, F., Granjon, D. (2023) shinyWidgets: Custom Input
             Widgets for Shiny. (v0.7.6). Avaliable from 
             https://cran.r-project.org/web/packages/shinyWidgets/index.html"
@@ -778,12 +786,12 @@ ui <- list(
           ),
           p(
             class = "hangingindent",
-            "https://www.americanairportguide.com/ FINISH THIS REFERNCE"
+            "https://www.publicdomainpictures.net/view-image.php?image=233645&picture=dice
+            https://th.bing.com/th/id/OIP.W6m35ngoTejzuiAymW5irQHaE3?rs=1&pid=ImgDetMain 
+            https://www.vecteezy.com/free-vector/technology
+            "
           ),
-          p(
-            class = "hangingindent",
-            "https://www.philasd.org/performance/programsservices/open-data/district-information/#employee_data FINISH THIS REFERNCE"
-          ),
+          
           br(),
           br(),
           br(),

@@ -1,4 +1,8 @@
 # Things Needed for This Version
-1.
+1. Update prereq. 
+2. Fix proportion 
+3. Add feedback when needed
+4. Fix reference images
 
 # Ideas for Future Development
+1. Add in a permutation section with a difference in mean/prop.
