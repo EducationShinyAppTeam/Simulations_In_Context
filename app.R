@@ -10,7 +10,6 @@ library(boot)
 # Load additional dependencies and setup functions
 
 # Datasets ----
-
 flightData <- read.csv(file = "flightData.csv", stringsAsFactors = FALSE)
 
 # Define UI for App ----
@@ -65,9 +64,9 @@ ui <- list(
           h2("Instructions"),
           tags$ol(
             tags$li("Review the prereqisities as needed."),
-            tags$li("Next, go to the explore page and go through each tab."),
-            tags$li("For each tab, read the context, identify components of the 
-                    context, and view possible simulations.")
+            tags$li("Next, go to the explore page and go through each type of simulation."),
+            tags$li("For each simulation, read the context, identify terms within the 
+                    context, and create possible simulations.")
           ),
           #### Overview to Explore Button
           div(
@@ -91,7 +90,7 @@ ui <- list(
             citeApp(),
             br(),
             br(),
-            div(class = "updated", "Last Update: 11/26/2023 by T.M.")
+            div(class = "updated", "Last Update: 11/27/2023 by T.M.")
           )
         ),
         ### Prerequisites ----
@@ -178,7 +177,7 @@ ui <- list(
                 tags$img(
                   src = "plane.jpg",
                   width = "75%",
-                  alt = "Plain filled in black plane."
+                  alt = "Filled in black plane."
                 )
               )
             )
@@ -358,7 +357,7 @@ ui <- list(
               width = 3,
               tags$figure(
                 tags$img(
-                  src = "stem.jpg",
+                  src = "Stem.jpg",
                   width = "75%",
                   alt = "STEM logo with a symbol (Mixing glass, Satelliate Dish, Gear, Calculator) for each letter."
                 )
@@ -681,7 +680,7 @@ ui <- list(
               tags$figure(
                 tags$img(
                   src = "die.jpg",
-                  width = "75%",
+                  width = "50%",
                   alt = "2 die rolling. "
                 )
               )
@@ -799,14 +798,6 @@ ui <- list(
             Springer-Verlag New York. ISBN 978-3-319-24277-4. Avaliable from 
             https://ggplot2.tidyverse.org."
           ),
-          p(
-            class = "hangingindent",
-            "https://www.publicdomainpictures.net/view-image.php?image=233645&picture=dice
-            https://th.bing.com/th/id/OIP.W6m35ngoTejzuiAymW5irQHaE3?rs=1&pid=ImgDetMain 
-            https://www.vecteezy.com/free-vector/technology
-            "
-          ),
-          
           br(),
           br(),
           br(),
@@ -915,6 +906,7 @@ server <- function(input, output, session) {
       }
     }
   )
+  #### Feedback
   observeEvent(
     input$ciMeanSubmit,
     handlerExpr = {
@@ -922,7 +914,7 @@ server <- function(input, output, session) {
       para <- input$ciMeanPara
       samp <- input$ciMeanSamp
       stat <- input$ciMeanStat
-      
+  
       if (pop != "International airports in the Northeast region" || para != "Number of flights arriving/departing"||
           samp != "6 International Airports" || (stat != "20600" && stat != "22253")) {
         output$ciMeanCompFeed <- renderText("Remember that population relates to a whole and sample relates to a small section of the population.")
@@ -931,7 +923,6 @@ server <- function(input, output, session) {
       }  
     }
   )
-
   #### Reset
   observeEvent(
     eventExpr = input$ciMeanReset,
@@ -969,7 +960,6 @@ server <- function(input, output, session) {
         statistic = stat,
         R = numRep
       )
-      
       bootCI <- boot::boot.ci(
         boot.out = bootOut,
         conf = cl,
@@ -1010,7 +1000,6 @@ server <- function(input, output, session) {
                 linetype = "dashed"
               ) +
               labs(x = "Bootstrap Mean", y = "Frequency")
-            
           }
         )
         output$ciMeanResults <- renderText({
@@ -1020,6 +1009,7 @@ server <- function(input, output, session) {
       }
     })
   
+  #### Guessing Feedback
   observeEvent(
     input$ciMeanGuessSubmit,
     handlerExpr = {
@@ -1100,6 +1090,7 @@ server <- function(input, output, session) {
       }
     }
   )
+  #### Feedback
   observeEvent(
     input$ciPropSubmit,
     handlerExpr = {
@@ -1116,7 +1107,6 @@ server <- function(input, output, session) {
       }  
     }
   )
-  
   #### Reset
   observeEvent(
     eventExpr = input$ciPropReset,
@@ -1127,7 +1117,6 @@ server <- function(input, output, session) {
       output$ciPropStatIcon <- renderIcon()
     }
   )
-  
 
   ### Simulation ----
   upperCI <- reactiveVal(0)
@@ -1146,7 +1135,6 @@ server <- function(input, output, session) {
         rep(0, round(sqrt(67848)))),
         Total = rep(1, round(sqrt(41222)) + round(sqrt(67848)))
       )
-      
       stat <- function(data, index) {
         subset_data <- data[index, ]
         successes <- sum(subset_data$Success)
@@ -1162,7 +1150,6 @@ server <- function(input, output, session) {
         statistic = stat,
         R = numRep
       )
-      
       bootCI <- boot::boot.ci(
         boot.out = bootOut,
         conf = cl,
@@ -1248,7 +1235,6 @@ server <- function(input, output, session) {
   ### Simulation ----
   
   ## Probability ----
-
   probability <- reactiveVal(0)
   
   observeEvent(
@@ -1284,7 +1270,7 @@ server <- function(input, output, session) {
       output$resultProb <- renderText({
         paste("Estimated probability that Nick gets a higher total:", round(probability(),4), "\n")
       })
-      
+
       output$probSim <- renderPlot({
         results <- data.frame(
           outcome = c("Nick Wins", "Jennifer Wins", "Tie"),
@@ -1307,8 +1293,7 @@ server <- function(input, output, session) {
       nickRolls <- input$nickRollsProb
       jennRolls <- input$jennRollsProb
       
-      
-      # SET GUESS == PROBABILITY (REACTIVE VAL)
+      #### Feedback
       if (trials > 100 && nickRolls == 5 && jennRolls == 6 && abs(probability() - guess) < 0.001) {
         output$guessIconProb <- renderIcon(icon = "correct", width = 30)
         output$guessProbFeedback <- renderText(" ")
@@ -1327,57 +1312,6 @@ server <- function(input, output, session) {
       }
     }
   )
-
-  observeEvent(
-    eventExpr = input$simHypTest,
-    handlerExpr = {
-      set.seed(123)
-      
-      mean1 <- input$hypTestMeanFemale
-      mean2 <- input$hypTestMeanMale
-      sd1 <- input$hypTestSDFemale
-      sd2 <- input$hypTestSDMale
-      n <- input$hypTestSamp
-      
-      female <- data.frame(
-        GENDER = 'F',
-        PAY_RATE = rnorm(n, mean = mean1, sd = sd1)
-      )
-      male <- data.frame(
-        GENDER = 'M',
-        PAY_RATE = rnorm(n, mean = mean2, sd = sd2)
-      )
-      simData <- bind_rows(female, male)
-
-      calculate_test_statistic <- function(data, grouping_variable) {
-        return(data %>%
-                 group_by({{ grouping_variable }}) %>%
-                 summarise(mean = mean(PAY_RATE)) %>%
-                 pull(mean) %>%
-                 diff())
-      }
-      
-      # Observed test statistic
-      observed_statistic <- calculate_test_statistic(simulated_data, GENDER)
-
-      # Perform permutations and calculate p-value
-      permuted_statistics <- replicate(n, {
-        permuted_data <- simulated_data %>%
-          mutate(GENDER = sample(GENDER))  # Permute the grouping variable
-        return(calculate_test_statistic(permuted_data, GENDER))
-      })
-      
-      # Calculate the p-value
-      p <- mean(permuted_statistics >= observed_statistic)
-
-      
-      # Print the p-value
-      output$hypTestResults <- renderText({
-        paste("Permutation Test Value: ", p, "\n")
-      })
-    }
-  )
-  
 }
 
 # Boast App Call ----
