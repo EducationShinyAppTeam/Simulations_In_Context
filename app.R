@@ -213,7 +213,6 @@ ui <- list(
             ),
             column(width = 10, textOutput(outputId = "ciMeanGuessFeedback"))
           ),
-          br(),
           tabsetPanel(
             id = "simulationType",
             ##### Identifying Components ----
@@ -269,7 +268,10 @@ ui <- list(
                 ),
                 fluidRow(
                   column(
-                    offset = 9,
+                    width = 9,
+                    textOutput(outputId = "ciMeanCompFeed")
+                  ),
+                  column(
                     width = 1,
                     bsButton(
                       inputId = "ciMeanReset",
@@ -438,7 +440,10 @@ ui <- list(
                 ),
                 fluidRow(
                   column(
-                    offset = 9,
+                    width = 9,
+                    textOutput(outputId = "ciPropCompFeed")
+                  ),
+                  column(
                     width = 1,
                     bsButton(
                       inputId = "ciPropReset",
@@ -464,14 +469,14 @@ ui <- list(
                   width = 4,
                   wellPanel(
                     sliderInput(
-                      inputId = "ciPropSM",
-                      label = "Sample Mean",
-                      min = 0, 
-                      max = 1,
-                      value = .5
+                      inputId = "ciPropNS",
+                      label = "Number of Samples",
+                      min = 200, 
+                      max = 300,
+                      value = 250
                     ),
                     sliderInput(
-                      inputId = "ciPropSamp",
+                      inputId = "ciPropNumRep",
                       label = "Number of Replicaions",
                       min = 1, 
                       max = 5000,
@@ -481,6 +486,11 @@ ui <- list(
                       inputId = "ciPropCL",
                       label = 'Confidence Level',
                       value = 0.95
+                    ),
+                    checkboxInput(
+                      inputId = "ciMeanReplications",
+                      label = "Use Replication",
+                      value = FALSE
                     ),
                     bsButton(
                       inputId = "simCIPop",
@@ -882,7 +892,22 @@ server <- function(input, output, session) {
       }
     }
   )
-   
+  observeEvent(
+    input$ciMeanSubmit,
+    handlerExpr = {
+      pop <- input$ciMeanPop
+      para <- input$ciMeanPara
+      samp <- input$ciMeanSamp
+      stat <- input$ciMeanStat
+      
+      if (pop != "International airports in the Northeast region" || para != "Number of flights arriving/departing"|| samp != "6 International Airports" || stat != "20600" ) {
+        output$ciMeanCompFeed <- renderText("Remember that population relates to a whole and sample relates to a small section of the population.")
+      } else {
+        output$ciMeanCompFeed <- renderText("Correct!")
+      }  
+    }
+  )
+
   #### Reset
   observeEvent(
     eventExpr = input$ciMeanReset,
@@ -978,7 +1003,7 @@ server <- function(input, output, session) {
       if (numRep > 500 && rep && lowerCI() == lower && upperCI() == upper && cl == .90 && numSamp == 253) {
         output$ciMeanLowerIcon <- renderIcon(icon = "correct", width = 30)
         output$ciMeanUpperIcon <- renderIcon(icon = "correct", width = 30)
-        output$ciMeanGuessFeedback <- renderText("YAY RIGHT ")
+        output$ciMeanGuessFeedback <- renderText("Correct!")
       } else if (rep == FALSE || numSamp != 253) {
         output$ciMeanLowerIcon <- renderIcon(icon = "incorrect", width = 30)
         output$ciMeanUpperIcon <- renderIcon(icon = "incorrect", width = 30)
@@ -994,7 +1019,7 @@ server <- function(input, output, session) {
       } else {
         output$ciMeanLowerIcon <- renderIcon(icon = "incorrect", width = 30)
         output$ciMeanUpperIcon <- renderIcon(icon = "incorrect", width = 30)
-        output$ciMeanGuessFeedback <- renderText("BOOO WRRONG ")
+        output$ciMeanGuessFeedback <- renderText("Incorrect, reread the context and make adjustments to inputs. References the prerequsities as needed.")
       }
     }
   )
@@ -1044,6 +1069,22 @@ server <- function(input, output, session) {
       }
     }
   )
+  observeEvent(
+    input$ciPropSubmit,
+    handlerExpr = {
+      pop <- input$ciPropPop
+      para <- input$ciPropPara
+      samp <- input$ciPropSamp
+      stat <- input$ciPropStat
+
+      if (pop != "R1 Institutions" || para != "Students who switch into/stay within STEM"|| samp != "6 R1 Institutions" || stat != "37.80%" ) {
+        output$ciPropCompFeed <- renderText("Remember that population relates to a whole and sample relates to a small section of the population.")
+      } else {
+        output$ciPropCompFeed <- renderText("Correct!")
+      }  
+    }
+  )
+  
   
   #### Reset
   observeEvent(
@@ -1061,11 +1102,12 @@ server <- function(input, output, session) {
   observeEvent(
     input$simCIProp, 
     handlerExpr = {
-      sampleMean <- input$ciPropSM
+      sampleSamp <- input$ciPropNS
       numRep <- input$ciPropNumRep
       cl <- input$ciPropCL
       rep <- input$ciPropReplications
       
+
   data_table <- data.frame(
     Word = c("intoStem", "outStem", "persistNon", "persistStem"),
     Count = c(ceiling(6455/2), ceiling(16993/2), ceiling(50855/2), ceiling(34767/2))
