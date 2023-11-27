@@ -97,24 +97,25 @@ ui <- list(
         tabItem(
           tabName = "prerequisites",
           withMathJax(),
+          h2("Prerequisites"),
           box(
             title = strong("Vocabulary"),
             status = "primary",
             collapsible = TRUE,
-            collapsed = TRUE,
+            collapsed = FALSE,
             width = "100%",
             tags$ul(
               tags$li("Population: The entire group that we want information about. "),
               tags$li("Population Parameter(s): A number that describes 
                       something about the population. "),
-              tags$li("Sample: The part of the population that we are actually examining"),
+              tags$li("Sample: The part of the population that we are actually examining."),
               tags$li("Statistic(s): A number that describes something about 
-                      the sample"),
-              tags$li("Bootsrap: Type of resampling with replacement. You take samples 
+                      the sample."),
+              tags$li("Bootstrap: Type of resampling with replacement. You take samples 
                       from the original sample using the same sample size."),
               tags$li("Confidence Interval: The range of population parameters that 
                       are compatible with the test statistic with a certain level of
-                      confidence. ")
+                      confidence.")
             )
           ),
           fluidRow(
@@ -157,12 +158,14 @@ ui <- list(
         ### Confidence Interval for Mean ----
         tabItem(
           tabName = "ciMean",
-          h4("1. Context"),
+          h2("Confidence Interval for Mean"),
+          h4("Step 1: Context"),
           fluidRow(
             column(
-              width = 9,
+              width = 12,
               p("Every year numerous airplanes takeoff and land at international
-                airports globally. In a study, a sample was drawn from six international 
+                airports globally. HOW MANY INTERNATIONAL NORTHEATERN AIRPORTS ARE HERE. 
+                HOW MANY ARE WE USING DATA FROM. In a study, a sample was drawn from six international 
                 airports in the northeast region of the USA. Over the period from 
                 January 2020 to August 2023, a total of 253 data points were collected 
                 regarding the number of planes taking off or landing. It  
@@ -170,53 +173,14 @@ ui <- list(
                 was 22,253.162, with a median of 20,600.  Create a 90% confidence 
                 interval for the numbers of flights departing/arriving at northeast 
                 international airports based on this data."),
-            ),
-            column(
-              width = 3,
-              tags$figure(
-                tags$img(
-                  src = "plane.jpg",
-                  width = "75%",
-                  alt = "Filled in black plane."
-                )
-              )
             )
           ),
-          fluidRow(
-            column( 
-              width = 2,
-              numericInput(
-                inputId = 'ciMeanLower',
-                label = 'Lower Bound: ',
-                value = 0.0
-              )
-            ),
-            column(width = 1, uiOutput(outputId = "ciMeanLowerIcon")),
-            column(
-              width = 2, 
-              numericInput(
-                inputId = 'ciMeanUpper',
-                label = 'Upper Bound: ',
-                value = 0.0
-              )
-            ),
-            column(width = 1, uiOutput(outputId = "ciMeanUpperIcon")),
-          ),
-          fluidRow(
-            column(
-              width = 2,
-              bsButton(
-                inputId = "ciMeanGuessSubmit",
-                label = 'Submit'
-              )
-            ),
-            column(width = 10, textOutput(outputId = "ciMeanGuessFeedback"))
-          ),
+          br(),
           tabsetPanel(
             id = "simulationType",
             ##### Identifying Components ----
             tabPanel(
-              title = "2. Identifying Components",
+              title = "Step 2: Identifying Components",
               value = "b",
               wellPanel(
                 fluidRow(
@@ -292,7 +256,7 @@ ui <- list(
             ),
             ##### Simulation  ----
             tabPanel(
-              title = "3. Simulation",
+              title = "Step 3: Simulation",
               value = "b",
               fluidRow(
                 column(
@@ -325,7 +289,7 @@ ui <- list(
                     bsButton(
                       inputId = "simCIMean",
                       label = "Simulate"
-                    ),
+                    )
                   )
                 ),
                 column(
@@ -335,71 +299,59 @@ ui <- list(
                 )
               )
             )
-          )
-        ),
-        ### CI for Prop ----
-        tabItem(
-          tabName = "ciProp",
-          h4("1. Context"),
-          fluidRow(
-            column(
-              width = 9, 
-              p("Researchers were curious about the retention rate of students with 
-                Science, Technology, Engineering, and Mathematic (STEM) majors.
-                 They conducted a study involving six R1 College Institutions and 
-                collected data on a total of 109,070 students. Among these students, 
-                5.92% transferred into STEM, 15.58% transferred out of STEM, 46.62% 
-                remained in a non-STEM major, and 31.88% stayed within a STEM major 
-                until graduation. Create a 95% confidence interval of the proportion of students 
-                either switching into STEM or maintaining a STEM degree. ")
-            ),
-            column(
-              width = 3,
-              tags$figure(
-                tags$img(
-                  src = "Stem.jpg",
-                  width = "75%",
-                  alt = "STEM logo with a symbol (Mixing glass, Satelliate Dish, Gear, Calculator) for each letter."
-                )
-              )
-            )
           ),
+          ### Answer ----
+          h4("Step 4: Answer"),
           fluidRow(
             column( 
               width = 2,
               numericInput(
-                inputId = 'ciPropLower',
-                label = 'Lower Bound: ',
-                value = 0.0
+                inputId = 'ciMeanLower',
+                label = 'Lower Bound',
+                value = 0.0,
+                step = 0.01
               )
             ),
-            column(width = 1, uiOutput(outputId = "ciPropLowerIcon")),
+            column(width = 1, uiOutput(outputId = "ciMeanLowerIcon")),
             column(
               width = 2, 
               numericInput(
-                inputId = 'ciPropUpper',
-                label = 'Upper Bound: ',
-                value = 0.0
+                inputId = 'ciMeanUpper',
+                label = 'Upper Bound',
+                value = 0.0,
+                step = 0.01
               )
             ),
-            column(width = 1, uiOutput(outputId = "ciPropUpperIcon")),
+            column(width = 1, uiOutput(outputId = "ciMeanUpperIcon")),
           ),
           fluidRow(
             column(
               width = 2,
               bsButton(
-                inputId = "ciPropGuessSubmit",
+                inputId = "ciMeanGuessSubmit",
                 label = 'Submit'
               )
             ),
-            column(width = 10, textOutput(outputId = "ciPropGuessFeedback"))
+            column(width = 10, textOutput(outputId = "ciMeanGuessFeedback"))
+          )
+        ),
+        ### CI for Prop ----
+        tabItem(
+          tabName = "ciProp",
+          h2("Confidence Interval for Proportion"),
+          h4("Step 1: Context"),
+          fluidRow(
+            column(
+              width = 12, 
+              p("CONTEXT HERE")
+            )
           ),
           br(),
           tabsetPanel(
             id = "simulationType",
             ##### Identifying Components ----
             tabPanel(
-              title = "2. Identifying Components",
+              title = "Step 2: Identifying Components",
               value = "b",
               wellPanel(
                 fluidRow(
@@ -408,10 +360,7 @@ ui <- list(
                     selectInput(
                       inputId = "ciPropPop",
                       label = "Population",
-                      choices = c(" ", "All Research Institutions", "Students in College",
-                                  "Students who switch into/stay within STEM", 
-                                  "STEM majors at R1 Institutions", "Students who stayed in STEM",
-                                  "Students pursuing an engineering degree")
+                      choices = c("HERE")
                     )
                   ),
                   column(width = 1, uiOutput(outputId = "ciPropPopIcon")),
@@ -420,10 +369,7 @@ ui <- list(
                     selectInput(
                       inputId = "ciPropPara",
                       label = "Population Parameter",
-                      choices = c(" ", "Students who stayed in STEM", "Students in College",
-                                  "Students who switch into/stay within STEM",
-                                  "Students pursuing an engineering degree",
-                                  "STEM majors at R1 Institutions", "All Research Institutions")
+                      choices = c("HERE")
                     )
                   ),
                   column(width = 1, uiOutput(outputId = "ciPropParaIcon"))
@@ -434,9 +380,7 @@ ui <- list(
                     selectInput(
                       inputId = "ciPropSamp",
                       label = "Sample",
-                      choices = c(" ", "Number of STEM majors", "Students in College",
-                                  "Students at the 6 R1 Institutions", 
-                                  "37.80%", "31.88%", "5.92%")
+                      choices = c("HERE")
                     )
                   ),
                   column(width = 1, uiOutput(outputId = "ciPropSampIcon")),
@@ -445,8 +389,7 @@ ui <- list(
                     selectInput(
                       inputId = "ciPropStat",
                       label = "Sample Statistic",
-                      choices = c(" ", "37.80%", "31.88%", "Number of STEM majors",
-                                  "Students at the 6 R1 Institutions", "5.92%", "Students in College")
+                      choices = c("HERE")
                     )
                   ),
                   column(width = 1, uiOutput(outputId = "ciPropStatIcon")),
@@ -475,7 +418,7 @@ ui <- list(
             ),
             ##### Simulation  ----
             tabPanel(
-              title = "3. Simulation",
+              title = "Step 3: Simulation",
               value = "b",
               fluidRow(
                 column(
@@ -486,7 +429,8 @@ ui <- list(
                       label = "Number of Samples",
                       min = 109000, 
                       max = 110000,
-                      value = 109070
+                      value = 109490,
+                      step = 35
                     ),
                     sliderInput(
                       inputId = "ciPropNumRep",
@@ -517,182 +461,181 @@ ui <- list(
                   textOutput('ciPropResults')
                 )
               )
-            )
+            ),
+          ),
+          #### Answer ----
+          h4("Step 4: Answer"),
+          fluidRow(
+            column( 
+              width = 2,
+              numericInput(
+                inputId = 'ciPropLower',
+                label = 'Lower Bound',
+                value = 0.0,
+                step = 0.01
+              )
+            ),
+            column(width = 1, uiOutput(outputId = "ciPropLowerIcon")),
+            column(
+              width = 2, 
+              numericInput(
+                inputId = 'ciPropUpper',
+                label = 'Upper Bound',
+                value = 0.0,
+                step = 0.01
+              )
+            ),
+            column(width = 1, uiOutput(outputId = "ciPropUpperIcon")),
+          ),
+          fluidRow(
+            column(
+              width = 2,
+              bsButton(
+                inputId = "ciPropGuessSubmit",
+                label = 'Submit'
+              )
+            ),
+            column(width = 10, textOutput(outputId = "ciPropGuessFeedback"))
           )
         ),      
-        # ### Hypothesis Test ----
-        # tabItem(
-        #   tabName = "hypTest",
-        #   h4("1. Context"),
-        #   fluidRow(
-        #     column(
-        #       width = 9,
-        #       p("CONTEXT")
-        #     ),
-        #     column(
-        #       width = 3,
-        #       tags$figure(
-        #         tags$img(
-        #           src = "die.jpg",
-        #           width = "50%",
-        #           alt = "HOV lane street sign"
-        #         )
-        #       )
-        #     )
-        #   ),
-        #   tabsetPanel(
-        #     id = "simulationType",
-        #     ##### Identifying Components ----
-        #     tabPanel(
-        #       title = "2. Identifying Components",
-        #       value = "b",
-        #       wellPanel(
-        #         fluidRow(
-        #           column(
-        #             width = 3, 
-        #             selectInput(
-        #               inputId = "ciMeanPop",
-        #               label = "Population",
-        #               choices = c(" ","Option 1","Option 2","Option 3","Option 4")
-        #             )
-        #           ),
-        #           column(
-        #             width = 3, 
-        #             selectInput(
-        #               inputId = "ciMeanPara",
-        #               label = "Population Parameter",
-        #               choices = c(" ","Option 1","Option 2","Option 3","Option 4")
-        #             )
-        #           ),
-        #           column(
-        #             width = 3, 
-        #             selectInput(
-        #               inputId = "ciMeanSamp",
-        #               label = "Sample",
-        #               choices = c(" ","Option 1","Option 2","Option 3","Option 4")
-        #             )
-        #           ),
-        #           column(
-        #             width = 3, 
-        #             selectInput(
-        #               inputId = "ciMeanStat",
-        #               label = "Sample Statistic",
-        #               choices = c(" ","Option 1","Option 2","Option 3","Option 4")
-        #             )
-        #           )
-        #         ),
-        #         fluidRow(
-        #           column(
-        #             offset = 9,
-        #             width = 1,
-        #             bsButton(
-        #               inputId = "ex2Reset",
-        #               label = "Reset"
-        #             )
-        #           ),
-        #           column(
-        #             width = 1,
-        #             bsButton(
-        #               inputId = "ex2Submit",
-        #               label = "Submit"
-        #             )
-        #           )
-        #         )
-        #       )
-        #     ),
-        #     ##### Simulation  ----
-        #     tabPanel(
-        #       title = "3. Simulation",
-        #       value = "b",
-        #       fluidRow(
-        #         column(
-        #           width = 8,
-        #           wellPanel(
-        #             sliderInput(
-        #               inputId = "hypTestSamp",
-        #               label = "Number of Samples",
-        #               min = 1, 
-        #               max = 5000,
-        #               value = 2500
-        #             ),
-        #             sliderInput(
-        #               inputId = "hypTestMeanFemale",
-        #               label = "Mean for Female",
-        #               min = 50000, 
-        #               max = 60000,
-        #               value = 55000
-        #             ),
-        #             sliderInput(
-        #               inputId = "hypTestSDFemale",
-        #               label = "SD for Female",
-        #               min = 5000, 
-        #               max = 10000,
-        #               value = 7500
-        #             ),
-        #             sliderInput(
-        #               inputId = "hypTestMeanMale",
-        #               label = "Mean for Male",
-        #               min = 50000, 
-        #               max = 60000,
-        #               value = 55000
-        #             ),
-        #             sliderInput(
-        #               inputId = "hypTestSDMale",
-        #               label = "SD for Male",
-        #               min = 5000, 
-        #               max = 10000,
-        #               value = 7500
-        #             ),
-        #             selectInput(
-        #               inputId = "hypTestType",
-        #               label = "Tail",
-        #               choices = c("Less Than", "Greater Than","Not Equal To")
-        #             ),
-        #             bsButton(
-        #               inputId = "simHypTest",
-        #               label = "Simulate"
-        #             )
-        #           )
-        #         ),
-        #         column(
-        #           width = 4,
-        #           textOutput("hypTestResults")
-        #         )
-        #       )
-        #     )
-        #   )
-        # ),
         ### Probability ----
         tabItem(
           tabName = "prob",
-          h4("1. Context"),
+          h2("Estimating Probability"),
+          h4("Step 1: Context"),
           fluidRow(
             column(
-              width = 9,
+              width = 12,
               p("Nick and Jennifer were rolling dice to see who could get
                   a higher total. Nick claims that he can get a higher total with
                   less die, but Jennifer does not believe him. So Nick rolls 
                   5 die  while Jennifer rolls 6 die simutaneously. What is the probability 
                   that Nick gets a higher total than Jennifer?"),
+            )
+          ),
+          
+          tabsetPanel(
+            id = "simulationType",
+            ##### Identifying Components ----
+            tabPanel(
+              title = "Step 2: Identifying Components",
+              value = "b",
+              wellPanel(
+                fluidRow(
+                  column(
+                    width = 5, 
+                    selectInput(
+                      inputId = "probPop",
+                      label = "Population",
+                      choices = c("HERE")
+                    )
+                  ),
+                  column(width = 1, uiOutput(outputId = "probPopIcon")),
+                  column(
+                    width = 5, 
+                    selectInput(
+                      inputId = "probSamp",
+                      label = "Sample",
+                      choices = c("HERE")
+                    )
+                  ),
+                  column(width = 1, uiOutput(outputId = "probSampIcon")),
+                ),
+                fluidRow(
+                  column(
+                    width = 5, 
+                    selectInput(
+                      inputId = "probEvent",
+                      label = "Event",
+                      choices = c("HERE")
+                    )
+                  ),
+                  column(width = 1, uiOutput(outputId = "probEventIcon")),
+                  column(
+                    width = 5, 
+                    selectInput(
+                      inputId = "probReplace",
+                      label = "Replacement",
+                      choices = c("With replacement", "Without replacement")
+                    )
+                  ),
+                  column(width = 1, uiOutput(outputId = "probReplaceIcon")),
+                ),
+                fluidRow(
+                  column(
+                    width = 9,
+                    textOutput(outputId = "probCompFeed")
+                  ),
+                  column(
+                    width = 1,
+                    bsButton(
+                      inputId = "probReset",
+                      label = "Reset"
+                    )
+                  ),
+                  column(
+                    width = 1,
+                    bsButton(
+                      inputId = "probSubmit",
+                      label = "Submit"
+                    )
+                  )
+                )
+              )
             ),
-            column(
-              width = 3,
-              tags$figure(
-                tags$img(
-                  src = "die.jpg",
-                  width = "50%",
-                  alt = "2 die rolling. "
+            ##### Simulation  ----
+            tabPanel(
+              title = "Step 3: Simulation",
+              value = "b",
+              fluidRow(
+                column(
+                  width = 4,
+                  wellPanel(
+                    sliderInput(
+                      inputId = 'trialsProb', 
+                      label = "Number of Trials:",
+                      min = 2, 
+                      max = 1000,
+                      value = 2
+                    ),
+                    sliderInput(
+                      inputId = 'nickRollsProb', 
+                      label = "Nick Number of Rolls:",
+                      min = 1, 
+                      max = 10,
+                      value = 1
+                    ),
+                    sliderInput(
+                      inputId = 'jennRollsProb', 
+                      label = "Jennifer Number of Rolls:",
+                      min = 1, 
+                      max = 10,
+                      value = 1
+                    ),
+                    bsButton(
+                      inputId = 'simProb',
+                      label = 'Simulate'
+                    )
+                  )
+                ),
+                column(
+                  width = 8,
+                  plotOutput('probSim'),
+                  textOutput('resultProb')
                 )
               )
             )
           ),
+          #### Answer ----
+          h4("Step 4: Answer"),
           fluidRow(
             column(
-              width = 3, 
+              width = 5, 
               numericInput(
                 inputId = 'guessProb',
-                label = 'Probability that Nick wins: ',
-                value = 0.0
+                label = 'Estimated probability that Nick wins',
+                value = 0.0,
+                step = 0.01
               )
             ),
             column(width = 1, uiOutput(outputId = "guessIconProb"))
@@ -707,46 +650,6 @@ ui <- list(
             ),
             column(width = 10, textOutput(outputId = "guessProbFeedback"))
           ),
-            #### Simulation ----
-            h4("2. Simulation"),
-            fluidRow(
-              column(
-                width = 4,
-                wellPanel(
-                  sliderInput(
-                    inputId = 'trialsProb', 
-                    label = "Number of Trials:",
-                    min = 2, 
-                    max = 1000,
-                    value = 2
-                  ),
-                  sliderInput(
-                    inputId = 'nickRollsProb', 
-                    label = "Nick Number of Rolls:",
-                    min = 1, 
-                    max = 10,
-                    value = 1
-                  ),
-                  sliderInput(
-                    inputId = 'jennRollsProb', 
-                    label = "Jennifer Number of Rolls:",
-                    min = 1, 
-                    max = 10,
-                    value = 1
-                  ),
-                  bsButton(
-                    inputId = 'simProb',
-                    label = 'Simulate'
-                  )
-                  
-                )
-              ),
-              column(
-                width = 8,
-                plotOutput('probSim'),
-                textOutput('resultProb')
-              )
-            )
         ),
         ### References Page ----
         tabItem(
@@ -807,8 +710,6 @@ ui <- list(
     )
   )
 )
-
-
 
 # Define server logic ----
 server <- function(input, output, session) {
@@ -1050,7 +951,7 @@ server <- function(input, output, session) {
     input$ciPropSubmit,
     handlerExpr = {
       selectedOption <- input$ciPropPop
-      if (selectedOption == "STEM majors at R1 Institutions") {
+      if (selectedOption == "HERE") {
         output$ciPropPopIcon <- renderIcon(icon = "correct", width = 30)
       } else {
         output$ciPropPopIcon <- renderIcon(icon = "incorrect", width = 30)
@@ -1061,7 +962,7 @@ server <- function(input, output, session) {
     input$ciPropSubmit,
     handlerExpr = {
       selectedOption <- input$ciPropPara
-      if (selectedOption == "Students who switch into/stay within STEM") {
+      if (selectedOption == "HERE") {
         output$ciPropParaIcon <- renderIcon(icon = "correct", width = 30)
       } else {
         output$ciPropParaIcon <- renderIcon(icon = "incorrect", width = 30)
@@ -1072,7 +973,7 @@ server <- function(input, output, session) {
     input$ciPropSubmit,
     handlerExpr = {
       selectedOption <- input$ciPropSamp
-      if (selectedOption == "Students at the 6 R1 Institutions") {
+      if (selectedOption == "HERE") {
         output$ciPropSampIcon <- renderIcon(icon = "correct", width = 30)
       } else {
         output$ciPropSampIcon <- renderIcon(icon = "incorrect", width = 30)
@@ -1083,7 +984,7 @@ server <- function(input, output, session) {
     input$ciPropSubmit,
     handlerExpr = {
       selectedOption <- input$ciPropStat
-      if (selectedOption == "31.88%" || selectedOption == "5.92%") {
+      if (selectedOption == "HERE") {
         output$ciPropStatIcon <- renderIcon(icon = "correct", width = 30)
       } else {
         output$ciPropStatIcon <- renderIcon(icon = "incorrect", width = 30)
@@ -1099,8 +1000,8 @@ server <- function(input, output, session) {
       samp <- input$ciPropSamp
       stat <- input$ciPropStat
 
-      if (pop != "STEM majors at R1 Institutions" || para != "Students who switch into/stay within STEM" ||
-          samp != "Students at the 6 R1 Institutions" || (stat != "31.88%" && stat != "5.92%")) {
+      if (pop != "HERE" || para != "HERE" ||
+          samp != "HERE" || (stat != "HERE")) {
         output$ciPropCompFeed <- renderText("Remember that population relates to a whole and sample relates to a small section of the population.")
       } else {
         output$ciPropCompFeed <- renderText("Correct!")
@@ -1231,60 +1132,120 @@ server <- function(input, output, session) {
       }
     )
     
-  ## Hypothesis Test ----
-  ### Simulation ----
-  
-  ## Probability ----
-  probability <- reactiveVal(0)
-  
-  observeEvent(
-    input$simProb, 
-    handlerExpr = {
-      trials <- input$trialsProb
-      nickRolls <- input$nickRollsProb
-      jennRolls <- input$jennRollsProb
-      
-      nickWin <- 0
-      tie <- 0 
-      jennWin <- 0
-      totalScore <- numeric(trials)
-      
-      for (i in 1:trials) {
-        nickResults <- sample(1:6, nickRolls, replace = TRUE)
-        jennResults <- sample(1:6, jennRolls, replace = TRUE)
-        nickSum <- sum(nickResults)
-        jennSum <- sum(jennResults)
-        
-        if (nickSum > jennSum) {
-          nickWin <- nickWin + 1
-        } else if (jennSum > nickSum) {
-          jennWin <- jennWin + 1
+    ## Probability ----
+    probability <- reactiveVal(0)
+    
+    observeEvent(
+      input$probSubmit,
+      handlerExpr = {
+        selectedOption <- input$probPop
+        if (selectedOption == "INSERT ASNWER") {
+          output$probPopIcon <- renderIcon(icon = "correct", width = 30)
         } else {
-          tie <- tie + 1
+          output$probPopIcon <- renderIcon(icon = "incorrect", width = 30)
         }
-        totalScore[i] <- nickSum - jennSum
       }
-      
-      probability(nickWin / trials)
-      
-      output$resultProb <- renderText({
-        paste("Estimated probability that Nick gets a higher total:", round(probability(),4), "\n")
+    )
+    observeEvent(
+      input$probSubmit,
+      handlerExpr = {
+        selectedOption <- input$probSamp
+        if (selectedOption == "INSERT ANSWER") {
+          output$probSampIcon <- renderIcon(icon = "correct", width = 30)
+        } else {
+          output$probSampIcon <- renderIcon(icon = "incorrect", width = 30)
+        }
+      }
+    )
+    observeEvent(
+      input$probSubmit,
+      handlerExpr = {
+        selectedOption <- input$probEvent
+        if (selectedOption == "INSERT ANSWER") {
+          output$probEventIcon <- renderIcon(icon = "correct", width = 30)
+        } else {
+          output$probEventIcon <- renderIcon(icon = "incorrect", width = 30)
+        }
+      }
+    )
+    observeEvent(
+      input$probSubmit,
+      handlerExpr = {
+        selectedOption <- input$probReplace
+        if (selectedOption == "With replacement") {
+          output$probReplaceIcon <- renderIcon(icon = "correct", width = 30)
+        } else {
+          output$probReplaceIcon <- renderIcon(icon = "incorrect", width = 30)
+        }
+      }
+    )
+    
+    #### Feedback
+    observeEvent(
+      input$probSubmit,
+      handlerExpr = {
+        pop <- input$probPop
+        samp <- input$probSamp
+        event <- input$probEvent
+        replace <- input$probReplace
+        
+        if (pop != "HERE" || samp != "HERE" ||
+            event != "HERE" || replace != "With replacement") {
+          output$probCompFeed <- renderText("Remember that population relates to a whole and sample relates to a small section of the population.")
+        } else {
+          output$probCompFeed <- renderText("Correct!")
+        }  
+      }
+    )
+    
+    ### Simulations ----
+    observeEvent(
+      input$simProb, 
+      handlerExpr = {
+        trials <- input$trialsProb
+        nickRolls <- input$nickRollsProb
+        jennRolls <- input$jennRollsProb
+        
+        nickWin <- 0
+        tie <- 0 
+        jennWin <- 0
+        totalScore <- numeric(trials)
+        
+        for (i in 1:trials) {
+          nickResults <- sample(1:6, nickRolls, replace = TRUE)
+          jennResults <- sample(1:6, jennRolls, replace = TRUE)
+          nickSum <- sum(nickResults)
+          jennSum <- sum(jennResults)
+          
+          if (nickSum > jennSum) {
+            nickWin <- nickWin + 1
+          } else if (jennSum > nickSum) {
+            jennWin <- jennWin + 1
+          } else {
+            tie <- tie + 1
+          }
+          totalScore[i] <- nickSum - jennSum
+        }
+        
+        probability(nickWin / trials)
+        
+        output$resultProb <- renderText({
+          paste("Estimated probability that Nick gets a higher total:", round(probability(),4), "\n")
+        })
+        
+        output$probSim <- renderPlot({
+          results <- data.frame(
+            outcome = c("Nick Wins", "Jennifer Wins", "Tie"),
+            frequency = c(nickWin, jennWin, tie))
+          barplot(results$frequency, names.arg = results$outcome,
+                  main = "Distribution of Outcomes",
+                  xlab = "Outcome", 
+                  ylab = "Frequency", 
+                  col = "blue", 
+                  ylim = c(0, max(results$frequency) * 1.1))
+        })
       })
-
-      output$probSim <- renderPlot({
-        results <- data.frame(
-          outcome = c("Nick Wins", "Jennifer Wins", "Tie"),
-          frequency = c(nickWin, jennWin, tie))
-        barplot(results$frequency, names.arg = results$outcome,
-                main = "Distribution of Outcomes",
-                xlab = "Outcome", 
-                ylab = "Frequency", 
-                col = "blue", 
-                ylim = c(0, max(results$frequency) * 1.1))
-      })
-      
-    })
-  
+    
   observeEvent(
     input$guessSubmitProb,
     handlerExpr = {
@@ -1293,10 +1254,10 @@ server <- function(input, output, session) {
       nickRolls <- input$nickRollsProb
       jennRolls <- input$jennRollsProb
       
-      #### Feedback
+      #### Guessing Feedback
       if (trials > 100 && nickRolls == 5 && jennRolls == 6 && abs(probability() - guess) < 0.001) {
         output$guessIconProb <- renderIcon(icon = "correct", width = 30)
-        output$guessProbFeedback <- renderText(" ")
+        output$guessProbFeedback <- renderText("Correct!")
       } else if (trials > 100 && nickRolls == 5 && jennRolls == 6) { 
         output$guessIconProb <- renderIcon(icon = "incorrect", width = 30)
         output$guessProbFeedback <- renderText("Look at the estimated probability below the chart")
