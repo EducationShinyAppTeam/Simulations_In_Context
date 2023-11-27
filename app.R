@@ -6,12 +6,14 @@ library(shinyWidgets)
 library(boastUtils)
 library(ggplot2) 
 library(boot)
+library(perm)
 
 # Load additional dependencies and setup functions
 
 # Datasets ----
 
 flightData <- read.csv(file = "flightData.csv", stringsAsFactors = FALSE)
+salaryData <- read.csv(file = "salaryData.csv", stringsAsFactors = FALSE)
 
 # Define UI for App ----
 ui <- list(
@@ -42,7 +44,7 @@ ui <- list(
         menuItem("Prerequisites", tabName = "prerequisites", icon = icon("book")),
         menuItem("CI for Mean", tabName = "ciMean", icon = icon("wpexplorer")),
         menuItem("CI for Proportion", tabName = "ciProp", icon = icon("wpexplorer")),
-        menuItem("Hypothesis Test", tabName = "hypTest", icon = icon("wpexplorer")),
+        #menuItem("Hypothesis Test", tabName = "hypTest", icon = icon("wpexplorer")),
         menuItem("Probability", tabName = "prob", icon = icon("wpexplorer")),
         menuItem("References", tabName = "references", icon = icon("leanpub"))
       ),
@@ -89,7 +91,7 @@ ui <- list(
             citeApp(),
             br(),
             br(),
-            div(class = "updated", "Last Update: 06/26/2023 by T.M.")
+            div(class = "updated", "Last Update: 11/26/2023 by T.M.")
           )
         ),
         ### Prerequisites ----
@@ -494,105 +496,148 @@ ui <- list(
             )
           )
         ),      
-        ### Hypothesis Test ----
-        tabItem(
-          tabName = "hypTest",
-          h4("1. Context"),
-          fluidRow(
-            column(
-              width = 9,
-              p("CONTEXT")
-            ),
-            column(
-              width = 3,
-              tags$figure(
-                tags$img(
-                  src = "die.jpg",
-                  width = "50%",
-                  alt = "HOV lane street sign"
-                )
-              )
-            )
-          ),
-          tabsetPanel(
-            id = "simulationType",
-            ##### Identifying Components ----
-            tabPanel(
-              title = "2. Identifying Components",
-              value = "b",
-              wellPanel(
-                fluidRow(
-                  column(
-                    width = 3, 
-                    selectInput(
-                      inputId = "ciMeanPop",
-                      label = "Population",
-                      choices = c(" ","Option 1","Option 2","Option 3","Option 4")
-                    )
-                  ),
-                  column(
-                    width = 3, 
-                    selectInput(
-                      inputId = "ciMeanPara",
-                      label = "Population Parameter",
-                      choices = c(" ","Option 1","Option 2","Option 3","Option 4")
-                    )
-                  ),
-                  column(
-                    width = 3, 
-                    selectInput(
-                      inputId = "ciMeanSamp",
-                      label = "Sample",
-                      choices = c(" ","Option 1","Option 2","Option 3","Option 4")
-                    )
-                  ),
-                  column(
-                    width = 3, 
-                    selectInput(
-                      inputId = "ciMeanStat",
-                      label = "Sample Statistic",
-                      choices = c(" ","Option 1","Option 2","Option 3","Option 4")
-                    )
-                  )
-                ),
-                fluidRow(
-                  column(
-                    offset = 9,
-                    width = 1,
-                    bsButton(
-                      inputId = "ex2Reset",
-                      label = "Reset"
-                    )
-                  ),
-                  column(
-                    width = 1,
-                    bsButton(
-                      inputId = "ex2Submit",
-                      label = "Submit"
-                    )
-                  )
-                )
-              )
-            ),
-            ##### Simulation  ----
-            tabPanel(
-              title = "3. Simulation",
-              value = "b",
-              fluidRow(
-                column(
-                  width = 4,
-                  wellPanel(
-                    p("Simulation Options Here")
-                  )
-                ),
-                column(
-                  width = 8,
-                  p("Simulation Output Here")
-                )
-              )
-            )
-          )
-        ),
+        # ### Hypothesis Test ----
+        # tabItem(
+        #   tabName = "hypTest",
+        #   h4("1. Context"),
+        #   fluidRow(
+        #     column(
+        #       width = 9,
+        #       p("CONTEXT")
+        #     ),
+        #     column(
+        #       width = 3,
+        #       tags$figure(
+        #         tags$img(
+        #           src = "die.jpg",
+        #           width = "50%",
+        #           alt = "HOV lane street sign"
+        #         )
+        #       )
+        #     )
+        #   ),
+        #   tabsetPanel(
+        #     id = "simulationType",
+        #     ##### Identifying Components ----
+        #     tabPanel(
+        #       title = "2. Identifying Components",
+        #       value = "b",
+        #       wellPanel(
+        #         fluidRow(
+        #           column(
+        #             width = 3, 
+        #             selectInput(
+        #               inputId = "ciMeanPop",
+        #               label = "Population",
+        #               choices = c(" ","Option 1","Option 2","Option 3","Option 4")
+        #             )
+        #           ),
+        #           column(
+        #             width = 3, 
+        #             selectInput(
+        #               inputId = "ciMeanPara",
+        #               label = "Population Parameter",
+        #               choices = c(" ","Option 1","Option 2","Option 3","Option 4")
+        #             )
+        #           ),
+        #           column(
+        #             width = 3, 
+        #             selectInput(
+        #               inputId = "ciMeanSamp",
+        #               label = "Sample",
+        #               choices = c(" ","Option 1","Option 2","Option 3","Option 4")
+        #             )
+        #           ),
+        #           column(
+        #             width = 3, 
+        #             selectInput(
+        #               inputId = "ciMeanStat",
+        #               label = "Sample Statistic",
+        #               choices = c(" ","Option 1","Option 2","Option 3","Option 4")
+        #             )
+        #           )
+        #         ),
+        #         fluidRow(
+        #           column(
+        #             offset = 9,
+        #             width = 1,
+        #             bsButton(
+        #               inputId = "ex2Reset",
+        #               label = "Reset"
+        #             )
+        #           ),
+        #           column(
+        #             width = 1,
+        #             bsButton(
+        #               inputId = "ex2Submit",
+        #               label = "Submit"
+        #             )
+        #           )
+        #         )
+        #       )
+        #     ),
+        #     ##### Simulation  ----
+        #     tabPanel(
+        #       title = "3. Simulation",
+        #       value = "b",
+        #       fluidRow(
+        #         column(
+        #           width = 8,
+        #           wellPanel(
+        #             sliderInput(
+        #               inputId = "hypTestSamp",
+        #               label = "Number of Samples",
+        #               min = 1, 
+        #               max = 5000,
+        #               value = 2500
+        #             ),
+        #             sliderInput(
+        #               inputId = "hypTestMeanFemale",
+        #               label = "Mean for Female",
+        #               min = 50000, 
+        #               max = 60000,
+        #               value = 55000
+        #             ),
+        #             sliderInput(
+        #               inputId = "hypTestSDFemale",
+        #               label = "SD for Female",
+        #               min = 5000, 
+        #               max = 10000,
+        #               value = 7500
+        #             ),
+        #             sliderInput(
+        #               inputId = "hypTestMeanMale",
+        #               label = "Mean for Male",
+        #               min = 50000, 
+        #               max = 60000,
+        #               value = 55000
+        #             ),
+        #             sliderInput(
+        #               inputId = "hypTestSDMale",
+        #               label = "SD for Male",
+        #               min = 5000, 
+        #               max = 10000,
+        #               value = 7500
+        #             ),
+        #             selectInput(
+        #               inputId = "hypTestType",
+        #               label = "Tail",
+        #               choices = c("Less Than", "Greater Than","Not Equal To")
+        #             ),
+        #             bsButton(
+        #               inputId = "simHypTest",
+        #               label = "Simulate"
+        #             )
+        #           )
+        #         ),
+        #         column(
+        #           width = 4,
+        #           textOutput("hypTestResults")
+        #         )
+        #       )
+        #     )
+        #   )
+        # ),
         ### Probability ----
         tabItem(
           tabName = "prob",
@@ -720,6 +765,14 @@ ui <- list(
             "Wickham H (2016). ggplot2: Elegant Graphics for Data Analysis. 
             Springer-Verlag New York. ISBN 978-3-319-24277-4. Avaliable from 
             https://ggplot2.tidyverse.org."
+          ),
+          p(
+            class = "hangingindent",
+            "https://www.americanairportguide.com/ FINISH THIS REFERNCE"
+          ),
+          p(
+            class = "hangingindent",
+            "https://www.philasd.org/performance/programsservices/open-data/district-information/#employee_data FINISH THIS REFERNCE"
           ),
           br(),
           br(),
@@ -1165,6 +1218,57 @@ server <- function(input, output, session) {
       }
     }
   )
+
+  observeEvent(
+    eventExpr = input$simHypTest,
+    handlerExpr = {
+      set.seed(123)
+      
+      mean1 <- input$hypTestMeanFemale
+      mean2 <- input$hypTestMeanMale
+      sd1 <- input$hypTestSDFemale
+      sd2 <- input$hypTestSDMale
+      n <- input$hypTestSamp
+      
+      female <- data.frame(
+        GENDER = 'F',
+        PAY_RATE = rnorm(n, mean = mean1, sd = sd1)
+      )
+      male <- data.frame(
+        GENDER = 'M',
+        PAY_RATE = rnorm(n, mean = mean2, sd = sd2)
+      )
+      simData <- bind_rows(female, male)
+
+      calculate_test_statistic <- function(data, grouping_variable) {
+        return(data %>%
+                 group_by({{ grouping_variable }}) %>%
+                 summarise(mean = mean(PAY_RATE)) %>%
+                 pull(mean) %>%
+                 diff())
+      }
+      
+      # Observed test statistic
+      observed_statistic <- calculate_test_statistic(simulated_data, GENDER)
+
+      # Perform permutations and calculate p-value
+      permuted_statistics <- replicate(n, {
+        permuted_data <- simulated_data %>%
+          mutate(GENDER = sample(GENDER))  # Permute the grouping variable
+        return(calculate_test_statistic(permuted_data, GENDER))
+      })
+      
+      # Calculate the p-value
+      p <- mean(permuted_statistics >= observed_statistic)
+
+      
+      # Print the p-value
+      output$hypTestResults <- renderText({
+        paste("Permutation Test Value: ", p, "\n")
+      })
+    }
+  )
+  
 }
 
 # Boast App Call ----
