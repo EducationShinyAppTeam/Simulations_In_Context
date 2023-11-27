@@ -6,14 +6,12 @@ library(shinyWidgets)
 library(boastUtils)
 library(ggplot2) 
 library(boot)
-library(perm)
 
 # Load additional dependencies and setup functions
 
 # Datasets ----
 
 flightData <- read.csv(file = "flightData.csv", stringsAsFactors = FALSE)
-salaryData <- read.csv(file = "salaryData.csv", stringsAsFactors = FALSE)
 
 # Define UI for App ----
 ui <- list(
@@ -387,9 +385,15 @@ ui <- list(
             ),
             column(width = 1, uiOutput(outputId = "ciPropUpperIcon")),
           ),
-          bsButton(
-            inputId = "ciPropGuessSubmit",
-            label = 'Submit'
+          fluidRow(
+            column(
+              width = 2,
+              bsButton(
+                inputId = "ciPropGuessSubmit",
+                label = 'Submit'
+              )
+            ),
+            column(width = 10, textOutput(outputId = "ciPropGuessFeedback"))
           ),
           br(),
           tabsetPanel(
@@ -481,9 +485,9 @@ ui <- list(
                     sliderInput(
                       inputId = "ciPropNS",
                       label = "Number of Samples",
-                      min = 200, 
-                      max = 300,
-                      value = 250
+                      min = 109000, 
+                      max = 110000,
+                      value = 109070
                     ),
                     sliderInput(
                       inputId = "ciPropNumRep",
@@ -498,19 +502,20 @@ ui <- list(
                       value = 0.95
                     ),
                     checkboxInput(
-                      inputId = "ciMeanReplications",
+                      inputId = "ciPropReplications",
                       label = "Use Replication",
                       value = FALSE
                     ),
                     bsButton(
-                      inputId = "simCIPop",
+                      inputId = "simCIProp",
                       label = "Simulate"
                     )
                   )
                 ),
                 column(
                   width = 8,
-                  plotOutput("ciPopSim")
+                  plotOutput("ciPropSim"),
+                  textOutput('ciPropResults')
                 )
               )
             )
@@ -994,8 +999,16 @@ server <- function(input, output, session) {
         output$ciMeanSim <- renderPlot(
           expr = {
             ggplot() +
-              geom_histogram(data = data.frame(x = bootOut$t), aes(x = x), bins = 15) +
-              geom_vline(xintercept = quantile(bootOut$t, c(lower, upper)), color = "red", linetype = "dashed") +
+              geom_histogram(
+                data = data.frame(x = bootOut$t), 
+                aes(x = x), 
+                bins = 15, fill = boastPalette[1], color = "black"
+              ) +
+              geom_vline(
+                xintercept = quantile(bootOut$t, c(lower, upper)), 
+                color = "red", 
+                linetype = "dashed"
+              ) +
               labs(x = "Bootstrap Mean", y = "Frequency")
             
           }
@@ -1104,7 +1117,6 @@ server <- function(input, output, session) {
     }
   )
   
-  
   #### Reset
   observeEvent(
     eventExpr = input$ciPropReset,
@@ -1118,6 +1130,9 @@ server <- function(input, output, session) {
   
 
   ### Simulation ----
+  upperCI <- reactiveVal(0)
+  lowerCI <- reactiveVal(0)
+  
   observeEvent(
     input$simCIProp, 
     handlerExpr = {
@@ -1126,76 +1141,109 @@ server <- function(input, output, session) {
       cl <- input$ciPropCL
       rep <- input$ciPropReplications
       
-
-  data_table <- data.frame(
-    Word = c("intoStem", "outStem", "persistNon", "persistStem"),
-    Count = c(ceiling(6455/2), ceiling(16993/2), ceiling(50855/2), ceiling(34767/2))
-  )
-  
-  data_table <- data_table[rep(1:nrow(data_table), data_table$Count), ]
-  
-  
-  (sum(data_table$Word == "intoStem") + sum(data_table$Word == "persistStem"))/(nrow(data_table))
-
-  # Create a data frame for proportions
-  proportionData <- data.frame(
-    Group = rep(data_table$Word, each = 2), # Each word is associated with two counts
-    Success = c(0, 1), # You need to define success and failure counts for each group
-    Total = rep(data_table$Count, each = 2)
-  )
-  
-  stat <- function(data, index) {
-    subset_data <- data[index, ]
-    successes <- sum(subset_data$Success)
-    total <- sum(subset_data$Total)
-    proportion_value <- successes / total
-    return(proportion_value)
-  }
-  
-    set.seed(461)
+      proportionData <- data.frame(Success = c(
+        rep(1, round(sqrt(41222))), 
+        rep(0, round(sqrt(67848)))),
+        Total = rep(1, round(sqrt(41222)) + round(sqrt(67848)))
+      )
+      
+      stat <- function(data, index) {
+        subset_data <- data[index, ]
+        successes <- sum(subset_data$Success)
+        total <- sum(subset_data$Total)
+        proportion_value <- successes / total
+        return(proportion_value)
+      }
+      
+      set.seed(461)
+      
+      bootOut <- boot::boot(
+        data = proportionData,
+        statistic = stat,
+        R = numRep
+      )
+      
+      bootCI <- boot::boot.ci(
+        boot.out = bootOut,
+        conf = cl,
+        type = "perc"
+      )
+      
+      lower <- (1 - cl)/2
+      upper <- cl + lower
+      cii <- quantile(bootOut$t, c(lower, upper))
+      
+      upperCI(round(cii[2], 2))
+      lowerCI(round(cii[1], 2))
+      
+      if (rep == FALSE || numRep < 100) {
+        output$ciPropResults <- renderText({
+          "Review the conditions. What is a requirement of bootstrapping?"
+        })
+        output$ciPropSim <- renderPlot({
+          ggplot() +
+            geom_blank()
+        })
+      } else {
+        output$ciPropSim <- renderPlot({
+          ggplot() +
+            geom_histogram(
+              data = data.frame(x = bootOut$t), 
+              aes(x = x), 
+              bins = 15, 
+              fill = boastPalette[1],
+              color = "black"
+            ) +
+            geom_vline(
+              xintercept = quantile(bootOut$t, c(lower, upper)), 
+              color = "red", 
+              linetype = "dashed"
+            ) +
+            labs(x = "Bootstrap Proportion", y = "Frequency")
+        })
+        output$ciPropResults <- renderText({
+          paste("Lower Confidence Interval:", round(cii[1], 2), "\n",
+                "Upper Confidence Interval:", round(cii[2], 2))
+        })
+      }
+    })
     
-    bootOut <- boot::boot(
-      data = proportionData,
-      statistic = stat,
-      R = numRep
+    #### Guessing Feedback
+    observeEvent(
+      input$ciPropGuessSubmit,
+      handlerExpr = {
+        numSamp <- input$ciPropNS
+        numRep <- input$ciPropNumRep
+        cl <- input$ciPropCL
+        rep <- input$ciPropReplications
+        
+        upper <- input$ciPropUpper
+        lower <- input$ciPropLower
+        
+        if (numRep > 500 && rep && lowerCI() == lower && upperCI() == upper && cl == .98 && numSamp == 109070) {
+          output$ciPropLowerIcon <- renderIcon(icon = "correct", width = 30)
+          output$ciPropUpperIcon <- renderIcon(icon = "correct", width = 30)
+          output$ciPropGuessFeedback <- renderText("Correct!")
+        } else if (rep == FALSE || numSamp != 109070) {
+          output$ciPropLowerIcon <- renderIcon(icon = "incorrect", width = 30)
+          output$ciPropUpperIcon <- renderIcon(icon = "incorrect", width = 30)
+          output$ciPropGuessFeedback <- renderText("Think of conditions needed to be met in order to boostrap.")
+        } else if (numRep < 500) {
+          output$ciPropLowerIcon <- renderIcon(icon = "incorrect", width = 30)
+          output$ciPropUpperIcon <- renderIcon(icon = "incorrect", width = 30)
+          output$ciPropGuessFeedback <- renderText("Think of how many replications are needed to be representative.")
+        } else if (cl != .98) {
+          output$ciPropLowerIcon <- renderIcon(icon = "incorrect", width = 30)
+          output$ciPropUpperIcon <- renderIcon(icon = "incorrect", width = 30)
+          output$ciPropGuessFeedback <- renderText("Reread the context and verify inputs match")
+        } else {
+          output$ciPropLowerIcon <- renderIcon(icon = "incorrect", width = 30)
+          output$ciPropUpperIcon <- renderIcon(icon = "incorrect", width = 30)
+          output$ciPropGuessFeedback <- renderText("Incorrect, reread the context and make adjustments to inputs. References the prerequsities as needed.")
+        }
+      }
     )
     
-    bootCI <- boot::boot.ci(
-      boot.out = bootOut,
-      conf = cl,
-      type = "perc"
-    )
-    
-    lower <- (1 - cl)/2
-    upper <- cl + lower
-    cii <- quantile(bootOut$t, c(lower, upper))
-    
-    upperCI(round(cii[2], 2))
-    lowerCI(round(cii[1], 2))
-    
-    if (rep == FALSE || numRep < 100) {
-      output$ciPropResults <- renderText({
-        "Review the conditions. What is a requirement of bootstrapping?"
-      })
-      output$ciPropSim <- renderPlot({
-        ggplot() +
-          geom_blank()
-      })
-    } else {
-      output$ciPropSim <- renderPlot({
-        ggplot() +
-          geom_histogram(data = data.frame(x = bootOut$t), aes(x = x), bins = 15) +
-          geom_vline(xintercept = quantile(bootOut$t, c(lower, upper)), color = "red", linetype = "dashed") +
-          labs(x = "Bootstrap Proportion", y = "Frequency")
-      })
-      output$ciPropResults <- renderText({
-        paste("Lower Confidence Interval:", round(cii[1], 2), "\n",
-              "Upper Confidence Interval:", round(cii[2], 2))
-      })
-    }
-  })
-  
-  
   ## Hypothesis Test ----
   ### Simulation ----
   
