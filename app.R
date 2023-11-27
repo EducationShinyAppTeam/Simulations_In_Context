@@ -124,7 +124,7 @@ ui <- list(
             column(
               width = 6,
               box(
-                title = strong("Simulations for Calculating Probailities"),
+                title = strong("Simulations for Calculating Probabilities"),
                 status = "primary",
                 collapsible = TRUE,
                 collapsed = TRUE,
@@ -164,12 +164,15 @@ ui <- list(
           fluidRow(
             column(
               width = 9,
-              p("Every year thousands of airplanes takeoff and land at international
-                airports. 6 international airports from the northeast region of the
-                USA were samples. It would found that the mean number of planes 
-                that landed and took off at this airport was 22,253.162, the median 
-                of 20,600. Create a 90% confidence interval 
-                for the numbers of flights departing/arriving at northeast airports."),
+              p("Every year numerous airplanes takeoff and land at international
+                airports globally. In a study, a sample was drawn from six international 
+                airports in the northeast region of the USA. Over the period from 
+                January 2020 to August 2023, a total of 253 data points were collected 
+                regarding the number of planes taking off or landing. It  
+                revealed that the mean number of planes engaged in these activities 
+                was 22,253.162, with a median of 20,600.  Create a 90% confidence 
+                interval for the numbers of flights departing/arriving at northeast 
+                international airports based on this data."),
             ),
             column(
               width = 3,
@@ -221,46 +224,49 @@ ui <- list(
               wellPanel(
                 fluidRow(
                   column(
-                    width = 2, 
+                    width = 5, 
                     selectInput(
                       inputId = "ciMeanPop",
                       label = "Population",
-                      choices = c( " ", "Airports in the Northeast region", 
+                      choices = c( " ", "International Airports", "Airports in the Northeast region", 
                                    "Number of flights arriving/departing", 
-                                   "Number of international airports", 
-                                   "International airports in the Northeast region")
+                                   "Number of layovers", "Number of international airports",  
+                                   "International airports in the Northeast region"),
                     )
                   ),
                   column(width = 1, uiOutput(outputId = "ciMeanPopIcon")), 
                   column(
-                    width = 2, 
+                    width = 5, 
                     selectInput(
                       inputId = "ciMeanPara",
                       label = "Population Parameter",
                       choices = c(" ", "Number of international airports", 
                                   "Airports in the Northeast region",
                                   "Number of flights arriving/departing", 
+                                  "International Airports", "Number of layovers",
                                   "International airports in the Northeast region")
                     )
                   ),
                   column(width = 1, uiOutput(outputId = "ciMeanParaIcon")),
+                ),
+                fluidRow(
                   column(
-                    width = 2, 
+                    width = 5, 
                     selectInput(
                       inputId = "ciMeanSamp",
                       label = "Sample",
-                      choices = c(" ", "22253.162", "20600", "6 International Airports",
-                                  "13 States in Northeast Region")
+                      choices = c(" ", "22253", "All Airports", "253", "20600", 
+                                  "6 International Airports", "13 States in Northeast Region")
                     )
                   ),
                   column(width = 1, uiOutput(outputId = "ciMeanSampIcon")),
                   column(
-                    width = 2, 
+                    width = 5, 
                     selectInput(
                       inputId = "ciMeanStat",
                       label = "Sample Statistic",
-                      choices = c( " ", "13 States in Northeast Region", "20600", 
-                                   "6 International Airports", "22253.162")
+                      choices = c( " ", "253", "All Airports", "13 States in Northeast Region", 
+                                   "20600", "6 International Airports", "22253")
                     )
                   ),
                   column(width = 1, uiOutput(outputId = "ciMeanStatIcon"))
@@ -343,12 +349,12 @@ ui <- list(
               width = 9, 
               p("Researchers were curious about the retention rate of students with 
                 Science, Technology, Engineering, and Mathematic (STEM) majors.
-                They gathered data on 6 R1 College Instiutions. Of the students 
-                they recorded information on 5.92% transferred into STEM, 15.58% 
-                transferred out of STEM, 46.62% stayed in a nonSTEM major,
-                and 31.88% stayed within a STEM major by the time of graduation. 
-                Create a 95% confidence interval of the proportion of students 
-                switching into STEM or keeping a STEM degree. ")
+                 They conducted a study involving six R1 College Institutions and 
+                collected data on a total of 109,070 students. Among these students, 
+                5.92% transferred into STEM, 15.58% transferred out of STEM, 46.62% 
+                remained in a non-STEM major, and 31.88% stayed within a STEM major 
+                until graduation. Create a 95% confidence interval of the proportion of students 
+                either switching into STEM or maintaining a STEM degree. ")
             ),
             column(
               width = 3,
@@ -395,44 +401,49 @@ ui <- list(
               wellPanel(
                 fluidRow(
                   column(
-                    width = 2, 
+                    width = 5, 
                     selectInput(
                       inputId = "ciPropPop",
                       label = "Population",
-                      choices = c(" ", "All Research Institutions",
+                      choices = c(" ", "All Research Institutions", "Students in College",
                                   "Students who switch into/stay within STEM", 
-                                  "R1 Institutions", "Students who stayed in STEM")
+                                  "STEM majors at R1 Institutions", "Students who stayed in STEM",
+                                  "Students pursuing an engineering degree")
                     )
                   ),
                   column(width = 1, uiOutput(outputId = "ciPropPopIcon")),
                   column(
-                    width = 2, 
+                    width = 5, 
                     selectInput(
                       inputId = "ciPropPara",
                       label = "Population Parameter",
-                      choices = c(" ", "Students who stayed in STEM",
+                      choices = c(" ", "Students who stayed in STEM", "Students in College",
                                   "Students who switch into/stay within STEM",
-                                  "R1 Institutions", "All Research Institutions")
+                                  "Students pursuing an engineering degree",
+                                  "STEM majors at R1 Institutions", "All Research Institutions")
                     )
                   ),
-                  column(width = 1, uiOutput(outputId = "ciPropParaIcon")),
+                  column(width = 1, uiOutput(outputId = "ciPropParaIcon"))
+                ),
+                fluidRow(
                   column(
-                    width = 2, 
+                    width = 5, 
                     selectInput(
                       inputId = "ciPropSamp",
                       label = "Sample",
-                      choices = c(" ", "Number of STEM majors", "6 R1 Institutions", 
-                                  "37.80%", "46.62%")
+                      choices = c(" ", "Number of STEM majors", "Students in College",
+                                  "Students at the 6 R1 Institutions", 
+                                  "37.80%", "31.88%", "5.92%")
                     )
                   ),
                   column(width = 1, uiOutput(outputId = "ciPropSampIcon")),
                   column(
-                    width = 2, 
+                    width = 5, 
                     selectInput(
                       inputId = "ciPropStat",
                       label = "Sample Statistic",
-                      choices = c(" ", "37.80%", "46.62%", "Number of STEM majors",
-                                  "6 R1 Institutions")
+                      choices = c(" ", "37.80%", "31.88%", "Number of STEM majors",
+                                  "Students at the 6 R1 Institutions", "5.92%", "Students in College")
                     )
                   ),
                   column(width = 1, uiOutput(outputId = "ciPropStatIcon")),
@@ -657,7 +668,7 @@ ui <- list(
               p("Nick and Jennifer were rolling dice to see who could get
                   a higher total. Nick claims that he can get a higher total with
                   less die, but Jennifer does not believe him. So Nick rolls 
-                  5 die  while Jennifer rolls 6 die at once. What is the probability 
+                  5 die  while Jennifer rolls 6 die simutaneously. What is the probability 
                   that Nick gets a higher total than Jennifer?"),
             ),
             column(
@@ -892,7 +903,7 @@ server <- function(input, output, session) {
     input$ciMeanSubmit,
     handlerExpr = {
       selectedOption <- input$ciMeanStat
-      if (selectedOption == "20600") {
+      if (selectedOption == "20600" || selectedOption == "22253") {
         output$ciMeanStatIcon <- renderIcon(icon = "correct", width = 30)
       } else {
         output$ciMeanStatIcon <- renderIcon(icon = "incorrect", width = 30)
@@ -907,7 +918,8 @@ server <- function(input, output, session) {
       samp <- input$ciMeanSamp
       stat <- input$ciMeanStat
       
-      if (pop != "International airports in the Northeast region" || para != "Number of flights arriving/departing"|| samp != "6 International Airports" || stat != "20600" ) {
+      if (pop != "International airports in the Northeast region" || para != "Number of flights arriving/departing"||
+          samp != "6 International Airports" || (stat != "20600" && stat != "22253")) {
         output$ciMeanCompFeed <- renderText("Remember that population relates to a whole and sample relates to a small section of the population.")
       } else {
         output$ciMeanCompFeed <- renderText("Correct!")
@@ -976,7 +988,6 @@ server <- function(input, output, session) {
           expr = {
             ggplot() + 
               geom_blank()
-            
           }
         )
       } else {
@@ -1036,7 +1047,7 @@ server <- function(input, output, session) {
     input$ciPropSubmit,
     handlerExpr = {
       selectedOption <- input$ciPropPop
-      if (selectedOption == "R1 Institutions") {
+      if (selectedOption == "STEM majors at R1 Institutions") {
         output$ciPropPopIcon <- renderIcon(icon = "correct", width = 30)
       } else {
         output$ciPropPopIcon <- renderIcon(icon = "incorrect", width = 30)
@@ -1058,7 +1069,7 @@ server <- function(input, output, session) {
     input$ciPropSubmit,
     handlerExpr = {
       selectedOption <- input$ciPropSamp
-      if (selectedOption == "6 R1 Institutions") {
+      if (selectedOption == "Students at the 6 R1 Institutions") {
         output$ciPropSampIcon <- renderIcon(icon = "correct", width = 30)
       } else {
         output$ciPropSampIcon <- renderIcon(icon = "incorrect", width = 30)
@@ -1069,7 +1080,7 @@ server <- function(input, output, session) {
     input$ciPropSubmit,
     handlerExpr = {
       selectedOption <- input$ciPropStat
-      if (selectedOption == "37.80%") {
+      if (selectedOption == "31.88%" || selectedOption == "5.92%") {
         output$ciPropStatIcon <- renderIcon(icon = "correct", width = 30)
       } else {
         output$ciPropStatIcon <- renderIcon(icon = "incorrect", width = 30)
@@ -1084,7 +1095,8 @@ server <- function(input, output, session) {
       samp <- input$ciPropSamp
       stat <- input$ciPropStat
 
-      if (pop != "R1 Institutions" || para != "Students who switch into/stay within STEM"|| samp != "6 R1 Institutions" || stat != "37.80%" ) {
+      if (pop != "STEM majors at R1 Institutions" || para != "Students who switch into/stay within STEM" ||
+          samp != "Students at the 6 R1 Institutions" || (stat != "31.88%" && stat != "5.92%")) {
         output$ciPropCompFeed <- renderText("Remember that population relates to a whole and sample relates to a small section of the population.")
       } else {
         output$ciPropCompFeed <- renderText("Correct!")
@@ -1260,7 +1272,7 @@ server <- function(input, output, session) {
         output$guessProbFeedback <- renderText("Keep in mind how many trials should be used")
       } else if ((nickRolls != 5 | jennRolls != 6) & trials > 100) {
         output$guessIconProb <- renderIcon(icon = "incorrect", width = 30)
-        output$guessProbFeedback <- renderText("Double check the number of rolls for Nick and Jenn")
+        output$guessProbFeedback <- renderText("Double check the number of rolls for Nick and Jennifer")
       } else {
         output$guessIconProb <- renderIcon(icon = "incorrect", width = 30)
         output$guessProbFeedback <- renderText("Set the simulation options according to the context")
