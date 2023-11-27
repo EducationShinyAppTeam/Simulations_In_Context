@@ -8,10 +8,10 @@ Authors@R: c(
     person(given = "Dennis", family = "Pearl", email = "rpc5102@psu.edu", role = c("aut"))
   )
 Chapter: Sample Chapter
-Description: This app is focused on the common types of xyz.
+Description: Learn how simulations come together in specific scenarios. Read through a context and link key terms to their meanings. Then create a simulation that accurately reflects the situation.
 LearningObjectives: c(
-    "The student will learn to understand Concept A in way z.",
-    "The student will learn to understand Concept B as description y."
+    "Define key terms associated with simulations and their context.",
+    "Create a simulation that accurately reflects a situation."
   )
 DisplayMode: Normal
 URL: https://psu-eberly.shinyapps.io/Simulations_In_Context

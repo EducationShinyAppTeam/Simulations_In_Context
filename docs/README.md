@@ -8,4 +8,6 @@
 ![App Screenshot](../docs/screenshot.png)
 
 # App Description
-Type the description of your app here
+Learn how simulations come together in specific scenarios. Read through context 
+and link key terms to their meanings. Then create a simulation that accurately 
+reflects the situation.

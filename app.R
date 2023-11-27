@@ -61,7 +61,9 @@ ui <- list(
           tabName = "overview",
           withMathJax(),
           h1("Simulations in Context"), 
-          p("APP DESC."),
+          p("Learn how simulations come together in specific scenarios. Read through 
+            a context and link key terms to their meanings. Then create a simulation 
+            that accurately reflects the situation."),
           h2("Instructions"),
           tags$ol(
             tags$li("Review the prereqisities as needed."),
@@ -106,15 +108,15 @@ ui <- list(
             width = "100%",
             tags$ul(
               tags$li("Population: The entire group that we want information about. "),
-              tags$li("Population Parameter(s): A measurement that describes 
+              tags$li("Population Parameter(s): A number that describes 
                       something about the population. "),
               tags$li("Sample: The part of the population that we are actually examining"),
-              tags$li("Statistic(s): A measurement that describes something about 
+              tags$li("Statistic(s): A number that describes something about 
                       the sample"),
-              tags$li("Bootrap: Type of resampling with replacement. You take samples 
+              tags$li("Bootsrap: Type of resampling with replacement. You take samples 
                       from the original sample using the same sample size."),
-              tags$li("Confidence Interval: The range that you expect the true 
-                      population parameter to lie between with a certain level of
+              tags$li("Confidence Interval: The range of population parameters that 
+                      are compatible with the test statistic with a certain level of
                       confidence. ")
             )
           ),
@@ -128,11 +130,10 @@ ui <- list(
                 collapsed = TRUE,
                 width = "100%",          
                 tags$ul(
-                  tags$li("An easy way to help test probabilities is by using simulations."),
-                  tags$li("You can use these simulaitons to create probability tables
-                          to see the liklihood of real life outcomes."),
-                  tags$li("Some simulation examples are coin flipping, card drawing, 
-                          spinners, etc. ")
+                  tags$li("Simulate a chance process that mirrors a real-life experiment."),
+                  tags$li("For each simulation check whether a particular event occurs."),
+                  tags$li("Estimate the probability of the event by the proportion 
+                          of times it comes up in a large number of simulations.")
                 )
               )
             ),
@@ -145,14 +146,12 @@ ui <- list(
                 collapsed = TRUE,
                 width = "100%",          
                 tags$ul(
-                  tags$li("Bootrapping can be useful to 
-                          get estimates of standard error, confidence intervals, 
-                          and other statistics. It is very heplful when the 
-                          sample is small or not normally distributed"),
-                  tags$li("When bootstrapping you want use the mean of the 
-                          original sample and standard error from the bootstrapped 
-                          sample."),
-                  tags$li("Some condition include, replication, number of samples, number of replications.")
+                  tags$li("Bootstrapping can be useful to estimate standard errors 
+                          and confidence intervals for sample statistics in situations 
+                          where common formulas don't apply."),
+                  tags$li("Calculate the statistic for each bootstrap sample and 
+                          look at the variability across bootstrap samples to estimate the variability around the original sample statistic."),
+                  tags$li("Use as many replications of bootstrap samples as practical.")
                 )
               )
             )

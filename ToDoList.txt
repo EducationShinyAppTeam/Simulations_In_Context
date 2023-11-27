@@ -1,5 +1,4 @@
 # Things Needed for This Version
-1. Update prereq. 
 2. Fix proportion 
 3. Add feedback when needed
 4. Fix reference images
