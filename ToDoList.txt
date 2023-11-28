@@ -1,7 +1,6 @@
 # Things Needed for This Version
-2. Fix proportion 
-3. Add feedback when needed
-4. Fix reference images
+1. BK Ref
+2. 
 
 # Ideas for Future Development
 1. Add in a permutation section with a difference in mean/prop.

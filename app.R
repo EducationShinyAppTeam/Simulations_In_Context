@@ -41,7 +41,6 @@ ui <- list(
         menuItem("Prerequisites", tabName = "prerequisites", icon = icon("book")),
         menuItem("CI for Mean", tabName = "ciMean", icon = icon("wpexplorer")),
         menuItem("CI for Proportion", tabName = "ciProp", icon = icon("wpexplorer")),
-        #menuItem("Hypothesis Test", tabName = "hypTest", icon = icon("wpexplorer")),
         menuItem("Probability", tabName = "prob", icon = icon("wpexplorer")),
         menuItem("References", tabName = "references", icon = icon("leanpub"))
       ),
@@ -72,10 +71,10 @@ ui <- list(
           div(
             style = "text-align: center;",
             bsButton(
-              inputId = "overviewToPrereq",
-              label = "Prerequisites",
+              inputId = "overviewToMean",
+              label = "CI for Mean",
               size = "large",
-              icon = icon("book")
+              icon = icon("wpexplorer")
             )
           ),
           br(),
@@ -115,7 +114,9 @@ ui <- list(
                       from the original sample using the same sample size."),
               tags$li("Confidence Interval: The range of population parameters that 
                       are compatible with the test statistic with a certain level of
-                      confidence.")
+                      confidence."),
+              tags$li("Event: A specific outcome or a set of outcomes that we are interested
+                      in observing or analyzing.")
             )
           ),
           fluidRow(
@@ -148,14 +149,15 @@ ui <- list(
                           and confidence intervals for sample statistics in situations 
                           where common formulas don't apply."),
                   tags$li("Calculate the statistic for each bootstrap sample and 
-                          look at the variability across bootstrap samples to estimate the variability around the original sample statistic."),
+                          look at the variability across bootstrap samples to estimate 
+                          the variability around the original sample statistic."),
                   tags$li("Use as many replications of bootstrap samples as practical.")
                 )
               )
             )
           )
         ),
-        ### Confidence Interval for Mean ----
+        ### CI for Mean ----
         tabItem(
           tabName = "ciMean",
           h2("Confidence Interval for Mean"),
@@ -164,21 +166,18 @@ ui <- list(
             column(
               width = 12,
               p("Every year numerous airplanes takeoff and land at international
-                airports globally. HOW MANY INTERNATIONAL NORTHEATERN AIRPORTS ARE HERE. 
-                HOW MANY ARE WE USING DATA FROM. In a study, a sample was drawn from six international 
-                airports in the northeast region of the USA. Over the period from 
-                January 2020 to August 2023, a total of 253 data points were collected 
-                regarding the number of planes taking off or landing. It  
-                revealed that the mean number of planes engaged in these activities 
-                was 22,253.162, with a median of 20,600.  Create a 90% confidence 
-                interval for the numbers of flights departing/arriving at northeast 
-                international airports based on this data."),
+                airports globally, with approximately 32 situated in the Northeast region. 
+                In a study, a sample from 8 international airports in the 9 Northeastern 
+                states. Over the period from December 2020 to August 2023, a total of 
+                290 data points were collected regarding the number of planes taking off 
+                or landing. It revealed that the mean number of planes engaged in these activities 
+                was 16517. Create a 98% confidence interval for the number of flights 
+                departing/arriving at northeast international airports based on this data.")
             )
           ),
-          br(),
           tabsetPanel(
             id = "simulationType",
-            ##### Identifying Components ----
+            #### Identifying Components ----
             tabPanel(
               title = "Step 2: Identifying Components",
               value = "b",
@@ -189,10 +188,12 @@ ui <- list(
                     selectInput(
                       inputId = "ciMeanPop",
                       label = "Population",
-                      choices = c( " ", "International Airports", "Airports in the Northeast region", 
-                                   "Number of flights arriving/departing", 
-                                   "Number of layovers", "Number of international airports",  
-                                   "International airports in the Northeast region"),
+                      choices = c(
+                        " ", "International airports", "Airports in the Northeast region", 
+                        "Number of flights arriving/departing", 
+                        "Number of layovers", "Number of international airports",  
+                        "International airports in the Northeast region"
+                      )
                     )
                   ),
                   column(width = 1, uiOutput(outputId = "ciMeanPopIcon")), 
@@ -201,14 +202,15 @@ ui <- list(
                     selectInput(
                       inputId = "ciMeanPara",
                       label = "Population Parameter",
-                      choices = c(" ", "Number of international airports", 
-                                  "Airports in the Northeast region",
-                                  "Number of flights arriving/departing", 
-                                  "International Airports", "Number of layovers",
-                                  "International airports in the Northeast region")
+                      choices = c(
+                        " ", "Number of international airports", 
+                        "Airports in the Northeast region", "Number of flights arriving/departing", 
+                        "International airports", "Number of layovers",
+                        "International airports in the Northeast region"
+                      )
                     )
                   ),
-                  column(width = 1, uiOutput(outputId = "ciMeanParaIcon")),
+                  column(width = 1, uiOutput(outputId = "ciMeanParaIcon"))
                 ),
                 fluidRow(
                   column(
@@ -216,8 +218,10 @@ ui <- list(
                     selectInput(
                       inputId = "ciMeanSamp",
                       label = "Sample",
-                      choices = c(" ", "22253", "All Airports", "253", "20600", 
-                                  "6 International Airports", "13 States in Northeast Region")
+                      choices = c(
+                        " ", "16517", "All airports", "290", "32", 
+                        "8 International airports", "9 States in Northeast region"
+                      )
                     )
                   ),
                   column(width = 1, uiOutput(outputId = "ciMeanSampIcon")),
@@ -226,8 +230,10 @@ ui <- list(
                     selectInput(
                       inputId = "ciMeanStat",
                       label = "Sample Statistic",
-                      choices = c( " ", "253", "All Airports", "13 States in Northeast Region", 
-                                   "20600", "6 International Airports", "22253")
+                      choices = c( 
+                        " ", "290", "All airports", "9 States in Northeast region", 
+                        "32", "8 International airports", "16517"
+                      )
                     )
                   ),
                   column(width = 1, uiOutput(outputId = "ciMeanStatIcon"))
@@ -254,7 +260,7 @@ ui <- list(
                 )
               )
             ),
-            ##### Simulation  ----
+            #### Simulation  ----
             tabPanel(
               title = "Step 3: Simulation",
               value = "b",
@@ -300,7 +306,7 @@ ui <- list(
               )
             )
           ),
-          ### Answer ----
+          #### Answer ----
           h4("Step 4: Answer"),
           fluidRow(
             column( 
@@ -322,7 +328,7 @@ ui <- list(
                 step = 0.01
               )
             ),
-            column(width = 1, uiOutput(outputId = "ciMeanUpperIcon")),
+            column(width = 1, uiOutput(outputId = "ciMeanUpperIcon"))
           ),
           fluidRow(
             column(
@@ -343,13 +349,24 @@ ui <- list(
           fluidRow(
             column(
               width = 12, 
-              p("CONTEXT HERE")
+              p("Each year QSR magazine does a survey of drive-thru service at America’s
+                quick serve restaurants.  The magazine selects a number of restaurants
+                from each of the major chains and sends a customer to order a meal 
+                from the drive thru window.  The order will include an entree, a 
+                side dish, and a drink, and one deviation from the usual order. 
+                QSR asks the customer to rate their experience in different ways,
+                including how much time it took for them to be served and whether
+                the restaurant got the order correct or not.  In the 2023 QSR survey, 
+                165 out of Burger King’s 6500 restaurants with drive-thru windows 
+                were selected and it turned out that there was a mistake in the 
+                order at 16 of the sampled restaurants. Create a 90% confidence 
+                interval for the proportion of all Burger King Drive Thru windows 
+                that would make a mistake in an order of this type.")
             )
           ),
-          br(),
           tabsetPanel(
             id = "simulationType",
-            ##### Identifying Components ----
+            #### Identifying Components ----
             tabPanel(
               title = "Step 2: Identifying Components",
               value = "b",
@@ -360,7 +377,12 @@ ui <- list(
                     selectInput(
                       inputId = "ciPropPop",
                       label = "Population",
-                      choices = c("HERE")
+                      choices = c(
+                        " ", "All U.S. Burger Kings with a drive through window",
+                        "All U.S. Burger Kings", "Time it took to be served",
+                        "Number of Burger Kings that made a mistake",
+                        "Number of Impossible Burgers ordered", "All U.S. Burger Kings with seating"
+                      )
                     )
                   ),
                   column(width = 1, uiOutput(outputId = "ciPropPopIcon")),
@@ -369,7 +391,13 @@ ui <- list(
                     selectInput(
                       inputId = "ciPropPara",
                       label = "Population Parameter",
-                      choices = c("HERE")
+                      choices = c(
+                        " ", "Time it took to be served", "All U.S. Burger Kings with seating",
+                        "Number of Burger Kings that made a mistake",
+                        "Number of Impossible Burgers ordered",
+                        "All U.S. Burger Kings with a drive through window",
+                        "All U.S. Burger Kings"
+                      )
                     )
                   ),
                   column(width = 1, uiOutput(outputId = "ciPropParaIcon"))
@@ -380,7 +408,11 @@ ui <- list(
                     selectInput(
                       inputId = "ciPropSamp",
                       label = "Sample",
-                      choices = c("HERE")
+                      choices = c(
+                        " ", "165/6500", "6500 QSR readers", "16/165",
+                        "165 Burger Kings tested by QSR magazine",
+                        "165 fast food restaurants", "16/6500"
+                      )
                     )
                   ),
                   column(width = 1, uiOutput(outputId = "ciPropSampIcon")),
@@ -389,10 +421,14 @@ ui <- list(
                     selectInput(
                       inputId = "ciPropStat",
                       label = "Sample Statistic",
-                      choices = c("HERE")
+                      choices = c(
+                        " ", "16/165", "165 Burger Kings tested by QSR magazine",
+                        "6500 QSR readers", "165 fast food restaurants", "165/6500",
+                        "16/6500"
+                      )
                     )
                   ),
-                  column(width = 1, uiOutput(outputId = "ciPropStatIcon")),
+                  column(width = 1, uiOutput(outputId = "ciPropStatIcon"))
                 ),
                 fluidRow(
                   column(
@@ -416,7 +452,7 @@ ui <- list(
                 )
               )
             ),
-            ##### Simulation  ----
+            #### Simulation  ----
             tabPanel(
               title = "Step 3: Simulation",
               value = "b",
@@ -427,10 +463,9 @@ ui <- list(
                     sliderInput(
                       inputId = "ciPropNS",
                       label = "Number of Samples",
-                      min = 109000, 
-                      max = 110000,
-                      value = 109490,
-                      step = 35
+                      min = 100, 
+                      max = 200,
+                      value = 150
                     ),
                     sliderInput(
                       inputId = "ciPropNumRep",
@@ -461,7 +496,7 @@ ui <- list(
                   textOutput('ciPropResults')
                 )
               )
-            ),
+            )
           ),
           #### Answer ----
           h4("Step 4: Answer"),
@@ -485,7 +520,7 @@ ui <- list(
                 step = 0.01
               )
             ),
-            column(width = 1, uiOutput(outputId = "ciPropUpperIcon")),
+            column(width = 1, uiOutput(outputId = "ciPropUpperIcon"))
           ),
           fluidRow(
             column(
@@ -508,15 +543,14 @@ ui <- list(
               width = 12,
               p("Nick and Jennifer were rolling dice to see who could get
                   a higher total. Nick claims that he can get a higher total with
-                  less die, but Jennifer does not believe him. So Nick rolls 
-                  5 die  while Jennifer rolls 6 die simutaneously. What is the probability 
-                  that Nick gets a higher total than Jennifer?"),
+                  fewer dice, but Jennifer does not believe him. So Nick rolls 
+                  5 dice  while Jennifer rolls 6 dice simutaneously. What is the probability 
+                  that Nick gets a higher total than Jennifer?")
             )
           ),
-          
           tabsetPanel(
             id = "simulationType",
-            ##### Identifying Components ----
+            #### Identifying Components ----
             tabPanel(
               title = "Step 2: Identifying Components",
               value = "b",
@@ -527,7 +561,10 @@ ui <- list(
                     selectInput(
                       inputId = "probPop",
                       label = "Population",
-                      choices = c("HERE")
+                      choices = c(
+                        " ", "All possible sum combinations", "Sum of all the dice", 
+                        "Possible outcome 1-6 on each die"
+                      )
                     )
                   ),
                   column(width = 1, uiOutput(outputId = "probPopIcon")),
@@ -536,10 +573,13 @@ ui <- list(
                     selectInput(
                       inputId = "probSamp",
                       label = "Sample",
-                      choices = c("HERE")
+                      choices = c(
+                        " ", "Sum of Nick's 5 dice rolls and Jennifer'6 dice rolls",
+                        "Sum of the 11 dice", "The number of trials"
+                      )
                     )
                   ),
-                  column(width = 1, uiOutput(outputId = "probSampIcon")),
+                  column(width = 1, uiOutput(outputId = "probSampIcon"))
                 ),
                 fluidRow(
                   column(
@@ -547,7 +587,11 @@ ui <- list(
                     selectInput(
                       inputId = "probEvent",
                       label = "Event",
-                      choices = c("HERE")
+                      choices = c(
+                        " ", "Whether Jennifer has a higher total than Nick",
+                        "Whether Nick has a higher total than Jennifer",
+                        "Whether Nick and Jennifer end up in a tie"
+                      )
                     )
                   ),
                   column(width = 1, uiOutput(outputId = "probEventIcon")),
@@ -556,10 +600,10 @@ ui <- list(
                     selectInput(
                       inputId = "probReplace",
                       label = "Replacement",
-                      choices = c("With replacement", "Without replacement")
+                      choices = c(" ", "With replacement", "Without replacement")
                     )
                   ),
-                  column(width = 1, uiOutput(outputId = "probReplaceIcon")),
+                  column(width = 1, uiOutput(outputId = "probReplaceIcon"))
                 ),
                 fluidRow(
                   column(
@@ -583,7 +627,7 @@ ui <- list(
                 )
               )
             ),
-            ##### Simulation  ----
+            #### Simulation  ----
             tabPanel(
               title = "Step 3: Simulation",
               value = "b",
@@ -649,7 +693,7 @@ ui <- list(
               )
             ),
             column(width = 10, textOutput(outputId = "guessProbFeedback"))
-          ),
+          )
         ),
         ### References Page ----
         tabItem(
@@ -665,6 +709,12 @@ ui <- list(
             "Bailey, E. (2015). shinyBS: Twitter bootstrap components for shiny.
             (v0.61). [R package]. Available from
             https://CRAN.R-project.org/package=shinyBS"
+          ),
+          p(
+            class = "hangingindent",
+            "Canty, A. and Ripley, B. boot: Boostrap Functions (Originally by Angelo
+            Canty for S). (v1.3-28.1). Avaliable from 
+            https://cran.r-project.org/web/packages/boot/index.html"
           ),
           p(
             class = "hangingindent",
@@ -687,19 +737,19 @@ ui <- list(
           ),
           p(
             class = "hangingindent",
-            "“District Employees and Finance.” The School District of Philadelphia, www.philasd.org/performance/programsservices/open-data/district-information/#employee_data."
-          ),
-          p(
-            class = "hangingindent",
             "Perrier, V., Meyer, F., Granjon, D. (2023) shinyWidgets: Custom Input
             Widgets for Shiny. (v0.7.6). Avaliable from 
             https://cran.r-project.org/web/packages/shinyWidgets/index.html"
           ),
           p(
             class = "hangingindent",
-            "Wickham H (2016). ggplot2: Elegant Graphics for Data Analysis. 
+            "Wickham, H. (2016). ggplot2: Elegant Graphics for Data Analysis. 
             Springer-Verlag New York. ISBN 978-3-319-24277-4. Avaliable from 
             https://ggplot2.tidyverse.org."
+          ),
+          p(
+            class = "hangingindent",
+            "REFERNCE HERE FOR BK"
           ),
           br(),
           br(),
@@ -750,14 +800,14 @@ server <- function(input, output, session) {
     }
   )
   
-  ## Overview to Prereq Button----
+  ## Overview to Mean Button----
   observeEvent(
-    eventExpr = input$overviewToPrereq,
+    eventExpr = input$overviewToMean,
     handlerExpr = {
       updateTabItems(
         session = session,
         inputId = "pages",
-        selected = "prerequisites"
+        selected = "ciMean"
       )
     }
   )
@@ -789,7 +839,7 @@ server <- function(input, output, session) {
     input$ciMeanSubmit,
     handlerExpr = {
       selectedOption <- input$ciMeanSamp
-      if (selectedOption == "6 International Airports") {
+      if (selectedOption == "8 International airports") {
         output$ciMeanSampIcon <- renderIcon(icon = "correct", width = 30)
       } else {
         output$ciMeanSampIcon <- renderIcon(icon = "incorrect", width = 30)
@@ -800,14 +850,14 @@ server <- function(input, output, session) {
     input$ciMeanSubmit,
     handlerExpr = {
       selectedOption <- input$ciMeanStat
-      if (selectedOption == "20600" || selectedOption == "22253") {
+      if (selectedOption == "16517") {
         output$ciMeanStatIcon <- renderIcon(icon = "correct", width = 30)
       } else {
         output$ciMeanStatIcon <- renderIcon(icon = "incorrect", width = 30)
       }
     }
   )
-  #### Feedback
+  ### Feedback
   observeEvent(
     input$ciMeanSubmit,
     handlerExpr = {
@@ -817,14 +867,14 @@ server <- function(input, output, session) {
       stat <- input$ciMeanStat
   
       if (pop != "International airports in the Northeast region" || para != "Number of flights arriving/departing"||
-          samp != "6 International Airports" || (stat != "20600" && stat != "22253")) {
+          samp != "6 International airports" || stat != "16517") {
         output$ciMeanCompFeed <- renderText("Remember that population relates to a whole and sample relates to a small section of the population.")
       } else {
         output$ciMeanCompFeed <- renderText("Correct!")
       }  
     }
   )
-  #### Reset
+  ### Reset
   observeEvent(
     eventExpr = input$ciMeanReset,
     handlerExpr = {
@@ -874,7 +924,7 @@ server <- function(input, output, session) {
       upperCI(round(cii[2],2))
       lowerCI(round(cii[1],2))
       
-      if(rep == FALSE || numRep < 100 || numSamp != 253) {
+      if(rep == FALSE || numRep < 100 || numSamp != 290) {
         output$ciMeanResults <- renderText(
           expr = {
             "Review the conditions. What is a requirement of bootstrapping?"
@@ -922,19 +972,23 @@ server <- function(input, output, session) {
       upper <- input$ciMeanUpper
       lower <- input$ciMeanLower
       
-      if (numRep > 500 && rep && lowerCI() == lower && upperCI() == upper && cl == .90 && numSamp == 253) {
+      if (numRep > 100 && rep && lowerCI() == lower && upperCI() == upper && cl == .98 && numSamp == 290) {
         output$ciMeanLowerIcon <- renderIcon(icon = "correct", width = 30)
         output$ciMeanUpperIcon <- renderIcon(icon = "correct", width = 30)
         output$ciMeanGuessFeedback <- renderText("Correct!")
-      } else if (rep == FALSE || numSamp != 253) {
+      } else if (numRep > 100 && rep && numSamp == 290 && cl == .98 && (upperCI() != upper || lowerCI() != lower)) {
+        output$ciMeanLowerIcon <- renderIcon(icon = "incorrect", width = 30)
+        output$ciMeanUpperIcon <- renderIcon(icon = "incorrect", width = 30)
+        output$ciMeanGuessFeedback <- renderText("Make sure bounds match the ones below the graph")
+      } else if (rep == FALSE || numSamp != 290) {
         output$ciMeanLowerIcon <- renderIcon(icon = "incorrect", width = 30)
         output$ciMeanUpperIcon <- renderIcon(icon = "incorrect", width = 30)
         output$ciMeanGuessFeedback <- renderText("Think of conditions needed to be met in order to boostrap.")
-      } else if (numRep < 500) {
+      } else if (numRep < 100) {
         output$ciMeanLowerIcon <- renderIcon(icon = "incorrect", width = 30)
         output$ciMeanUpperIcon <- renderIcon(icon = "incorrect", width = 30)
         output$ciMeanGuessFeedback <- renderText("Think of how many replications are needed to be representative.")
-      } else if (cl != .9) {
+      } else if (cl != .98) {
         output$ciMeanLowerIcon <- renderIcon(icon = "incorrect", width = 30)
         output$ciMeanUpperIcon <- renderIcon(icon = "incorrect", width = 30)
         output$ciMeanGuessFeedback <- renderText("Reread the context and verify inputs match")
@@ -951,7 +1005,7 @@ server <- function(input, output, session) {
     input$ciPropSubmit,
     handlerExpr = {
       selectedOption <- input$ciPropPop
-      if (selectedOption == "HERE") {
+      if (selectedOption == "All U.S. Burger Kings with a drive through window") {
         output$ciPropPopIcon <- renderIcon(icon = "correct", width = 30)
       } else {
         output$ciPropPopIcon <- renderIcon(icon = "incorrect", width = 30)
@@ -962,7 +1016,7 @@ server <- function(input, output, session) {
     input$ciPropSubmit,
     handlerExpr = {
       selectedOption <- input$ciPropPara
-      if (selectedOption == "HERE") {
+      if (selectedOption == "Number of Burger Kings that made a mistake") {
         output$ciPropParaIcon <- renderIcon(icon = "correct", width = 30)
       } else {
         output$ciPropParaIcon <- renderIcon(icon = "incorrect", width = 30)
@@ -973,7 +1027,7 @@ server <- function(input, output, session) {
     input$ciPropSubmit,
     handlerExpr = {
       selectedOption <- input$ciPropSamp
-      if (selectedOption == "HERE") {
+      if (selectedOption == "165 Burger Kings tested by QSR magazine") {
         output$ciPropSampIcon <- renderIcon(icon = "correct", width = 30)
       } else {
         output$ciPropSampIcon <- renderIcon(icon = "incorrect", width = 30)
@@ -984,7 +1038,7 @@ server <- function(input, output, session) {
     input$ciPropSubmit,
     handlerExpr = {
       selectedOption <- input$ciPropStat
-      if (selectedOption == "HERE") {
+      if (selectedOption == "16/165") {
         output$ciPropStatIcon <- renderIcon(icon = "correct", width = 30)
       } else {
         output$ciPropStatIcon <- renderIcon(icon = "incorrect", width = 30)
@@ -1000,8 +1054,8 @@ server <- function(input, output, session) {
       samp <- input$ciPropSamp
       stat <- input$ciPropStat
 
-      if (pop != "HERE" || para != "HERE" ||
-          samp != "HERE" || (stat != "HERE")) {
+      if (pop != "All U.S. Burger Kings with a drive through window" || para != "Number of Burger Kings that made a mistake" ||
+          samp != "165 Burger Kings tested by QSR magazine" || (stat != "16/165")) {
         output$ciPropCompFeed <- renderText("Remember that population relates to a whole and sample relates to a small section of the population.")
       } else {
         output$ciPropCompFeed <- renderText("Correct!")
@@ -1032,9 +1086,9 @@ server <- function(input, output, session) {
       rep <- input$ciPropReplications
       
       proportionData <- data.frame(Success = c(
-        rep(1, round(sqrt(41222))), 
-        rep(0, round(sqrt(67848)))),
-        Total = rep(1, round(sqrt(41222)) + round(sqrt(67848)))
+        rep(1, 16), 
+        rep(0, 149)),
+        Total = rep(1, 165)
       )
       stat <- function(data, index) {
         subset_data <- data[index, ]
@@ -1108,19 +1162,23 @@ server <- function(input, output, session) {
         upper <- input$ciPropUpper
         lower <- input$ciPropLower
         
-        if (numRep > 500 && rep && lowerCI() == lower && upperCI() == upper && cl == .98 && numSamp == 109070) {
+        if (numRep > 100 && rep && lowerCI() == lower && upperCI() == upper && cl == .90 && numSamp == 165) {
           output$ciPropLowerIcon <- renderIcon(icon = "correct", width = 30)
           output$ciPropUpperIcon <- renderIcon(icon = "correct", width = 30)
           output$ciPropGuessFeedback <- renderText("Correct!")
-        } else if (rep == FALSE || numSamp != 109070) {
+        } else if (numRep > 100 && rep && numSamp == 165 && cl == .90 && (upperCI() != upper || lowerCI() != lower)) {
+          output$ciPropLowerIcon <- renderIcon(icon = "incorrect", width = 30)
+          output$ciPropUpperIcon <- renderIcon(icon = "incorrect", width = 30)
+          output$ciPropGuessFeedback <- renderText("Make sure bounds match the ones below the graph")
+        } else if (rep == FALSE || numSamp != 165) {
           output$ciPropLowerIcon <- renderIcon(icon = "incorrect", width = 30)
           output$ciPropUpperIcon <- renderIcon(icon = "incorrect", width = 30)
           output$ciPropGuessFeedback <- renderText("Think of conditions needed to be met in order to boostrap.")
-        } else if (numRep < 500) {
+        } else if (numRep < 100) {
           output$ciPropLowerIcon <- renderIcon(icon = "incorrect", width = 30)
           output$ciPropUpperIcon <- renderIcon(icon = "incorrect", width = 30)
           output$ciPropGuessFeedback <- renderText("Think of how many replications are needed to be representative.")
-        } else if (cl != .98) {
+        } else if (cl != .90) {
           output$ciPropLowerIcon <- renderIcon(icon = "incorrect", width = 30)
           output$ciPropUpperIcon <- renderIcon(icon = "incorrect", width = 30)
           output$ciPropGuessFeedback <- renderText("Reread the context and verify inputs match")
@@ -1139,7 +1197,7 @@ server <- function(input, output, session) {
       input$probSubmit,
       handlerExpr = {
         selectedOption <- input$probPop
-        if (selectedOption == "INSERT ASNWER") {
+        if (selectedOption == "Possible outcome 1-6 on each die") {
           output$probPopIcon <- renderIcon(icon = "correct", width = 30)
         } else {
           output$probPopIcon <- renderIcon(icon = "incorrect", width = 30)
@@ -1150,7 +1208,7 @@ server <- function(input, output, session) {
       input$probSubmit,
       handlerExpr = {
         selectedOption <- input$probSamp
-        if (selectedOption == "INSERT ANSWER") {
+        if (selectedOption == "Sum of Nick's 5 dice rolls and Jennifer'6 dice rolls") {
           output$probSampIcon <- renderIcon(icon = "correct", width = 30)
         } else {
           output$probSampIcon <- renderIcon(icon = "incorrect", width = 30)
@@ -1161,7 +1219,7 @@ server <- function(input, output, session) {
       input$probSubmit,
       handlerExpr = {
         selectedOption <- input$probEvent
-        if (selectedOption == "INSERT ANSWER") {
+        if (selectedOption == "Whether Nick has a higher total than Jennifer") {
           output$probEventIcon <- renderIcon(icon = "correct", width = 30)
         } else {
           output$probEventIcon <- renderIcon(icon = "incorrect", width = 30)
@@ -1180,7 +1238,7 @@ server <- function(input, output, session) {
       }
     )
     
-    #### Feedback
+    ### Feedback
     observeEvent(
       input$probSubmit,
       handlerExpr = {
@@ -1189,16 +1247,29 @@ server <- function(input, output, session) {
         event <- input$probEvent
         replace <- input$probReplace
         
-        if (pop != "HERE" || samp != "HERE" ||
-            event != "HERE" || replace != "With replacement") {
-          output$probCompFeed <- renderText("Remember that population relates to a whole and sample relates to a small section of the population.")
+        if (pop != "Possible outcome 1-6 on each die" || samp != "Sum of Nick's 5 dice rolls and Jennifer'6 dice rolls" ||
+            event != "Whether Nick has a higher total than Jennifer" || replace != "With replacement") {
+          output$probCompFeed <- renderText(
+            "Remember that population relates to a whole, sample relates to a small 
+            section of the population, and an event is is a specific outcome to analyze")
         } else {
           output$probCompFeed <- renderText("Correct!")
         }  
       }
     )
+    ### Feedback
+    observeEvent(
+      eventExpr = input$probReset,
+      handlerExpr = {
+        output$probPopIcon <- renderIcon()
+        output$probStatIcon <- renderIcon()
+        output$probEventIcon <- renderIcon()
+        output$probReplaceIcon <- renderIcon()
+      }
+    )
     
-    ### Simulations ----
+    
+    ### Simulation ----
     observeEvent(
       input$simProb, 
       handlerExpr = {
