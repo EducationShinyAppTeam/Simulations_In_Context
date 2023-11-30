@@ -9,16 +9,19 @@ library(boot)
 
 # Load additional dependencies and setup functions
 
-# Datasets ----
-flightData <- read.csv(file = "flightData.csv", stringsAsFactors = FALSE)
-meanCompChoices <- 
-propCompChoices <- c(" ", "Time it took to be served", "All U.S. Burger Kings with seating",
-"The proportion of 1's in the population out of 6500 values", "All U.S. Burger Kings",
-"Number of Impossible Burgers ordered", "All U.S. Burger Kings with drive thru represented by a “1” if a mistake would be made and a “0” if the order would be handled correctly")
-probCompChoices <- c(
-  " ", "Possible outcomes 1, 2, 3, 4, 5, or 6 when a die is rolled", 
-  "Results for each of eleven draws from the population", 
-  "Whether the sum of the first five draws is larger than the sum of the next six draws from the population", "Possible sums for eleven rolls")
+# Datasets/Choices ----
+meanCompChoices <-  c(" ", "All hotel guests that use the dispenser represented by the amount of ice they would take",
+                      "The amount of ice taken by each of the ten guests",
+                      "3.1 ounces",
+                      "Ten values drawn with replacement rom the list {5, 3, 0, 6, 0, 0, 4, 7, 0, and 6}",
+                      "The average amount of ice that would be taken by all hotel guests using the dispenser")
+propCompChoices <- c(" ", "All U.S. Burger Kings with drive thru represented by a “1” if a mistake would be made and a “0” if the order would be handled correctly",
+                     "The proportion of 1's in the population out of 6500 values",
+                     "16/165", "165 values sampled from a list of sixteen 1's and 149 0's", 
+                     "Sixteen 1's and 149 0's")
+probCompChoices <- c(" ", "Possible outcomes 1, 2, 3, 4, 5, or 6 when a die is rolled", 
+                     "Results for each of eleven draws from the population", 
+                     "Whether the sum of the first five draws is larger than the sum of the next six draws from the population", "Possible sums for eleven rolls")
 
 # Define UI for App ----
 ui <- list(
@@ -173,16 +176,15 @@ ui <- list(
           fluidRow(
             column(
               width = 12,
-              p("Every year numerous airplanes takeoff and land at international
-                airports globally, with approximately 32 situated in the Northeast region. 
-                In a study, a sample from 8 international airports in the 9 Northeastern 
-                states. Over the period from December 2020 to August 2023, a total of 
-                290 data points were collected regarding the number of planes taking off 
-                or landing. It revealed that the mean number of planes engaged in these activities 
-                was 16517. Create a 98% confidence interval for the number of flights 
-                departing/arriving at northeast international airports based on this data.")
+              p("A hotel has put a self-serve water dispenser in its lobby and
+                wants to know the average amount of ice that will be used by guests
+                who get water from the machine. They look at the ice used by ten 
+                guests and find the amount taken for these ten as {5, 3, 0, 6, 0, 
+                0, 4, 7, 0, and 6} which has an average of 3.1 ounces. Provide a 98% confidence interval for the mean amount of ice taken by all guests using the dispenser."
+              )
             )
           ),
+          br(),
           tabsetPanel(
             id = "simulationType",
             #### Identifying Components ----
@@ -196,12 +198,8 @@ ui <- list(
                     selectInput(
                       inputId = "ciMeanPop",
                       label = "Population",
-                      choices = c(
-                        " ", "International airports", "Airports in the Northeast region", 
-                        "Number of flights arriving/departing", 
-                        "Number of layovers", "Number of international airports",  
-                        "International airports in the Northeast region"
-                      )
+                      choices = sample(meanCompChoices),
+                      selected = " "
                     )
                   ),
                   column(width = 1, uiOutput(outputId = "ciMeanPopIcon")), 
@@ -210,12 +208,8 @@ ui <- list(
                     selectInput(
                       inputId = "ciMeanPara",
                       label = "Population Parameter",
-                      choices = c(
-                        " ", "Number of international airports", 
-                        "Airports in the Northeast region", "Number of flights arriving/departing", 
-                        "International airports", "Number of layovers",
-                        "International airports in the Northeast region"
-                      )
+                      choices = sample(meanCompChoices),
+                      selected = " "
                     )
                   ),
                   column(width = 1, uiOutput(outputId = "ciMeanParaIcon"))
@@ -226,10 +220,8 @@ ui <- list(
                     selectInput(
                       inputId = "ciMeanSamp",
                       label = "Sample",
-                      choices = c(
-                        " ", "16517", "All airports", "290", "32", 
-                        "8 International airports", "9 States in Northeast region"
-                      )
+                      choices = sample(meanCompChoices),
+                      selected = " "
                     )
                   ),
                   column(width = 1, uiOutput(outputId = "ciMeanSampIcon")),
@@ -238,20 +230,47 @@ ui <- list(
                     selectInput(
                       inputId = "ciMeanStat",
                       label = "Sample Statistic",
-                      choices = c( 
-                        " ", "290", "All airports", "9 States in Northeast region", 
-                        "32", "8 International airports", "16517"
-                      )
+                      choices = sample(meanCompChoices),
+                      selected = " "
                     )
                   ),
                   column(width = 1, uiOutput(outputId = "ciMeanStatIcon"))
                 ),
                 fluidRow(
                   column(
-                    width = 9,
-                    textOutput(outputId = "ciMeanCompFeed")
+                    width = 5, 
+                    selectInput(
+                      inputId = "ciMeanBsRep",
+                      label = "Boostrap Sample Replicates",
+                      choices = sample(meanCompChoices),
+                      selected = " "
+                    )
                   ),
+                  column(width = 1, uiOutput(outputId = "ciMeanBsRepIcon")),
                   column(
+                    width = 5, 
+                    selectInput(
+                      inputId = "ciMeanBs",
+                      label = "Boostrap Sampling Method",
+                      choices = c(" ", "With replacement", "Without replacement"),
+                      selected = " "
+                    )
+                  ),
+                  column(width = 1, uiOutput(outputId = "ciMeanBsIcon"))
+                ),
+                fluidRow(
+                  column(
+                    width = 5, 
+                    selectInput(
+                      inputId = "ciMeanSampMeth",
+                      label = "Sampling Method",
+                      choices = c(" ", "With replacement", "Without replacement"),
+                      selected = " "
+                    )
+                  ),
+                  column(width = 1, uiOutput(outputId = "ciMeanSampMethIcon")),
+                  column(
+                    offset = 3,
                     width = 1,
                     bsButton(
                       inputId = "ciMeanReset",
@@ -264,6 +283,12 @@ ui <- list(
                       inputId = "ciMeanSubmit",
                       label = "Submit"
                     )
+                  )
+                ),
+                fluidRow(
+                  column(
+                    width = 12,
+                    textOutput(outputId = "ciMeanCompFeed")
                   )
                 )
               )
@@ -279,9 +304,9 @@ ui <- list(
                     sliderInput(
                       inputId = "ciMeanNS",
                       label = "Size of Original Sample",
-                      min = 200, 
-                      max = 300,
-                      value = 250, 
+                      min = 0, 
+                      max = 50,
+                      value = 25, 
                       step = 5
                     ),
                     sliderTextInput(
@@ -363,21 +388,25 @@ ui <- list(
           fluidRow(
             column(
               width = 12, 
-              p("Each year QSR magazine does a survey of drive-thru service at America’s
-                quick serve restaurants.  The magazine selects a number of restaurants
-                from each of the major chains and sends a customer to order a meal 
-                from the drive thru window.  The order will include an entree, a 
-                side dish, and a drink, and one deviation from the usual order. 
-                QSR asks the customer to rate their experience in different ways,
-                including how much time it took for them to be served and whether
-                the restaurant got the order correct or not.  In the 2023 QSR survey, 
-                165 out of Burger King’s 6500 restaurants with drive-thru windows 
-                were selected and it turned out that there was a mistake in the 
-                order at 16 of the sampled restaurants. Create a 90% confidence 
+              p("Each year QSR magazine does a survey of drive-thru service at
+                America’s quick serve restaurants.  The magazine selects a number
+                of restaurants from each of the major chains and sends a customer 
+                to order a meal from the drive thru window.  The order will include
+                an entree, a side dish, and a drink, and one deviation from the 
+                usual order.  For example, at Burger King they might order an 
+                Impossible Burger, a medium Coke, and an onion rings but ask for
+                no sauce on the Impossible Burger.  QSR asks the customer to rate
+                their experience in different ways, including how much time it took
+                for them to be served and whether the restaurant got the order correct
+                or not.  In the 2023 QSR survey, 165 out of Burger King’s 6500 restaurants 
+                with drive-thru windows were selected and it turned out that there 
+                was a mistake in the order at 16 of the sampled restaurants. 
+                We would like to use the bootstrap method to make a 90% confidence
                 interval for the proportion of all Burger King Drive Thru windows 
                 that would make a mistake in an order of this type.")
             )
           ),
+          br(),
           tabsetPanel(
             id = "simulationType",
             #### Identifying Components ----
@@ -590,6 +619,7 @@ ui <- list(
                   that Nick gets a higher total than Jennifer?")
             )
           ),
+          br(),
           tabsetPanel(
             id = "simulationType",
             #### Identifying Components ----
@@ -854,7 +884,7 @@ server <- function(input, output, session) {
     input$ciMeanSubmit,
     handlerExpr = {
       selectedOption <- input$ciMeanPop
-      if (selectedOption == "International airports in the Northeast region") {
+      if (selectedOption == "All hotel guests that use the dispenser represented by the amount of ice they would take") {
         output$ciMeanPopIcon <- renderIcon(icon = "correct", width = 30)
       } else {
         output$ciMeanPopIcon <- renderIcon(icon = "incorrect", width = 30)
@@ -865,7 +895,7 @@ server <- function(input, output, session) {
     input$ciMeanSubmit,
     handlerExpr = {
       selectedOption <- input$ciMeanPara
-      if (selectedOption == "Number of flights arriving/departing") {
+      if (selectedOption == "The average amount of ice that would be taken by all hotel guests using the dispenser") {
         output$ciMeanParaIcon <- renderIcon(icon = "correct", width = 30)
       } else {
         output$ciMeanParaIcon <- renderIcon(icon = "incorrect", width = 30)
@@ -876,7 +906,7 @@ server <- function(input, output, session) {
     input$ciMeanSubmit,
     handlerExpr = {
       selectedOption <- input$ciMeanSamp
-      if (selectedOption == "8 International airports") {
+      if (selectedOption == "The amount of ice taken by each of the ten guests") {
         output$ciMeanSampIcon <- renderIcon(icon = "correct", width = 30)
       } else {
         output$ciMeanSampIcon <- renderIcon(icon = "incorrect", width = 30)
@@ -887,13 +917,47 @@ server <- function(input, output, session) {
     input$ciMeanSubmit,
     handlerExpr = {
       selectedOption <- input$ciMeanStat
-      if (selectedOption == "16517") {
+      if (selectedOption == "3.1 ounces") {
         output$ciMeanStatIcon <- renderIcon(icon = "correct", width = 30)
       } else {
         output$ciMeanStatIcon <- renderIcon(icon = "incorrect", width = 30)
       }
     }
   )
+  observeEvent(
+    input$ciMeanSubmit,
+    handlerExpr = {
+      selectedOption <- input$ciMeanBsRep
+      if (selectedOption == "Ten values drawn with replacement rom the list {5, 3, 0, 6, 0, 0, 4, 7, 0, and 6}") {
+        output$ciMeanBsRepIcon <- renderIcon(icon = "correct", width = 30)
+      } else {
+        output$ciMeanBsRepIcon <- renderIcon(icon = "incorrect", width = 30)
+      }
+    }
+  )
+  observeEvent(
+    input$ciMeanSubmit,
+    handlerExpr = {
+      selectedOption <- input$ciMeanBs
+      if (selectedOption == "With replacement") {
+        output$ciMeanBsIcon <- renderIcon(icon = "correct", width = 30)
+      } else {
+        output$ciMeanBsIcon <- renderIcon(icon = "incorrect", width = 30)
+      }
+    }
+  )
+  observeEvent(
+    input$ciMeanSubmit,
+    handlerExpr = {
+      selectedOption <- input$ciMeanSampMeth
+      if (selectedOption == "Without replacement") {
+        output$ciMeanSampMethIcon <- renderIcon(icon = "correct", width = 30)
+      } else {
+        output$ciMeanSampMethIcon <- renderIcon(icon = "incorrect", width = 30)
+      }
+    }
+  )
+  
   ### Feedback
   observeEvent(
     input$ciMeanSubmit,
@@ -903,8 +967,9 @@ server <- function(input, output, session) {
       samp <- input$ciMeanSamp
       stat <- input$ciMeanStat
   
-      if (pop != "International airports in the Northeast region" || para != "Number of flights arriving/departing"||
-          samp != "6 International airports" || stat != "16517") {
+      if (pop != "All hotel guests that use the dispenser represented by the amount of ice they would take" || 
+          para != "The average amount of ice that would be taken by all hotel guests using the dispenser"||
+          samp != "The amount of ice taken by each of the ten guests" || stat != "3.1 ounces") {
         output$ciMeanCompFeed <- renderText("Remember that population relates to a whole and sample relates to a small section of the population.")
       } else {
         output$ciMeanCompFeed <- renderText("Correct!")
@@ -934,17 +999,19 @@ server <- function(input, output, session) {
       cl <- input$ciMeanCL
       rep <- input$ciMeanReplacement
       
+      meanData <- data.frame(Ice = c(5, 3, 0, 6, 0, 0, 4, 7, 0, 6))
+      
       stat <- function(data, index) {
-        subset_data <- data$Flights[index] 
+        subset_data <- data$Ice[index]
         statistic_value <- mean(subset_data)
         return(statistic_value)
       }
       
       set.seed(461)
       
-      flightData
+      meanData
       bootOut <- boot::boot(
-        data = flightData,
+        data = meanData,
         statistic = stat,
         R = numRep
       )
@@ -961,7 +1028,7 @@ server <- function(input, output, session) {
       upperCI(round(cii[2],2))
       lowerCI(round(cii[1],2))
       
-      if (rep == FALSE || numRep < 100 || numSamp != 290) {
+      if (rep == FALSE || numRep < 100 || numSamp != 10) {
         output$ciMeanResults <- renderText(
           expr = {
             "Review the conditions. What is a requirement of bootstrapping?"
@@ -1009,15 +1076,15 @@ server <- function(input, output, session) {
       upper <- input$ciMeanUpper
       lower <- input$ciMeanLower
       
-      if (numRep > 100 && rep && lowerCI() == lower && upperCI() == upper && cl == .98 && numSamp == 290) {
+      if (numRep >= 100 && rep && lowerCI() == lower && upperCI() == upper && cl == .98 && numSamp == 10) {
         output$ciMeanLowerIcon <- renderIcon(icon = "correct", width = 30)
         output$ciMeanUpperIcon <- renderIcon(icon = "correct", width = 30)
         output$ciMeanGuessFeedback <- renderText("Correct!")
-      } else if (numRep > 100 && rep && numSamp == 290 && cl == .98 && (upperCI() != upper || lowerCI() != lower)) {
+      } else if (numRep > 100 && rep && numSamp == 10 && cl == .98 && (upperCI() != upper || lowerCI() != lower)) {
         output$ciMeanLowerIcon <- renderIcon(icon = "incorrect", width = 30)
         output$ciMeanUpperIcon <- renderIcon(icon = "incorrect", width = 30)
         output$ciMeanGuessFeedback <- renderText("Make sure bounds match the ones below the graph")
-      } else if (rep == FALSE || numSamp != 290) {
+      } else if (rep == FALSE || numSamp != 10) {
         output$ciMeanLowerIcon <- renderIcon(icon = "incorrect", width = 30)
         output$ciMeanUpperIcon <- renderIcon(icon = "incorrect", width = 30)
         output$ciMeanGuessFeedback <- renderText("Think of conditions needed to be met in order to boostrap.")
@@ -1163,11 +1230,12 @@ server <- function(input, output, session) {
       cl <- input$ciPropCL
       rep <- input$ciPropReplacement
       
-      proportionData <- data.frame(Success = c(
+      propData <- data.frame(Success = c(
         rep(1, 16), 
         rep(0, 149)),
         Total = rep(1, 165)
       )
+      
       stat <- function(data, index) {
         subset_data <- data[index, ]
         successes <- sum(subset_data$Success)
@@ -1179,7 +1247,7 @@ server <- function(input, output, session) {
       set.seed(461)
       
       bootOut <- boot::boot(
-        data = proportionData,
+        data = propData,
         statistic = stat,
         R = numRep
       )
@@ -1240,11 +1308,11 @@ server <- function(input, output, session) {
         upper <- input$ciPropUpper
         lower <- input$ciPropLower
         
-        if (numRep > 100 && rep && lowerCI() == lower && upperCI() == upper && cl == .90 && numSamp == 165) {
+        if (numRep >= 100 && rep && lowerCI() == lower && upperCI() == upper && cl == .90 && numSamp == 165) {
           output$ciPropLowerIcon <- renderIcon(icon = "correct", width = 30)
           output$ciPropUpperIcon <- renderIcon(icon = "correct", width = 30)
           output$ciPropGuessFeedback <- renderText("Correct!")
-        } else if (numRep > 100 && rep && numSamp == 165 && cl == .90 && (upperCI() != upper || lowerCI() != lower)) {
+        } else if (numRep >= 100 && rep && numSamp == 165 && cl == .90 && (upperCI() != upper || lowerCI() != lower)) {
           output$ciPropLowerIcon <- renderIcon(icon = "incorrect", width = 30)
           output$ciPropUpperIcon <- renderIcon(icon = "incorrect", width = 30)
           output$ciPropGuessFeedback <- renderText("Make sure bounds match the ones below the graph")
@@ -1252,7 +1320,7 @@ server <- function(input, output, session) {
           output$ciPropLowerIcon <- renderIcon(icon = "incorrect", width = 30)
           output$ciPropUpperIcon <- renderIcon(icon = "incorrect", width = 30)
           output$ciPropGuessFeedback <- renderText("Think of conditions needed to be met in order to boostrap.")
-        } else if (numRep < 100) {
+        } else if (numRep == 10) {
           output$ciPropLowerIcon <- renderIcon(icon = "incorrect", width = 30)
           output$ciPropUpperIcon <- renderIcon(icon = "incorrect", width = 30)
           output$ciPropGuessFeedback <- renderText("Think of how many replications are needed to be representative.")
