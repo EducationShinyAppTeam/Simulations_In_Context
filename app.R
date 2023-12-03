@@ -13,7 +13,7 @@ library(boot)
 meanCompChoices <-  c(" ", "All hotel guests that use the dispenser represented by the amount of ice they would take",
                       "The amount of ice taken by each of the ten guests",
                       "3.1 ounces",
-                      "Ten values drawn with replacement rom the list {5, 3, 0, 6, 0, 0, 4, 7, 0, and 6}",
+                      "Ten values drawn with replacement from the list {5, 3, 0, 6, 0, 0, 4, 7, 0, and 6}",
                       "The average amount of ice that would be taken by all hotel guests using the dispenser")
 propCompChoices <- c(" ", "All U.S. Burger Kings with drive thru represented by a “1” if a mistake would be made and a “0” if the order would be handled correctly",
                      "The proportion of 1's in the population out of 6500 values",
@@ -22,6 +22,7 @@ propCompChoices <- c(" ", "All U.S. Burger Kings with drive thru represented by 
 probCompChoices <- c(" ", "Possible outcomes 1, 2, 3, 4, 5, or 6 when a die is rolled", 
                      "Results for each of eleven draws from the population", 
                      "Whether the sum of the first five draws is larger than the sum of the next six draws from the population", "Possible sums for eleven rolls")
+replaceChoices <- c(" ", "With replacement", "Without replacement")
 
 # Define UI for App ----
 ui <- list(
@@ -180,7 +181,9 @@ ui <- list(
                 wants to know the average amount of ice that will be used by guests
                 who get water from the machine. They look at the ice used by ten 
                 guests and find the amount taken for these ten as {5, 3, 0, 6, 0, 
-                0, 4, 7, 0, and 6} which has an average of 3.1 ounces. Provide a 98% confidence interval for the mean amount of ice taken by all guests using the dispenser."
+                0, 4, 7, 0, and 6} which has an average of 3.1 ounces. We would 
+                like to use the bootstrap method to make a 98% confidence interval 
+                for the mean amount of ice taken by all guests using the dispenser."
               )
             )
           ),
@@ -240,19 +243,19 @@ ui <- list(
                   column(
                     width = 5, 
                     selectInput(
-                      inputId = "ciMeanBsRep",
-                      label = "Boostrap Sample Replicates",
-                      choices = sample(meanCompChoices),
+                      inputId = "ciMeanSampMeth",
+                      label = "Sampling Method",
+                      choices = replaceChoices,
                       selected = " "
                     )
                   ),
-                  column(width = 1, uiOutput(outputId = "ciMeanBsRepIcon")),
+                  column(width = 1, uiOutput(outputId = "ciMeanSampMethIcon")),
                   column(
                     width = 5, 
                     selectInput(
                       inputId = "ciMeanBs",
                       label = "Boostrap Sampling Method",
-                      choices = c(" ", "With replacement", "Without replacement"),
+                      choices = replaceChoices,
                       selected = " "
                     )
                   ),
@@ -262,13 +265,13 @@ ui <- list(
                   column(
                     width = 5, 
                     selectInput(
-                      inputId = "ciMeanSampMeth",
-                      label = "Sampling Method",
-                      choices = c(" ", "With replacement", "Without replacement"),
+                      inputId = "ciMeanBsRep",
+                      label = "Boostrap Sample Replicates",
+                      choices = sample(meanCompChoices),
                       selected = " "
                     )
                   ),
-                  column(width = 1, uiOutput(outputId = "ciMeanSampMethIcon")),
+                  column(width = 1, uiOutput(outputId = "ciMeanBsRepIcon")),
                   column(
                     offset = 3,
                     width = 1,
@@ -323,11 +326,6 @@ ui <- list(
                       step = 0.01,
                       min = 0,
                       max = 1
-                    ),
-                    checkboxInput(
-                      inputId = "ciMeanReplacement",
-                      label = "Use Replacement",
-                      value = FALSE
                     ),
                     bsButton(
                       inputId = "simCIMean",
@@ -462,19 +460,19 @@ ui <- list(
                   column(
                     width = 5, 
                     selectInput(
-                      inputId = "ciPropBsRep",
-                      label = "Boostrap Sample Replicates",
-                      choices = sample(propCompChoices),
+                      inputId = "ciPropSampMeth",
+                      label = "Sampling Method",
+                      choices = replaceChoices,
                       selected = " "
                     )
                   ),
-                  column(width = 1, uiOutput(outputId = "ciPropBsRepIcon")),
+                  column(width = 1, uiOutput(outputId = "ciPropSampMethIcon")),
                   column(
                     width = 5, 
                     selectInput(
                       inputId = "ciPropBs",
                       label = "Boostrap Sampling Method",
-                      choices = c(" ", "With replacement", "Without replacement"),
+                      choices = replaceChoices,
                       selected = " "
                     )
                   ),
@@ -484,13 +482,13 @@ ui <- list(
                   column(
                     width = 5, 
                     selectInput(
-                      inputId = "ciPropSampMeth",
-                      label = "Sampling Method",
-                      choices = c(" ", "With replacement", "Without replacement"),
+                      inputId = "ciPropBsRep",
+                      label = "Boostrap Sample Replicates",
+                      choices = sample(propCompChoices),
                       selected = " "
                     )
                   ),
-                  column(width = 1, uiOutput(outputId = "ciPropSampMethIcon")),
+                  column(width = 1, uiOutput(outputId = "ciPropBsRepIcon")),
                   column(
                     offset = 3, 
                     width = 1,
@@ -545,11 +543,6 @@ ui <- list(
                       step = 0.01,
                       min = 0, 
                       max = 1
-                    ),
-                    checkboxInput(
-                      inputId = "ciPropReplacement",
-                      label = "Use Replacement",
-                      value = FALSE
                     ),
                     bsButton(
                       inputId = "simCIProp",
@@ -613,10 +606,10 @@ ui <- list(
             column(
               width = 12,
               p("Nick and Jennifer were rolling dice to see who could get
-                  a higher total. Nick claims that he can get a higher total with
-                  fewer dice, but Jennifer does not believe him. So Nick rolls a 
-                  die five times and then Jennifer rolls a die six times. What is the probability 
-                  that Nick gets a higher total than Jennifer?")
+                 a higher total. Nick claims that he can get a higher total with
+                 fewer dice, but Jennifer does not believe him. So Nick rolls a 
+                 die five times and then Jennifer rolls a die six times. Use simulation 
+                 to find the probability that Nick gets a higher total than Jennifer.")
             )
           ),
           br(),
@@ -767,10 +760,6 @@ ui <- list(
           tabName = "references",
           withMathJax(),
           h2("References"),
-          p(
-            class = "hangingindent",
-            "“American Airports - Guide to Airports in United States.” American Airports - Guide to Airports in United States, www.americanairportguide.com/."
-          ),
           p(
             class = "hangingindent",
             "Bailey, E. (2015). shinyBS: Twitter bootstrap components for shiny.
@@ -928,7 +917,7 @@ server <- function(input, output, session) {
     input$ciMeanSubmit,
     handlerExpr = {
       selectedOption <- input$ciMeanBsRep
-      if (selectedOption == "Ten values drawn with replacement rom the list {5, 3, 0, 6, 0, 0, 4, 7, 0, and 6}") {
+      if (selectedOption == "Ten values drawn with replacement from the list {5, 3, 0, 6, 0, 0, 4, 7, 0, and 6}") {
         output$ciMeanBsRepIcon <- renderIcon(icon = "correct", width = 30)
       } else {
         output$ciMeanBsRepIcon <- renderIcon(icon = "incorrect", width = 30)
@@ -968,7 +957,7 @@ server <- function(input, output, session) {
       stat <- input$ciMeanStat
   
       if (pop != "All hotel guests that use the dispenser represented by the amount of ice they would take" || 
-          para != "The average amount of ice that would be taken by all hotel guests using the dispenser"||
+          para != "The average amount of ice that would be taken by all hotel guests using the dispenser" || 
           samp != "The amount of ice taken by each of the ten guests" || stat != "3.1 ounces") {
         output$ciMeanCompFeed <- renderText("Remember that population relates to a whole and sample relates to a small section of the population.")
       } else {
@@ -984,6 +973,9 @@ server <- function(input, output, session) {
       output$ciMeanParaIcon <- renderIcon()
       output$ciMeanSampIcon <- renderIcon()
       output$ciMeanStatIcon <- renderIcon()
+      output$ciMeanBsRepIcon <- renderIcon()
+      output$ciMeanBsIcon <- renderIcon()
+      output$ciMeanSampMethIcon <- renderIcon()
     }
   )
   
@@ -997,22 +989,22 @@ server <- function(input, output, session) {
       numSamp <- input$ciMeanNS
       numRep <- input$ciMeanNumRep
       cl <- input$ciMeanCL
-      rep <- input$ciMeanReplacement
       
-      meanData <- data.frame(Ice = c(5, 3, 0, 6, 0, 0, 4, 7, 0, 6))
+      meanData <- c(5, 3, 0, 6, 0, 0, 4, 7, 0, 6)
       
-      stat <- function(data, index) {
-        subset_data <- data$Ice[index]
+      stat <- function(data, index, num_samples) {
+        subset_data <- data[index]
+        subset_data <- subset_data[sample(1:length(subset_data), num_samples, replace = TRUE)]
+        
         statistic_value <- mean(subset_data)
         return(statistic_value)
       }
       
       set.seed(461)
       
-      meanData
       bootOut <- boot::boot(
         data = meanData,
-        statistic = stat,
+        statistic = function(data, index) stat(data, index, numSamp),
         R = numRep
       )
       bootCI <- boot::boot.ci(
@@ -1028,40 +1020,26 @@ server <- function(input, output, session) {
       upperCI(round(cii[2],2))
       lowerCI(round(cii[1],2))
       
-      if (rep == FALSE || numRep < 100 || numSamp != 10) {
-        output$ciMeanResults <- renderText(
-          expr = {
-            "Review the conditions. What is a requirement of bootstrapping?"
-          }
-        )
-        output$ciMeanSim <- renderPlot(
-          expr = {
-            ggplot() + 
-              geom_blank()
-          }
-        )
-      } else {
-        output$ciMeanSim <- renderPlot(
-          expr = {
-            ggplot() +
-              geom_histogram(
-                data = data.frame(x = bootOut$t), 
-                aes(x = x), 
-                bins = 15, fill = boastPalette[1], color = "black"
-              ) +
-              geom_vline(
-                xintercept = quantile(bootOut$t, c(lower, upper)), 
-                color = "red", 
-                linetype = "dashed"
-              ) +
-              labs(x = "Bootstrap Mean", y = "Frequency")
-          }
-        )
-        output$ciMeanResults <- renderText({
-          paste("Lower Confidence Interval:", round(cii[1], 2), "\n",
-                "Upper Confidence Interval:", round(cii[2], 2))
-        })
-      }
+      output$ciMeanSim <- renderPlot(
+        expr = {
+          ggplot() +
+            geom_histogram(
+              data = data.frame(x = bootOut$t), 
+              aes(x = x), 
+              bins = 15, fill = boastPalette[1], color = "black"
+            ) +
+            geom_vline(
+              xintercept = quantile(bootOut$t, c(lower, upper)), 
+              color = "red", 
+              linetype = "dashed"
+            ) +
+            labs(x = "Bootstrap Mean", y = "Frequency")
+        }
+      )
+      output$ciMeanResults <- renderText({
+        paste("Lower Confidence Interval:", round(cii[1], 2), "\n",
+              "Upper Confidence Interval:", round(cii[2], 2))
+      })
     })
   
   #### Guessing Feedback
@@ -1071,23 +1049,22 @@ server <- function(input, output, session) {
       numSamp <- input$ciMeanNS
       numRep <- input$ciMeanNumRep
       cl <- input$ciMeanCL
-      rep <- input$ciMeanReplacement
       
       upper <- input$ciMeanUpper
       lower <- input$ciMeanLower
       
-      if (numRep >= 100 && rep && lowerCI() == lower && upperCI() == upper && cl == .98 && numSamp == 10) {
+      if (numRep >= 100 && lowerCI() == lower && upperCI() == upper && cl == .98 && numSamp == 10) {
         output$ciMeanLowerIcon <- renderIcon(icon = "correct", width = 30)
         output$ciMeanUpperIcon <- renderIcon(icon = "correct", width = 30)
         output$ciMeanGuessFeedback <- renderText("Correct!")
-      } else if (numRep > 100 && rep && numSamp == 10 && cl == .98 && (upperCI() != upper || lowerCI() != lower)) {
+      } else if (numRep > 100 && numSamp == 10 && cl == .98 && (upperCI() != upper || lowerCI() != lower)) {
         output$ciMeanLowerIcon <- renderIcon(icon = "incorrect", width = 30)
         output$ciMeanUpperIcon <- renderIcon(icon = "incorrect", width = 30)
-        output$ciMeanGuessFeedback <- renderText("Make sure bounds match the ones below the graph")
-      } else if (rep == FALSE || numSamp != 10) {
+        output$ciMeanGuessFeedback <- renderText("Make sure bounds match the output below the graph")
+      } else if (numSamp != 10) {
         output$ciMeanLowerIcon <- renderIcon(icon = "incorrect", width = 30)
         output$ciMeanUpperIcon <- renderIcon(icon = "incorrect", width = 30)
-        output$ciMeanGuessFeedback <- renderText("Think of conditions needed to be met in order to boostrap.")
+        output$ciMeanGuessFeedback <- renderText("Think of conditions needed to be met in order to boostrap such as replacement and sample size in relation to the original size.")
       } else if (numRep < 100) {
         output$ciMeanLowerIcon <- renderIcon(icon = "incorrect", width = 30)
         output$ciMeanUpperIcon <- renderIcon(icon = "incorrect", width = 30)
@@ -1215,6 +1192,9 @@ server <- function(input, output, session) {
       output$ciPropParaIcon <- renderIcon()
       output$ciPropSampIcon <- renderIcon()
       output$ciPropStatIcon <- renderIcon()
+      output$ciPropBsRepIcon <- renderIcon()
+      output$ciPropBsIcon <- renderIcon()
+      output$ciPropSampMethIcon <- renderIcon()
     }
   )
 
@@ -1228,7 +1208,6 @@ server <- function(input, output, session) {
       numSamp <- input$ciPropNS
       numRep <- input$ciPropNumRep
       cl <- input$ciPropCL
-      rep <- input$ciPropReplacement
       
       propData <- data.frame(Success = c(
         rep(1, 16), 
@@ -1236,8 +1215,10 @@ server <- function(input, output, session) {
         Total = rep(1, 165)
       )
       
-      stat <- function(data, index) {
-        subset_data <- data[index, ]
+      stat <- function(data, index, num_samples) {
+        subset_data <- data[index, , drop = FALSE]  
+        subset_data <- subset_data[sample(1:nrow(subset_data), num_samples, replace = TRUE), ]
+        
         successes <- sum(subset_data$Success)
         total <- sum(subset_data$Total)
         proportion_value <- successes / total
@@ -1248,9 +1229,10 @@ server <- function(input, output, session) {
       
       bootOut <- boot::boot(
         data = propData,
-        statistic = stat,
+        statistic = function(data, index) stat(data, index, numSamp),
         R = numRep
       )
+      
       bootCI <- boot::boot.ci(
         boot.out = bootOut,
         conf = cl,
@@ -1264,36 +1246,26 @@ server <- function(input, output, session) {
       upperCI(round(cii[2], 2))
       lowerCI(round(cii[1], 2))
       
-      if (rep == FALSE || numRep < 100 || numSamp != 165) {
-        output$ciPropResults <- renderText({
-          "Review the conditions. What is a requirement of bootstrapping?"
-        })
-        output$ciPropSim <- renderPlot({
-          ggplot() +
-            geom_blank()
-        })
-      } else {
-        output$ciPropSim <- renderPlot({
-          ggplot() +
-            geom_histogram(
-              data = data.frame(x = bootOut$t), 
-              aes(x = x), 
-              bins = 15, 
-              fill = boastPalette[1],
-              color = "black"
-            ) +
-            geom_vline(
-              xintercept = quantile(bootOut$t, c(lower, upper)), 
-              color = "red", 
-              linetype = "dashed"
-            ) +
-            labs(x = "Bootstrap Proportion", y = "Frequency")
-        })
-        output$ciPropResults <- renderText({
-          paste("Lower Confidence Interval:", round(cii[1], 2), "\n",
-                "Upper Confidence Interval:", round(cii[2], 2))
-        })
-      }
+      output$ciPropSim <- renderPlot({
+        ggplot() +
+          geom_histogram(
+            data = data.frame(x = bootOut$t), 
+            aes(x = x), 
+            bins = 15, 
+            fill = boastPalette[1],
+            color = "black"
+          ) +
+          geom_vline(
+            xintercept = quantile(bootOut$t, c(lower, upper)), 
+            color = "red", 
+            linetype = "dashed"
+          ) +
+          labs(x = "Bootstrap Proportion", y = "Frequency")
+      })
+      output$ciPropResults <- renderText({
+        paste("Lower Confidence Interval:", round(cii[1], 2), "\n",
+              "Upper Confidence Interval:", round(cii[2], 2))
+      })
     })
     
     #### Guessing Feedback
@@ -1303,23 +1275,22 @@ server <- function(input, output, session) {
         numSamp <- input$ciPropNS
         numRep <- input$ciPropNumRep
         cl <- input$ciPropCL
-        rep <- input$ciPropReplacement
         
         upper <- input$ciPropUpper
         lower <- input$ciPropLower
         
-        if (numRep >= 100 && rep && lowerCI() == lower && upperCI() == upper && cl == .90 && numSamp == 165) {
+        if (numRep >= 100 && lowerCI() == lower && upperCI() == upper && cl == .90 && numSamp == 165) {
           output$ciPropLowerIcon <- renderIcon(icon = "correct", width = 30)
           output$ciPropUpperIcon <- renderIcon(icon = "correct", width = 30)
           output$ciPropGuessFeedback <- renderText("Correct!")
-        } else if (numRep >= 100 && rep && numSamp == 165 && cl == .90 && (upperCI() != upper || lowerCI() != lower)) {
+        } else if (numRep >= 100 && numSamp == 165 && cl == .90 && (upperCI() != upper || lowerCI() != lower)) {
           output$ciPropLowerIcon <- renderIcon(icon = "incorrect", width = 30)
           output$ciPropUpperIcon <- renderIcon(icon = "incorrect", width = 30)
-          output$ciPropGuessFeedback <- renderText("Make sure bounds match the ones below the graph")
-        } else if (rep == FALSE || numSamp != 165) {
+          output$ciPropGuessFeedback <- renderText("Make sure bounds match the output below the graph")
+        } else if (numSamp != 165) {
           output$ciPropLowerIcon <- renderIcon(icon = "incorrect", width = 30)
           output$ciPropUpperIcon <- renderIcon(icon = "incorrect", width = 30)
-          output$ciPropGuessFeedback <- renderText("Think of conditions needed to be met in order to boostrap.")
+          output$ciPropGuessFeedback <- renderText("Think of conditions needed to be met in order to boostrap such as replacement and sample size in relation to the original size.")
         } else if (numRep == 10) {
           output$ciPropLowerIcon <- renderIcon(icon = "incorrect", width = 30)
           output$ciPropUpperIcon <- renderIcon(icon = "incorrect", width = 30)
@@ -1482,7 +1453,7 @@ server <- function(input, output, session) {
         output$guessProbFeedback <- renderText("Look at the estimated probability below the chart")
       } else if (trials == 10 && nickRolls == 5 && jennRolls == 6) { 
         output$guessIconProb <- renderIcon(icon = "incorrect", width = 30)
-        output$guessProbFeedback <- renderText("Keep in mind how many trials should be used")
+        output$guessProbFeedback <- renderText("Keep in mind how many replications there should be")
       } else if ((nickRolls != 5 | jennRolls != 6) & trials > 100) {
         output$guessIconProb <- renderIcon(icon = "incorrect", width = 30)
         output$guessProbFeedback <- renderText("Double check the number of rolls for Nick and Jennifer")

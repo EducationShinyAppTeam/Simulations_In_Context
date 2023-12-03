@@ -1,10 +1,4 @@
 # Things Needed for This Version
-1. BK Ref
-2. Feedback for new identifying comp ( prop) 
-when a person picks something besides 165 for the size of the original sample the graph stays blank - a user would not know what's happening.  You should have something on the screen like "Think about what sample size to choose for the original sample."  alternatively show the graph like you do for the probability example and then grade it wrong and give the hint in stage 4.
-I'll send suggestions for the CI for means example tomorrow
-
-and cibs cibsrep bssampmeth
 
 # Ideas for Future Development
 1. Add in a permutation section with a difference in mean/prop.
