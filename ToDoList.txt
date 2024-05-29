@@ -2,3 +2,5 @@
 
 # Ideas for Future Development
 1. Add in a permutation section with a difference in mean/prop.
+2. Potentially better examples
+3. Potentially better layout/interactiveness

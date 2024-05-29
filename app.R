@@ -101,7 +101,7 @@ ui <- list(
             citeApp(),
             br(),
             br(),
-            div(class = "updated", "Last Update: 11/27/2023 by T.M.")
+            div(class = "updated", "Last Update: 5/29/2024 by T.M.")
           )
         ),
         ### Prerequisites ----
@@ -793,6 +793,11 @@ ui <- list(
           ),
           p(
             class = "hangingindent",
+            "Klein, Danny. “The 2023 QSR® Drive-Thru Report.” QSR Magazine, 27 Oct. 
+            2023, www.qsrmagazine.com/reports/the-2023-qsr-drive-thru-report/. "
+          ),
+          p(
+            class = "hangingindent",
             "Perrier, V., Meyer, F., Granjon, D. (2023) shinyWidgets: Custom Input
             Widgets for Shiny. (v0.7.6). Avaliable from 
             https://cran.r-project.org/web/packages/shinyWidgets/index.html"
@@ -802,10 +807,6 @@ ui <- list(
             "Wickham, H. (2016). ggplot2: Elegant Graphics for Data Analysis. 
             Springer-Verlag New York. ISBN 978-3-319-24277-4. Avaliable from 
             https://ggplot2.tidyverse.org."
-          ),
-          p(
-            class = "hangingindent",
-            "REFERNCE HERE FOR BK"
           ),
           br(),
           br(),
