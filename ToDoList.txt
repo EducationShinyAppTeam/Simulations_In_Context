@@ -1,4 +1,21 @@
 # Things Needed for This Version
+1. Check alignment of Accessibility link in PSU shield logo
+2. Overview: Should  button go to CI for Mean or to Prerequisites?
+3. Prerequisites edits
+  a. Under Vocabulary change “Parameter(s)” to just “Parameter” and “Statistic(s) to just “Statistic”
+  b. For Bootstrap: change “Type of resampling with replacement.” to “A (nonparametric) Bootstrap uses resampling with replacement.”
+  c. Should the Vocabulary section start opened or closed?
+4. I don’t think the context should be labelled “Step 1” - perhaps just have three steps.  Also having Step 3 (which would become step 2 per suggestion above) as a tab is a bit unnatural for the navigation - probably need some brief instructions at the top to say what the student should do in each context.
+5. CI for Mean edits
+  a. Drop down menus show a blue line in the middle of them in step 2
+  b. Hard to tell which answer the feedback is addressing (it is trying to address all simultaneously). Perhaps label it as “Feedback on your results” and the they get them all right change “Correct!” to “All Correct!”
+  c. Checks and x’s stay the same when you change an answer (until you hit submit - they should disappear upon making a change and then redone upon submit (steps 2 and 4)
+  d. Step 3 needs instruction like “set values to carry out bootstrap method”
+  e. Step 3 axes labels are too small a font in histogram
+6. CI for Proportion edits
+  a. Duplicate CI for Mean edits
+7. Estimating Probability edits
+  b. Duplicate CI for Mean edits
 
 # Ideas for Future Development
 1. Add in a permutation section with a difference in mean/prop.
