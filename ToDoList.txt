@@ -1,7 +1,8 @@
 # Things Needed for This Version
 1. Check alignment of Accessibility link in PSU shield logo
-  a. Appears to be Safari specific
+  A. Appears to be Safari specific
 2. Overview: Should button go to CI for Mean or to Prerequisites?
+  A. Either; depends on the need for users to check out the prereq's
 
 
 5. CI for Mean edits

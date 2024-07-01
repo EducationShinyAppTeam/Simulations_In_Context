@@ -11,17 +11,16 @@ library(boot)
 source("shuffleChoices.R")
 
 # Datasets/Choices ----
+## NOTE: line breaks in these choices will cause scoring issues
 meanCompChoices <-  c(
-  "All hotel guests that use the dispenser represented by the amount of ice they
-  would take",
+  "All hotel guests that use the dispenser represented by the amount of ice they would take",
   "The amount of ice taken by each of the ten guests",
   "3.1 ounces",
   "Ten values drawn with replacement from the list {5, 3, 0, 6, 0, 0, 4, 7, 0, and 6}",
   "The average amount of ice that would be taken by all hotel guests using the dispenser"
 )
 propCompChoices <- c(
-  "All U.S. Burger Kings with drive thru represented by a “1” if a mistake would
-  be made and a “0” if the order would be handled correctly",
+  "All U.S. Burger Kings with drive thru represented by a “1” if a mistake would be made and a “0” if the order would be handled correctly",
   "The proportion of 1's in the population out of 6500 values",
   "16/165", "165 values sampled from a list of sixteen 1's and 149 0's",
   "Sixteen 1's and 149 0's"
@@ -29,8 +28,7 @@ propCompChoices <- c(
 probCompChoices <- c(
   "Possible outcomes 1, 2, 3, 4, 5, or 6 when a die is rolled",
   "Results for each of eleven draws from the population",
-  "Whether the sum of the first five draws is larger than the sum of the next six
-  draws from the population",
+  "Whether the sum of the first five draws is larger than the sum of the next six draws from the population",
   "Possible sums for eleven rolls"
 )
 replaceChoices <- c(
@@ -116,7 +114,7 @@ ui <- list(
             citeApp(),
             br(),
             br(),
-            div(class = "updated", "Last Update: 5/29/2024 by T.M.")
+            div(class = "updated", "Last Update: 7/1/2024 by NJH.")
           )
         ),
         ### Prerequisites ----
@@ -124,6 +122,7 @@ ui <- list(
           tabName = "prerequisites",
           withMathJax(),
           h2("Prerequisites"),
+          p("Take a moment to review core concepts for this app."),
           box(
             title = strong("Vocabulary"),
             status = "primary",
@@ -131,18 +130,24 @@ ui <- list(
             collapsed = FALSE,
             width = "100%",
             tags$ul(
-              tags$li("Population: The entire group that we want information about."),
-              tags$li("Population Parameter: A number that describes
+              tags$li(tags$strong("Population:"), "The entire group that we want
+                      information about."),
+              tags$li(tags$strong("Population Parameter:"), "A number that describes
                       something about the population."),
-              tags$li("Sample: The part of the population that we are actually examining."),
-              tags$li("Statistic: A number that describes something about
-                      the sample."),
-              #tags$li("Statistic: A function that measures an aspect about a sample."),
-              tags$li("Confidence Interval: The interval/set of values for the
-                      population parameter that are compatible with the test
-                      statistic with a certain level of confidence."),
-              tags$li("Event: A specific outcome or a set of outcomes that we are
-                      interested in observing or analyzing.")
+              tags$li(tags$strong("Sample:"), "The part of the population that
+                      we are actually examining."),
+              tags$li(tags$strong("Statistic:"), "A number that describes
+                      something about the sample."),
+              #tags$li(tags$strong("Statistic:"), "A function that measures an aspect about a sample."),
+              tags$li(tags$strong("Confidence Interval:"), "The interval/set of
+                      values for the population parameter that are compatible
+                      with the test statistic with a certain level of confidence."),
+              tags$li(tags$strong("Event:"), "A specific outcome or a set of
+                      outcomes that we are interested in observing or analyzing."),
+              tags$li(tags$strong("Simulation:"), "The process of creating and
+                      employing a model (either physically or via a computer) that
+                      mimics a real-world phenonomon you want to learn something
+                      more about.")
             )
           ),
           box(
@@ -293,12 +298,7 @@ ui <- list(
                     )
                   )
                 ),
-                fluidRow(
-                  column(
-                    width = 12,
-                    textOutput(outputId = "ciMeanCompFeed")
-                  )
-                )
+                uiOutput(outputId = "ciMeanCompFeed")
               )
             ),
             #### Simulation  ----
@@ -874,106 +874,72 @@ server <- function(input, output, session) {
     }
   )
 
-  ## Confidence Interval for Mean ----
+  ## CI Mean ----
+  ### Step 1: Submit ----
   observeEvent(
-    input$ciMeanSubmit,
+    eventExpr = input$ciMeanSubmit,
     handlerExpr = {
-      selectedOption <- input$ciMeanPop
-      if (selectedOption == "All hotel guests that use the dispenser represented by the amount of ice they would take") {
-        output$ciMeanPopIcon <- renderIcon(icon = "correct", width = 30)
+      #### Check for user mistakes ----
+      pop <- input$ciMeanPop == "All hotel guests that use the dispenser represented by the amount of ice they would take"
+      para <- input$ciMeanPara == "The average amount of ice that would be taken by all hotel guests using the dispenser"
+      samp <- input$ciMeanSamp == "The amount of ice taken by each of the ten guests"
+      stat <- input$ciMeanStat == "3.1 ounces"
+      rep <- input$ciMeanBsRep == "Ten values drawn with replacement from the list {5, 3, 0, 6, 0, 0, 4, 7, 0, and 6}"
+      bsMeth <- input$ciMeanBs == "With replacement"
+      sampMeth <- input$ciMeanSampMeth == "Without replacement"
+
+      #### Component Icons ----
+      output$ciMeanPopIcon <- renderIcon(
+        icon = ifelse(test = pop, yes = "correct", no = "incorrect"),
+        width = 30
+      )
+      output$ciMeanParaIcon <- renderIcon(
+        icon = ifelse(test = para, yes = "correct", no = "incorrect"),
+        width = 30
+      )
+      output$ciMeanSampIcon <- renderIcon(
+        icon = ifelse(test = samp, yes = "correct", no = "incorrect"),
+        width = 30
+      )
+      output$ciMeanStatIcon <- renderIcon(
+        icon = ifelse(test = stat, yes = "correct", no = "incorrect"),
+        width = 30
+      )
+      output$ciMeanBsRepIcon <- renderIcon(
+        icon = ifelse(test = rep, yes = "correct", no = "incorrect"),
+        width = 30
+      )
+      output$ciMeanBsIcon <- renderIcon(
+        icon = ifelse(test = bsMeth, yes = "correct", no = "incorrect"),
+        width = 30
+      )
+      output$ciMeanSampMethIcon <- renderIcon(
+        icon = ifelse(test = sampMeth, yes = "correct", no = "incorrect"),
+        width = 30
+      )
+
+      #### Component Feedback ----
+      if (!pop || !para || !samp || !stat) {
+        feedback <- "Remember that population relates to a whole and sample relates to a small section of the population."
+      } else if (!sampMeth || !bsMeth || !rep) {
+        feedback <- "Think carefully through the process of selecting the original ten guests and then simulating."
       } else {
-        output$ciMeanPopIcon <- renderIcon(icon = "incorrect", width = 30)
+        feedback <- "All Correct!"
       }
-    }
-  )
-  observeEvent(
-    input$ciMeanSubmit,
-    handlerExpr = {
-      selectedOption <- input$ciMeanPara
-      if (selectedOption == "The average amount of ice that would be taken by all hotel guests using the dispenser") {
-        output$ciMeanParaIcon <- renderIcon(icon = "correct", width = 30)
-      } else {
-        output$ciMeanParaIcon <- renderIcon(icon = "incorrect", width = 30)
-      }
-    }
-  )
-  observeEvent(
-    input$ciMeanSubmit,
-    handlerExpr = {
-      selectedOption <- input$ciMeanSamp
-      if (selectedOption == "The amount of ice taken by each of the ten guests") {
-        output$ciMeanSampIcon <- renderIcon(icon = "correct", width = 30)
-      } else {
-        output$ciMeanSampIcon <- renderIcon(icon = "incorrect", width = 30)
-      }
-    }
-  )
-  observeEvent(
-    input$ciMeanSubmit,
-    handlerExpr = {
-      selectedOption <- input$ciMeanStat
-      if (selectedOption == "3.1 ounces") {
-        output$ciMeanStatIcon <- renderIcon(icon = "correct", width = 30)
-      } else {
-        output$ciMeanStatIcon <- renderIcon(icon = "incorrect", width = 30)
-      }
-    }
-  )
-  observeEvent(
-    input$ciMeanSubmit,
-    handlerExpr = {
-      selectedOption <- input$ciMeanBsRep
-      if (selectedOption == "Ten values drawn with replacement from the list {5, 3, 0, 6, 0, 0, 4, 7, 0, and 6}") {
-        output$ciMeanBsRepIcon <- renderIcon(icon = "correct", width = 30)
-      } else {
-        output$ciMeanBsRepIcon <- renderIcon(icon = "incorrect", width = 30)
-      }
-    }
-  )
-  observeEvent(
-    input$ciMeanSubmit,
-    handlerExpr = {
-      selectedOption <- input$ciMeanBs
-      if (selectedOption == "With replacement") {
-        output$ciMeanBsIcon <- renderIcon(icon = "correct", width = 30)
-      } else {
-        output$ciMeanBsIcon <- renderIcon(icon = "incorrect", width = 30)
-      }
-    }
-  )
-  observeEvent(
-    input$ciMeanSubmit,
-    handlerExpr = {
-      selectedOption <- input$ciMeanSampMeth
-      if (selectedOption == "Without replacement") {
-        output$ciMeanSampMethIcon <- renderIcon(icon = "correct", width = 30)
-      } else {
-        output$ciMeanSampMethIcon <- renderIcon(icon = "incorrect", width = 30)
-      }
+
+      output$ciMeanCompFeed <- renderUI(
+        expr = {
+          p(tags$strong("Feedback on your choices:"), feedback)
+        }
+      )
     }
   )
 
-  ### Feedback
+  ### Step 1: Reset ----
   observeEvent(
-    input$ciMeanSubmit,
-    handlerExpr = {
-      pop <- input$ciMeanPop
-      para <- input$ciMeanPara
-      samp <- input$ciMeanSamp
-      stat <- input$ciMeanStat
-
-      if (pop != "All hotel guests that use the dispenser represented by the amount of ice they would take" ||
-          para != "The average amount of ice that would be taken by all hotel guests using the dispenser" ||
-          samp != "The amount of ice taken by each of the ten guests" || stat != "3.1 ounces") {
-        output$ciMeanCompFeed <- renderText("Remember that population relates to a whole and sample relates to a small section of the population.")
-      } else {
-        output$ciMeanCompFeed <- renderText("Correct!")
-      }
-    }
-  )
-  ### Reset
-  observeEvent(
-    eventExpr = input$ciMeanReset,
+    eventExpr = c(input$ciMeanReset, input$ciMeanPop, input$ciMeanPara,
+                  input$ciMeanSamp, input$ciMeanStat, input$ciMeanSampMeth,
+                  input$ciMeanBs, input$ciMeanBsRep),
     handlerExpr = {
       output$ciMeanPopIcon <- renderIcon()
       output$ciMeanParaIcon <- renderIcon()
@@ -982,6 +948,7 @@ server <- function(input, output, session) {
       output$ciMeanBsRepIcon <- renderIcon()
       output$ciMeanBsIcon <- renderIcon()
       output$ciMeanSampMethIcon <- renderIcon()
+      output$ciMeanCompFeed <- renderUI({NULL})
     }
   )
 
@@ -990,7 +957,7 @@ server <- function(input, output, session) {
     lowerCI <- reactiveVal(0)
 
     observeEvent(
-    input$simCIMean,
+    eventExpr = input$simCIMean,
     handlerExpr = {
       numSamp <- input$ciMeanNS
       numRep <- input$ciMeanNumRep
