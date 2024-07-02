@@ -1,18 +1,6 @@
 # Things Needed for This Version
 1. Check alignment of Accessibility link in PSU shield logo
   A. Appears to be Safari specific
-2. Overview: Should button go to CI for Mean or to Prerequisites?
-  A. Either; depends on the need for users to check out the prereq's
-
-
-5. CI for Mean edits
-  b. Hard to tell which answer the feedback is addressing (it is trying to address all simultaneously). Perhaps label it as “Feedback on your results” and the they get them all right change “Correct!” to “All Correct!”
-  c. Checks and x’s stay the same when you change an answer (until you hit submit - they should disappear upon making a change and then redone upon submit (steps 2 and 4)
-
-6. CI for Proportion edits
-  a. Duplicate CI for Mean edits
-7. Estimating Probability edits
-  b. Duplicate CI for Mean edits
 
 # Ideas for Future Development
 1. Add in a permutation section with a difference in mean/prop.
