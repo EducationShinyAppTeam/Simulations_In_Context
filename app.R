@@ -59,7 +59,7 @@ replaceChoices <- c(
 ui <- list(
   ## App page ----
   dashboardPage(
-    skin = "blue",
+    skin = "purple",
     dashboardHeader(
       title = "Simulations in Context",
       titleWidth = 250,
