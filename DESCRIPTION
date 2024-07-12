@@ -7,7 +7,7 @@ Authors@R: c(
     person(given = "Neil", family = "Hatfield", email = "neil.hatfield@psu.edu", role = c("aut")),
     person(given = "Dennis", family = "Pearl", email = "rpc5102@psu.edu", role = c("aut"))
   )
-Chapter: Sample Chapter
+Chapter: Chapter 4
 Description: Learn how simulations come together in specific scenarios. Read through a context and link key terms to their meanings. Then create a simulation that accurately reflects the situation.
 LearningObjectives: c(
     "Define key terms associated with simulations and their context.",

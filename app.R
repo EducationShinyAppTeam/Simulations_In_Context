@@ -4,25 +4,56 @@ library(shinydashboard)
 library(shinyBS)
 library(shinyWidgets)
 library(boastUtils)
-library(ggplot2) 
+library(ggplot2)
 library(boot)
 
 # Load additional dependencies and setup functions
+source("shuffleChoices.R")
 
-# Datasets/Choices ----
-meanCompChoices <-  c(" ", "All hotel guests that use the dispenser represented by the amount of ice they would take",
-                      "The amount of ice taken by each of the ten guests",
-                      "3.1 ounces",
-                      "Ten values drawn with replacement from the list {5, 3, 0, 6, 0, 0, 4, 7, 0, and 6}",
-                      "The average amount of ice that would be taken by all hotel guests using the dispenser")
-propCompChoices <- c(" ", "All U.S. Burger Kings with drive thru represented by a “1” if a mistake would be made and a “0” if the order would be handled correctly",
-                     "The proportion of 1's in the population out of 6500 values",
-                     "16/165", "165 values sampled from a list of sixteen 1's and 149 0's", 
-                     "Sixteen 1's and 149 0's")
-probCompChoices <- c(" ", "Possible outcomes 1, 2, 3, 4, 5, or 6 when a die is rolled", 
-                     "Results for each of eleven draws from the population", 
-                     "Whether the sum of the first five draws is larger than the sum of the next six draws from the population", "Possible sums for eleven rolls")
-replaceChoices <- c(" ", "With replacement", "Without replacement")
+TOL1 <- 0.1
+TOL2 <- 0.01
+
+bootMean <- function(x, index) {
+  return(mean(x[index], na.rm = TRUE))
+}
+meanData <- c(5, 3, 0, 6, 0, 0, 4, 7, 0, 6)
+propData <- rep(c(1,0), times = c(16, 149))
+
+diceGame <- function(p1Name, p1Times, p2Name, p2Times) {
+  p1Results <- sum(sample(x = 1:6, size = p1Times, replace = TRUE))
+  p2Results <- sum(sample(x = 1:6, size = p2Times, replace = TRUE))
+
+  if (p1Results == p2Results) {return("Tie")}
+  else if (p1Results > p2Results) {return(paste(p1Name, "Wins"))}
+  else {return(paste(p2Name, "Wins"))}
+}
+
+# Choices ----
+## NOTE: line breaks in these choices will cause scoring issues
+meanCompChoices <-  c(
+  "All hotel guests that use the dispenser represented by the amount of ice they would take",
+  "The amount of ice taken by each of the ten guests",
+  "3.1 ounces",
+  "Ten values drawn with replacement from the list {5, 3, 0, 6, 0, 0, 4, 7, 0, and 6}",
+  "The average amount of ice that would be taken by all hotel guests using the dispenser"
+)
+propCompChoices <- c(
+  "All U.S. Burger Kings with drive thru represented by a “1” if a mistake would be made and a “0” if the order would be handled correctly",
+  "The proportion of 1's in the population out of 6500 values",
+  "16/165", "165 values sampled from a list of sixteen 1's and 149 0's",
+  "Sixteen 1's and 149 0's"
+)
+probCompChoices <- c(
+  "Possible outcomes 1, 2, 3, 4, 5, or 6 when a die is rolled",
+  "Results for each of eleven draws from the population",
+  "Whether the sum of the first five draws is larger than the sum of the next six draws from the population",
+  "Possible sums for eleven rolls"
+)
+replaceChoices <- c(
+  "Select an answer",
+  "With replacement",
+  "Without replacement"
+)
 
 # Define UI for App ----
 ui <- list(
@@ -68,15 +99,15 @@ ui <- list(
         tabItem(
           tabName = "overview",
           withMathJax(),
-          h1("Simulations in Context"), 
-          p("Learn how simulations come together in specific scenarios. Read through 
-            a context and link key terms to their meanings. Then create a simulation 
+          h1("Simulations in Context"),
+          p("Learn how simulations come together in specific scenarios. Read through
+            a context and link key terms to their meanings. Then create a simulation
             that accurately reflects the situation."),
           h2("Instructions"),
           tags$ol(
             tags$li("Review the prereqisities as needed."),
             tags$li("Next, go to the explore page and go through each type of simulation."),
-            tags$li("For each simulation, read the context, identify terms within the 
+            tags$li("For each simulation, read the context, identify terms within the
                     context, and create possible simulations.")
           ),
           #### Overview to Explore Button
@@ -86,7 +117,7 @@ ui <- list(
               inputId = "overviewToMean",
               label = "CI for Mean",
               size = "large",
-              icon = icon("wpexplorer")
+              icon = icon("bolt")
             )
           ),
           br(),
@@ -101,7 +132,7 @@ ui <- list(
             citeApp(),
             br(),
             br(),
-            div(class = "updated", "Last Update: 5/29/2024 by T.M.")
+            div(class = "updated", "Last Update: 7/2/2024 by NJH.")
           )
         ),
         ### Prerequisites ----
@@ -109,6 +140,7 @@ ui <- list(
           tabName = "prerequisites",
           withMathJax(),
           h2("Prerequisites"),
+          p("Take a moment to review core concepts for this app."),
           box(
             title = strong("Vocabulary"),
             status = "primary",
@@ -116,212 +148,204 @@ ui <- list(
             collapsed = FALSE,
             width = "100%",
             tags$ul(
-              tags$li("Population: The entire group that we want information about. "),
-              tags$li("Population Parameter(s): A number that describes 
-                      something about the population. "),
-              tags$li("Sample: The part of the population that we are actually examining."),
-              tags$li("Statistic(s): A number that describes something about 
-                      the sample."),
-              tags$li("Bootstrap: Type of resampling with replacement. You take samples 
-                      from the original sample using the same sample size."),
-              tags$li("Confidence Interval: The range of population parameters that 
-                      are compatible with the test statistic with a certain level of
-                      confidence."),
-              tags$li("Event: A specific outcome or a set of outcomes that we are interested
-                      in observing or analyzing.")
+              tags$li(tags$strong("Population:"), "The entire group that we want
+                      information about."),
+              tags$li(tags$strong("Population Parameter:"), "A number that describes
+                      something about the population."),
+              tags$li(tags$strong("Sample:"), "The part of the population that
+                      we are actually examining."),
+              tags$li(tags$strong("Statistic:"), "A function that measures an
+                      aspect about a sample by reporting a single value."),
+              tags$li(tags$strong("Confidence Interval:"), "The interval/set of
+                      values for the population parameter that are compatible
+                      with the test statistic with a certain level of confidence."),
+              tags$li(tags$strong("Event:"), "A specific outcome or a set of
+                      outcomes that we are interested in observing or analyzing."),
+              tags$li(tags$strong("Simulation:"), "The process of creating and
+                      employing a model (either physically or via a computer) that
+                      mimics a real-world phenonomon you want to learn something
+                      more about.")
             )
           ),
-          fluidRow(
-            column(
-              width = 6,
-              box(
-                title = strong("Simulations for Calculating Probabilities"),
-                status = "primary",
-                collapsible = TRUE,
-                collapsed = TRUE,
-                width = "100%",          
-                tags$ul(
-                  tags$li("Simulate a chance process that mirrors a real-life experiment."),
-                  tags$li("For each simulation check whether a particular event occurs."),
-                  tags$li("Estimate the probability of the event by the proportion 
-                          of times it comes up in a large number of simulations.")
-                )
-              )
-            ),
-            column(
-              width = 6,
-              box(
-                title = strong("Bootstrapping"),
-                status = "primary",
-                collapsible = TRUE,
-                collapsed = TRUE,
-                width = "100%",          
-                tags$ul(
-                  tags$li("Bootstrapping can be useful to estimate standard errors 
-                          and confidence intervals for sample statistics in situations 
-                          where common formulas don't apply."),
-                  tags$li("Calculate the statistic for each bootstrap sample and 
-                          look at the variability across bootstrap samples to estimate 
-                          the variability around the original sample statistic."),
-                  tags$li("Use as many replications of bootstrap samples as practical.")
-                )
-              )
+          box(
+            title = strong("Bootstrapping"),
+            status = "primary",
+            collapsible = TRUE,
+            collapsed = TRUE,
+            width = "100%",
+            tags$ul(
+              tags$li("(Nonparametric) Bootstrapping is a type of resampling with replacement
+                      where you take samples from the original sample using the
+                      same sample size."),
+              tags$li("Bootstrapping can be useful to estimate standard errors
+                      and confidence intervals for sample statistics in situations
+                      where common formulas don't apply."),
+              tags$li("Calculate the statistic for each bootstrap sample and
+                      look at the variability across bootstrap samples to estimate
+                      the variability around the original sample statistic."),
+              tags$li("Use as many replications of bootstrap samples as practical.")
             )
-          )
+          ),
+          box(
+            title = strong("Simulations for Calculating Probabilities"),
+            status = "primary",
+            collapsible = TRUE,
+            collapsed = TRUE,
+            width = "100%",
+            tags$ul(
+              tags$li("Simulate a chance process that mirrors a real-life experiment."),
+              tags$li("For each simulation check whether a particular event occurs."),
+              tags$li("Estimate the probability of the event by the proportion
+                      of times it comes up in a large number of simulations.")
+            )
+          ),
         ),
         ### CI for Mean ----
         tabItem(
           tabName = "ciMean",
           h2("Confidence Interval for Mean"),
-          h4("Step 1: Context"),
-          fluidRow(
-            column(
-              width = 12,
-              p("A hotel has put a self-serve water dispenser in its lobby and
-                wants to know the average amount of ice that will be used by guests
-                who get water from the machine. They look at the ice used by ten 
-                guests and find the amount taken for these ten as {5, 3, 0, 6, 0, 
-                0, 4, 7, 0, and 6} which has an average of 3.1 ounces. We would 
-                like to use the bootstrap method to make a 98% confidence interval 
-                for the mean amount of ice taken by all guests using the dispenser."
-              )
-            )
+          p("Use the following context to walk through three steps for using
+            simulation to find a potential answer. Steps 1 and 2 are tabs with
+            Step 3 located at the bottom of the page."),
+          h3("Context"),
+          p("A hotel has put a self-serve water dispenser in its lobby and wants
+            to know the average amount of ice that will be used by guests who get
+            water from the machine. They look at the ice used by ten guests and
+            find the amount taken for these ten as {5, 3, 0, 6, 0, 0, 4, 7, 0,
+            and 6} which has an average of 3.1 ounces. We would like to use the
+            bootstrap method to make a 98% confidence interval for the mean
+            amount of ice taken by all guests using the dispenser."
           ),
-          br(),
           tabsetPanel(
             id = "simulationType",
             #### Identifying Components ----
             tabPanel(
-              title = "Step 2: Identifying Components",
+              title = "Step 1: Identify Components",
               value = "b",
+              br(),
               wellPanel(
                 fluidRow(
                   column(
-                    width = 5, 
+                    width = 5,
                     selectInput(
                       inputId = "ciMeanPop",
                       label = "Population",
-                      choices = sample(meanCompChoices),
-                      selected = " "
+                      choices = shuffleChoices(meanCompChoices)
                     )
                   ),
-                  column(width = 1, uiOutput(outputId = "ciMeanPopIcon")), 
+                  column(width = 1, uiOutput(outputId = "ciMeanPopIcon")),
                   column(
-                    width = 5, 
+                    width = 5,
                     selectInput(
                       inputId = "ciMeanPara",
-                      label = "Population Parameter",
-                      choices = sample(meanCompChoices),
-                      selected = " "
+                      label = "Population parameter",
+                      choices = shuffleChoices(meanCompChoices)
                     )
                   ),
                   column(width = 1, uiOutput(outputId = "ciMeanParaIcon"))
                 ),
                 fluidRow(
                   column(
-                    width = 5, 
+                    width = 5,
                     selectInput(
                       inputId = "ciMeanSamp",
                       label = "Sample",
-                      choices = sample(meanCompChoices),
-                      selected = " "
+                      choices = shuffleChoices(meanCompChoices)
                     )
                   ),
                   column(width = 1, uiOutput(outputId = "ciMeanSampIcon")),
                   column(
-                    width = 5, 
+                    width = 5,
                     selectInput(
                       inputId = "ciMeanStat",
-                      label = "Sample Statistic",
-                      choices = sample(meanCompChoices),
-                      selected = " "
+                      label = "Sample statistic",
+                      choices = shuffleChoices(meanCompChoices)
                     )
                   ),
                   column(width = 1, uiOutput(outputId = "ciMeanStatIcon"))
                 ),
                 fluidRow(
                   column(
-                    width = 5, 
+                    width = 5,
                     selectInput(
                       inputId = "ciMeanSampMeth",
-                      label = "Sampling Method",
-                      choices = replaceChoices,
-                      selected = " "
+                      label = "Sampling method",
+                      choices = replaceChoices
                     )
                   ),
                   column(width = 1, uiOutput(outputId = "ciMeanSampMethIcon")),
                   column(
-                    width = 5, 
+                    width = 5,
                     selectInput(
                       inputId = "ciMeanBs",
-                      label = "Boostrap Sampling Method",
-                      choices = replaceChoices,
-                      selected = " "
+                      label = "Boostrap sampling method",
+                      choices = replaceChoices
                     )
                   ),
                   column(width = 1, uiOutput(outputId = "ciMeanBsIcon"))
                 ),
                 fluidRow(
                   column(
-                    width = 5, 
+                    width = 5,
                     selectInput(
                       inputId = "ciMeanBsRep",
-                      label = "Boostrap Sample Replicates",
-                      choices = sample(meanCompChoices),
-                      selected = " "
+                      label = "Boostrap sample replicates",
+                      choices = shuffleChoices(meanCompChoices)
                     )
                   ),
                   column(width = 1, uiOutput(outputId = "ciMeanBsRepIcon")),
                   column(
-                    offset = 3,
+                    offset = 1,
                     width = 1,
                     bsButton(
                       inputId = "ciMeanReset",
-                      label = "Reset"
+                      label = "Reset",
+                      size = "large",
+                      style = "warning",
+                      icon = icon("eraser")
                     )
                   ),
                   column(
                     width = 1,
+                    offset = 1,
                     bsButton(
                       inputId = "ciMeanSubmit",
-                      label = "Submit"
+                      label = "Submit",
+                      size = "large"
                     )
                   )
                 ),
-                fluidRow(
-                  column(
-                    width = 12,
-                    textOutput(outputId = "ciMeanCompFeed")
-                  )
-                )
+                uiOutput(outputId = "ciMeanCompFeed")
               )
             ),
             #### Simulation  ----
             tabPanel(
-              title = "Step 3: Simulation",
+              title = "Step 2: Simulation",
               value = "b",
+              br(),
+              p("Set the appropriate values to carry out the bootstrap method."),
               fluidRow(
                 column(
                   width = 4,
                   wellPanel(
                     sliderInput(
                       inputId = "ciMeanNS",
-                      label = "Size of Original Sample",
-                      min = 0, 
+                      label = "Size of original sample",
+                      min = 0,
                       max = 50,
-                      value = 25, 
+                      value = 25,
                       step = 5
                     ),
                     sliderTextInput(
                       inputId = "ciMeanNumRep",
-                      label = "Number of Bootstrap Replications",
+                      label = "Number of bootstrap replications",
                       choices = c(10, 100, 1000, 10000),
                       selected = "10",
                       grid = TRUE
                     ),
                     numericInput(
                       inputId = "ciMeanCL",
-                      label = 'Confidence Level',
+                      label = 'Confidence level',
                       value = 0.95,
                       step = 0.01,
                       min = 0,
@@ -329,26 +353,27 @@ ui <- list(
                     ),
                     bsButton(
                       inputId = "simCIMean",
-                      label = "Simulate"
+                      label = "Simulate",
+                      size = "large"
                     )
                   )
                 ),
                 column(
                   width = 8,
                   plotOutput("ciMeanSim"),
-                  textOutput('ciMeanResults')
+                  uiOutput('ciMeanResults')
                 )
               )
             )
           ),
           #### Answer ----
-          h4("Step 4: Answer"),
+          h4("Step 3: Potential Answer"),
           fluidRow(
-            column( 
+            column(
               width = 2,
               numericInput(
                 inputId = 'ciMeanLower',
-                label = 'Lower Bound',
+                label = 'Lower bound',
                 value = NULL,
                 min = 0,
                 max = 10000
@@ -356,12 +381,12 @@ ui <- list(
             ),
             column(width = 1, uiOutput(outputId = "ciMeanLowerIcon")),
             column(
-              width = 2, 
+              width = 2,
               numericInput(
                 inputId = 'ciMeanUpper',
-                label = 'Upper Bound',
+                label = 'Upper bound',
                 value = NULL,
-                min = 0, 
+                min = 0,
                 max = 10000
               )
             ),
@@ -372,7 +397,8 @@ ui <- list(
               width = 2,
               bsButton(
                 inputId = "ciMeanGuessSubmit",
-                label = 'Submit'
+                label = 'Submit',
+                size = "large"
               )
             ),
             column(width = 10, textOutput(outputId = "ciMeanGuessFeedback"))
@@ -382,190 +408,190 @@ ui <- list(
         tabItem(
           tabName = "ciProp",
           h2("Confidence Interval for Proportion"),
-          h4("Step 1: Context"),
-          fluidRow(
-            column(
-              width = 12, 
-              p("Each year QSR magazine does a survey of drive-thru service at
-                America’s quick serve restaurants.  The magazine selects a number
-                of restaurants from each of the major chains and sends a customer 
-                to order a meal from the drive thru window.  The order will include
-                an entree, a side dish, and a drink, and one deviation from the 
-                usual order.  For example, at Burger King they might order an 
-                Impossible Burger, a medium Coke, and an onion rings but ask for
-                no sauce on the Impossible Burger.  QSR asks the customer to rate
-                their experience in different ways, including how much time it took
-                for them to be served and whether the restaurant got the order correct
-                or not.  In the 2023 QSR survey, 165 out of Burger King’s 6500 restaurants 
-                with drive-thru windows were selected and it turned out that there 
-                was a mistake in the order at 16 of the sampled restaurants. 
-                We would like to use the bootstrap method to make a 90% confidence
-                interval for the proportion of all Burger King Drive Thru windows 
-                that would make a mistake in an order of this type.")
-            )
+          p("Use the following context to walk through three steps for using
+            simulation to find a potential answer. Steps 1 and 2 are tabs with
+            Step 3 located at the bottom of the page."),
+          h3("Context"),
+          p("Each year QSR magazine does a survey of drive-thru service at
+            America’s quick serve restaurants. The magazine selects a number of
+            restaurants from each of the major chains and sends a customer to
+            order a meal from the drive thru window. The order will include an
+            entree, a side dish, and a drink, and one deviation from the usual
+            order. For example, at Burger King they might order an Impossible
+            Burger, a medium Coke, and an onion rings but ask for no sauce on the
+            Impossible Burger. QSR asks the customer to rate their experience in
+            different ways, including how much time it took for them to be served
+            and whether the restaurant got the order correct or not. In the 2023
+            QSR survey, 165 out of Burger King’s 6500 restaurants with drive-thru
+            windows were selected and it turned out that there was a mistake in
+            the order at 16 of the sampled restaurants. We would like to use the
+            bootstrap method to make a 90% confidence interval for the proportion
+            of all Burger King Drive Thru windows that would make a mistake in an
+            order of this type."
           ),
-          br(),
           tabsetPanel(
             id = "simulationType",
             #### Identifying Components ----
             tabPanel(
-              title = "Step 2: Identifying Components",
+              title = "Step 1: Identify Components",
               value = "b",
+              br(),
               wellPanel(
                 fluidRow(
                   column(
-                    width = 5, 
+                    width = 5,
                     selectInput(
                       inputId = "ciPropPop",
                       label = "Population",
-                      choices = sample(propCompChoices),
-                      selected = " "
+                      choices = shuffleChoices(propCompChoices)
                     )
                   ),
                   column(width = 1, uiOutput(outputId = "ciPropPopIcon")),
                   column(
-                    width = 5, 
+                    width = 5,
                     selectInput(
                       inputId = "ciPropPara",
-                      label = "Population Parameter",
-                      choices = sample(propCompChoices),
-                      selected = " "
+                      label = "Population parameter",
+                      choices = shuffleChoices(propCompChoices)
                     )
                   ),
                   column(width = 1, uiOutput(outputId = "ciPropParaIcon"))
                 ),
                 fluidRow(
                   column(
-                    width = 5, 
+                    width = 5,
                     selectInput(
                       inputId = "ciPropSamp",
                       label = "Sample",
-                      choices = sample(propCompChoices),
-                      selected = " "
+                      choices = shuffleChoices(propCompChoices)
                     )
                   ),
                   column(width = 1, uiOutput(outputId = "ciPropSampIcon")),
                   column(
-                    width = 5, 
+                    width = 5,
                     selectInput(
                       inputId = "ciPropStat",
-                      label = "Sample Statistic",
-                      choices = sample(propCompChoices),
-                      selected = " "
+                      label = "Sample statistic",
+                      choices = shuffleChoices(propCompChoices)
                     )
                   ),
                   column(width = 1, uiOutput(outputId = "ciPropStatIcon"))
                 ),
                 fluidRow(
                   column(
-                    width = 5, 
+                    width = 5,
                     selectInput(
                       inputId = "ciPropSampMeth",
-                      label = "Sampling Method",
-                      choices = replaceChoices,
-                      selected = " "
+                      label = "Sampling method",
+                      choices = replaceChoices
                     )
                   ),
                   column(width = 1, uiOutput(outputId = "ciPropSampMethIcon")),
                   column(
-                    width = 5, 
+                    width = 5,
                     selectInput(
                       inputId = "ciPropBs",
-                      label = "Boostrap Sampling Method",
-                      choices = replaceChoices,
-                      selected = " "
+                      label = "Boostrap sampling method",
+                      choices = replaceChoices
                     )
                   ),
                   column(width = 1, uiOutput(outputId = "ciPropBsIcon"))
                 ),
                 fluidRow(
                   column(
-                    width = 5, 
+                    width = 5,
                     selectInput(
                       inputId = "ciPropBsRep",
-                      label = "Boostrap Sample Replicates",
-                      choices = sample(propCompChoices),
-                      selected = " "
+                      label = "Boostrap sample replicates",
+                      choices = shuffleChoices(propCompChoices)
                     )
                   ),
                   column(width = 1, uiOutput(outputId = "ciPropBsRepIcon")),
                   column(
-                    offset = 3, 
+                    offset = 1,
                     width = 1,
                     bsButton(
                       inputId = "ciPropReset",
-                      label = "Reset"
+                      label = "Reset",
+                      size = "large",
+                      style = "warning",
+                      icon = icon("eraser")
                     )
                   ),
                   column(
                     width = 1,
+                    offset = 1,
                     bsButton(
                       inputId = "ciPropSubmit",
-                      label = "Submit"
+                      label = "Submit",
+                      size = "large"
                     )
                   )
                 ),
                 fluidRow(
                   column(
                     width = 12,
-                    textOutput(outputId = "ciPropCompFeed")
+                    uiOutput(outputId = "ciPropCompFeed")
                   )
                 )
               )
             ),
             #### Simulation  ----
             tabPanel(
-              title = "Step 3: Simulation",
+              title = "Step 2: Simulation",
               value = "b",
+              br(),
+              p("Set the appropriate values to carry out the bootstrap method."),
               fluidRow(
                 column(
                   width = 4,
                   wellPanel(
                     sliderInput(
                       inputId = "ciPropNS",
-                      label = "Size of Original Sample",
-                      min = 100, 
+                      label = "Size of original sample",
+                      min = 100,
                       max = 200,
-                      value = 150, 
+                      value = 150,
                       step = 5
                     ),
                     sliderTextInput(
                       inputId = "ciPropNumRep",
-                      label = "Number of Bootstrap Replications",
+                      label = "Number of bootstrap replications",
                       choices = c(10, 100, 1000, 10000),
                       selected = "10",
                       grid = TRUE
                     ),
                     numericInput(
                       inputId = "ciPropCL",
-                      label = 'Confidence Level',
+                      label = 'Confidence level',
                       value = 0.95,
                       step = 0.01,
-                      min = 0, 
+                      min = 0,
                       max = 1
                     ),
                     bsButton(
                       inputId = "simCIProp",
-                      label = "Simulate"
+                      label = "Simulate",
+                      size = "large"
                     )
                   )
                 ),
                 column(
                   width = 8,
                   plotOutput("ciPropSim"),
-                  textOutput('ciPropResults')
+                  uiOutput('ciPropResults')
                 )
               )
             )
           ),
           #### Answer ----
-          h4("Step 4: Answer"),
+          h4("Step 3: Potential Answer"),
           fluidRow(
-            column( 
+            column(
               width = 2,
               numericInput(
                 inputId = 'ciPropLower',
-                label = 'Lower Bound',
+                label = 'Lower bound',
                 value = NULL,
                 step = 0.01,
                 min = 0,
@@ -574,10 +600,10 @@ ui <- list(
             ),
             column(width = 1, uiOutput(outputId = "ciPropLowerIcon")),
             column(
-              width = 2, 
+              width = 2,
               numericInput(
                 inputId = 'ciPropUpper',
-                label = 'Upper Bound',
+                label = 'Upper bound',
                 value = NULL,
                 step = 0.01,
                 min = 0,
@@ -591,95 +617,101 @@ ui <- list(
               width = 2,
               bsButton(
                 inputId = "ciPropGuessSubmit",
-                label = 'Submit'
+                label = 'Submit',
+                size = "large"
               )
             ),
             column(width = 10, textOutput(outputId = "ciPropGuessFeedback"))
           )
-        ),      
+        ),
         ### Probability ----
         tabItem(
           tabName = "prob",
           h2("Estimating Probability"),
-          h4("Step 1: Context"),
-          fluidRow(
-            column(
-              width = 12,
-              p("Nick and Jennifer were rolling dice to see who could get
-                 a higher total. Nick claims that he can get a higher total with
-                 fewer dice, but Jennifer does not believe him. So Nick rolls a 
-                 die five times and then Jennifer rolls a die six times. Use simulation 
-                 to find the probability that Nick gets a higher total than Jennifer.")
-            )
+          p("Use the following context to walk through three steps for using
+            simulation to find a potential answer. Steps 1 and 2 are tabs with
+            Step 3 located at the bottom of the page."),
+          h3("Context"),
+          p("Nick and Jennifer were rolling dice to see who could get a higher
+            total. Nick claims that he can get a higher total with fewer dice,
+            but Jennifer does not believe him. So Nick rolls a die five times and
+            then Jennifer rolls a die six times. Use simulation to find the
+            probability that Nick gets a higher total than Jennifer."
           ),
-          br(),
           tabsetPanel(
             id = "simulationType",
             #### Identifying Components ----
             tabPanel(
-              title = "Step 2: Identifying Components",
+              title = "Step 1: Identify Components",
               value = "b",
+              br(),
               wellPanel(
                 fluidRow(
                   column(
-                    width = 5, 
+                    width = 5,
                     selectInput(
                       inputId = "probPop",
                       label = "Population",
-                      choices = sample(probCompChoices),
-                      selected = " "
+                      choices = shuffleChoices(probCompChoices)
                     )
                   ),
                   column(width = 1, uiOutput(outputId = "probPopIcon")),
                   column(
-                    width = 5, 
+                    width = 5,
                     selectInput(
                       inputId = "probSamp",
                       label = "Sample",
-                      choices = sample(probCompChoices),
-                      selected = " "
+                      choices = shuffleChoices(probCompChoices)
                     )
                   ),
                   column(width = 1, uiOutput(outputId = "probSampIcon"))
                 ),
                 fluidRow(
                   column(
-                    width = 5, 
+                    width = 5,
                     selectInput(
                       inputId = "probEvent",
                       label = "Event",
-                      choices = sample(probCompChoices),
-                      selected = " "
+                      choices = shuffleChoices(probCompChoices)
                     )
                   ),
                   column(width = 1, uiOutput(outputId = "probEventIcon")),
                   column(
-                    width = 5, 
+                    width = 5,
                     selectInput(
                       inputId = "probReplace",
-                      label = "Sampling Method",
-                      choices = c(" ", "Draw with replacement", "Draw without replacement")
+                      label = "Sampling method",
+                      choices = c(
+                        "Select an answer",
+                        "Draw with replacement",
+                        "Draw without replacement"
+                      )
                     )
                   ),
                   column(width = 1, uiOutput(outputId = "probReplaceIcon"))
                 ),
                 fluidRow(
                   column(
-                    width = 9,
-                    textOutput(outputId = "probCompFeed")
+                    width = 8,
+                    uiOutput(outputId = "probCompFeed")
                   ),
                   column(
                     width = 1,
                     bsButton(
                       inputId = "probReset",
-                      label = "Reset"
+                      label = "Reset",
+                      size = "large",
+                      style = "warning",
+                      icon = icon("eraser")
                     )
                   ),
                   column(
                     width = 1,
+                    offset = 1,
                     bsButton(
                       inputId = "probSubmit",
-                      label = "Submit"
+                      label = "Submit",
+                      size = "large"
                     )
                   )
                 )
@@ -687,52 +719,55 @@ ui <- list(
             ),
             #### Simulation  ----
             tabPanel(
-              title = "Step 3: Simulation",
+              title = "Step 2: Simulation",
               value = "b",
+              br(),
+              p("Set the appropriate values to conduct the simulation."),
               fluidRow(
                 column(
                   width = 4,
                   wellPanel(
                     sliderTextInput(
-                      inputId = 'simsProb', 
-                      label = "Number of Simulations:",
+                      inputId = 'simsProb',
+                      label = "Number of simulations",
                       choices = c(10, 100, 1000, 10000),
                       selected = "10",
                       grid = TRUE
                     ),
                     sliderInput(
-                      inputId = 'nickRollsProb', 
-                      label = "Nick Number of Rolls:",
-                      min = 1, 
+                      inputId = 'nickRolls',
+                      label = "Nick's number of rolls",
+                      min = 1,
                       max = 10,
                       value = 1
                     ),
                     sliderInput(
-                      inputId = 'jennRollsProb', 
-                      label = "Jennifer Number of Rolls:",
-                      min = 1, 
+                      inputId = 'jennRolls',
+                      label = "Jennifer's number of rolls",
+                      min = 1,
                       max = 10,
                       value = 1
                     ),
                     bsButton(
                       inputId = 'simProb',
-                      label = 'Simulate'
+                      label = 'Simulate',
+                      size = "large"
                     )
                   )
                 ),
                 column(
                   width = 8,
                   plotOutput('probSim'),
-                  textOutput('resultProb')
+                  uiOutput('resultProb')
                 )
               )
             )
           ),
           #### Answer ----
-          h4("Step 4: Answer"),
+          h4("Step 3: Potential Answer"),
           fluidRow(
             column(
-              width = 5, 
+              width = 5,
               numericInput(
                 inputId = 'guessProb',
                 label = 'Estimated probability that Nick wins',
@@ -749,7 +784,8 @@ ui <- list(
               width = 2,
               bsButton(
                 inputId = "guessSubmitProb",
-                label = 'Submit'
+                label = 'Submit',
+                size = "large"
               )
             ),
             column(width = 10, textOutput(outputId = "guessProbFeedback"))
@@ -762,21 +798,21 @@ ui <- list(
           h2("References"),
           p(
             class = "hangingindent",
-            "Bailey, E. (2015). shinyBS: Twitter bootstrap components for shiny.
-            (v0.61). [R package]. Available from
+            "Bailey, E. (2022). shinyBS: Twitter bootstrap components for shiny.
+            (v 0.61.1). [R package]. Available from
             https://CRAN.R-project.org/package=shinyBS"
           ),
           p(
             class = "hangingindent",
-            "Canty, A. and Ripley, B. boot: Boostrap Functions (Originally by Angelo
-            Canty for S). (v1.3-28.1). Avaliable from 
-            https://cran.r-project.org/web/packages/boot/index.html"
+            "Canty, A. and Ripley, B. (2024). boot: Boostrap R (S-Plus) functions.
+            (v 1.3-30). [R package]. Avaliable from
+            https://CRAN.R-project.org/package=boot"
           ),
           p(
             class = "hangingindent",
-            "Carey, R. and Hatfield, N.J. (2023). boastUtils: BOAST utilities. 
-            (v0.1.11.2). [R Package]. Avaliable from 
-            https://github.com/EducationShinyappTeam/boastUtils"
+            "Carey, R. and Hatfield, N. J. (2024). boastUtils: BOAST utlities.
+            (v 0.1.12.2). [R package]. Available from
+            https://github.com/EducationShinyAppTeam/boastUtils"
           ),
           p(
             class = "hangingindent",
@@ -786,26 +822,27 @@ ui <- list(
           ),
           p(
             class = "hangingindent",
-            "Chang W, Cheng J, Allaire J, Sievert C, Schloerke B, Xie Y, Allen J, 
-            McPherson J, Dipert A, Borges B (2023). shiny: Web Application Framework 
-            for R. R package version 1.7.4.9002. Avaliable from 
+            "Chang, W., Cheng J., Allaire, J., Sievert, C., Schloerke, B.,
+            Xie, Y., Allen, J., McPherson, J., Dipert, A., and Borges, B.
+            (2024). shiny: Web application framework for R. (v 1.8.1.1).
+            [R package]. Available from
             https://CRAN.R-project.org/package=shiny"
           ),
           p(
             class = "hangingindent",
-            "Klein, Danny. “The 2023 QSR® Drive-Thru Report.” QSR Magazine, 27 Oct. 
+            "Klein, D. “The 2023 QSR® Drive-Thru Report.” QSR Magazine, 27 Oct.
             2023, www.qsrmagazine.com/reports/the-2023-qsr-drive-thru-report/. "
           ),
           p(
             class = "hangingindent",
-            "Perrier, V., Meyer, F., Granjon, D. (2023) shinyWidgets: Custom Input
-            Widgets for Shiny. (v0.7.6). Avaliable from 
-            https://cran.r-project.org/web/packages/shinyWidgets/index.html"
+            "Perrier, V., Meyer, F., and Granjon, D. (2024). shinyWidgets: Custom
+            inputs widgets for shiny. (v 0.8.6). [R package]. Available from
+            https://CRAN.R-project.org/package=shinyWidgets"
           ),
           p(
             class = "hangingindent",
-            "Wickham, H. (2016). ggplot2: Elegant Graphics for Data Analysis. 
-            Springer-Verlag New York. ISBN 978-3-319-24277-4. Avaliable from 
+            "Wickham, H. (2016). ggplot2: Elegant Graphics for Data Analysis.
+            Springer-Verlag New York. (v 3.5.1). [R package]. Avaliable from
             https://ggplot2.tidyverse.org."
           ),
           br(),
@@ -820,43 +857,29 @@ ui <- list(
 
 # Define server logic ----
 server <- function(input, output, session) {
-  
+
   ## Info button ----
   observeEvent(
     eventExpr = input$info,
     handlerExpr = {
-      tab <- input$pages
-      if (tab == "prerequisites") {
-        sendSweetAlert(
-          session = session, 
-          type = "info",
-          title = "Information",
-          text = "View the definitions and terms as needed. Once ready 
-          go trhough each simulation left on the tab options, identify components
-          and practice different types of simulations."
-        )
-      } else if (tab %in% c("ciMean", "ciProb", "hypTest", "prob")) {
-        sendSweetAlert(
-          session = session,
-          type = "info",
-          title = "Information",
-          text = "Click through each tab to view different type of simulations. 
+      if (input$pages %in% c("ciMean", "ciProb", "hypTest", "prob")) {
+        message <- "Click through each tab to view different type of simulations.
           Read the context, identify components, and practice  each simulation
           type."
-        )
       } else {
-        sendSweetAlert(
-          session = session,
-          type = "info",
-          title = "Information",
-          text = "View the prerequisties as needed. Once ready 
-          go trhough each simulation left on the tab options, identify components
-          and practice different types of simulations."
-        )
+        message <- "View the prerequisties as needed. Once ready, go through each
+          simulation left on the tab options, identify components and practice
+          different types of simulations."
       }
+      sendSweetAlert(
+        session = session,
+        type = "info",
+        title = "Information",
+        text = message
+      )
     }
   )
-  
+
   ## Overview to Mean Button----
   observeEvent(
     eventExpr = input$overviewToMean,
@@ -868,107 +891,73 @@ server <- function(input, output, session) {
       )
     }
   )
-  
-  ## Confidence Interval for Mean ----
+
+  ## CI Mean ----
+  ### Step 1: Submit ----
   observeEvent(
-    input$ciMeanSubmit,
+    eventExpr = input$ciMeanSubmit,
     handlerExpr = {
-      selectedOption <- input$ciMeanPop
-      if (selectedOption == "All hotel guests that use the dispenser represented by the amount of ice they would take") {
-        output$ciMeanPopIcon <- renderIcon(icon = "correct", width = 30)
+      #### Check for user mistakes ----
+      pop <- input$ciMeanPop == "All hotel guests that use the dispenser represented by the amount of ice they would take"
+      para <- input$ciMeanPara == "The average amount of ice that would be taken by all hotel guests using the dispenser"
+      samp <- input$ciMeanSamp == "The amount of ice taken by each of the ten guests"
+      stat <- input$ciMeanStat == "3.1 ounces"
+      rep <- input$ciMeanBsRep == "Ten values drawn with replacement from the list {5, 3, 0, 6, 0, 0, 4, 7, 0, and 6}"
+      bsMeth <- input$ciMeanBs == "With replacement"
+      sampMeth <- input$ciMeanSampMeth == "Without replacement"
+
+      #### Component Icons ----
+      output$ciMeanPopIcon <- renderIcon(
+        icon = ifelse(test = pop, yes = "correct", no = "incorrect"),
+        width = 30
+      )
+      output$ciMeanParaIcon <- renderIcon(
+        icon = ifelse(test = para, yes = "correct", no = "incorrect"),
+        width = 30
+      )
+      output$ciMeanSampIcon <- renderIcon(
+        icon = ifelse(test = samp, yes = "correct", no = "incorrect"),
+        width = 30
+      )
+      output$ciMeanStatIcon <- renderIcon(
+        icon = ifelse(test = stat, yes = "correct", no = "incorrect"),
+        width = 30
+      )
+      output$ciMeanBsRepIcon <- renderIcon(
+        icon = ifelse(test = rep, yes = "correct", no = "incorrect"),
+        width = 30
+      )
+      output$ciMeanBsIcon <- renderIcon(
+        icon = ifelse(test = bsMeth, yes = "correct", no = "incorrect"),
+        width = 30
+      )
+      output$ciMeanSampMethIcon <- renderIcon(
+        icon = ifelse(test = sampMeth, yes = "correct", no = "incorrect"),
+        width = 30
+      )
+
+      #### Component Feedback ----
+      if (!pop || !para || !samp || !stat) {
+        feedback <- "Remember that population relates to a whole and sample relates to a small section of the population."
+      } else if (!sampMeth || !bsMeth || !rep) {
+        feedback <- "Think carefully through the process of selecting the original ten guests and then simulating."
       } else {
-        output$ciMeanPopIcon <- renderIcon(icon = "incorrect", width = 30)
+        feedback <- "All Correct!"
       }
+
+      output$ciMeanCompFeed <- renderUI(
+        expr = {
+          p(tags$strong("Feedback on your choices:"), feedback)
+        }
+      )
     }
   )
+
+  ### Step 1: Reset ----
   observeEvent(
-    input$ciMeanSubmit,
-    handlerExpr = {
-      selectedOption <- input$ciMeanPara
-      if (selectedOption == "The average amount of ice that would be taken by all hotel guests using the dispenser") {
-        output$ciMeanParaIcon <- renderIcon(icon = "correct", width = 30)
-      } else {
-        output$ciMeanParaIcon <- renderIcon(icon = "incorrect", width = 30)
-      }
-    }
-  )
-  observeEvent(
-    input$ciMeanSubmit,
-    handlerExpr = {
-      selectedOption <- input$ciMeanSamp
-      if (selectedOption == "The amount of ice taken by each of the ten guests") {
-        output$ciMeanSampIcon <- renderIcon(icon = "correct", width = 30)
-      } else {
-        output$ciMeanSampIcon <- renderIcon(icon = "incorrect", width = 30)
-      }
-    }
-  )
-  observeEvent(
-    input$ciMeanSubmit,
-    handlerExpr = {
-      selectedOption <- input$ciMeanStat
-      if (selectedOption == "3.1 ounces") {
-        output$ciMeanStatIcon <- renderIcon(icon = "correct", width = 30)
-      } else {
-        output$ciMeanStatIcon <- renderIcon(icon = "incorrect", width = 30)
-      }
-    }
-  )
-  observeEvent(
-    input$ciMeanSubmit,
-    handlerExpr = {
-      selectedOption <- input$ciMeanBsRep
-      if (selectedOption == "Ten values drawn with replacement from the list {5, 3, 0, 6, 0, 0, 4, 7, 0, and 6}") {
-        output$ciMeanBsRepIcon <- renderIcon(icon = "correct", width = 30)
-      } else {
-        output$ciMeanBsRepIcon <- renderIcon(icon = "incorrect", width = 30)
-      }
-    }
-  )
-  observeEvent(
-    input$ciMeanSubmit,
-    handlerExpr = {
-      selectedOption <- input$ciMeanBs
-      if (selectedOption == "With replacement") {
-        output$ciMeanBsIcon <- renderIcon(icon = "correct", width = 30)
-      } else {
-        output$ciMeanBsIcon <- renderIcon(icon = "incorrect", width = 30)
-      }
-    }
-  )
-  observeEvent(
-    input$ciMeanSubmit,
-    handlerExpr = {
-      selectedOption <- input$ciMeanSampMeth
-      if (selectedOption == "Without replacement") {
-        output$ciMeanSampMethIcon <- renderIcon(icon = "correct", width = 30)
-      } else {
-        output$ciMeanSampMethIcon <- renderIcon(icon = "incorrect", width = 30)
-      }
-    }
-  )
-  
-  ### Feedback
-  observeEvent(
-    input$ciMeanSubmit,
-    handlerExpr = {
-      pop <- input$ciMeanPop
-      para <- input$ciMeanPara
-      samp <- input$ciMeanSamp
-      stat <- input$ciMeanStat
-  
-      if (pop != "All hotel guests that use the dispenser represented by the amount of ice they would take" || 
-          para != "The average amount of ice that would be taken by all hotel guests using the dispenser" || 
-          samp != "The amount of ice taken by each of the ten guests" || stat != "3.1 ounces") {
-        output$ciMeanCompFeed <- renderText("Remember that population relates to a whole and sample relates to a small section of the population.")
-      } else {
-        output$ciMeanCompFeed <- renderText("Correct!")
-      }  
-    }
-  )
-  ### Reset
-  observeEvent(
-    eventExpr = input$ciMeanReset,
+    eventExpr = c(input$ciMeanReset, input$ciMeanPop, input$ciMeanPara,
+                  input$ciMeanSamp, input$ciMeanStat, input$ciMeanSampMeth,
+                  input$ciMeanBs, input$ciMeanBsRep),
     handlerExpr = {
       output$ciMeanPopIcon <- renderIcon()
       output$ciMeanParaIcon <- renderIcon()
@@ -977,493 +966,470 @@ server <- function(input, output, session) {
       output$ciMeanBsRepIcon <- renderIcon()
       output$ciMeanBsIcon <- renderIcon()
       output$ciMeanSampMethIcon <- renderIcon()
+      output$ciMeanCompFeed <- renderUI({NULL})
     }
   )
-  
-  ### Simulation ----
-    upperCI <- reactiveVal(0)
-    lowerCI <- reactiveVal(0)
-  
+
+  ### Step 2: Simulation ----
+  meanCI <- reactiveVal(NULL)
+
     observeEvent(
-    input$simCIMean, 
-    handlerExpr = {
-      numSamp <- input$ciMeanNS
-      numRep <- input$ciMeanNumRep
-      cl <- input$ciMeanCL
-      
-      meanData <- c(5, 3, 0, 6, 0, 0, 4, 7, 0, 6)
-      
-      stat <- function(data, index, num_samples) {
-        subset_data <- data[index]
-        subset_data <- subset_data[sample(1:length(subset_data), num_samples, replace = TRUE)]
-        
-        statistic_value <- mean(subset_data)
-        return(statistic_value)
-      }
-      
-      set.seed(461)
-      
-      bootOut <- boot::boot(
-        data = meanData,
-        statistic = function(data, index) stat(data, index, numSamp),
-        R = numRep
-      )
-      bootCI <- boot::boot.ci(
-        boot.out = bootOut,
-        conf = cl,
-        type = "perc"
-      )
-      
-      lower <- (1 - cl)/2
-      upper <- cl + lower 
-      cii <- quantile(bootOut$t, c(lower, upper)) 
-      
-      upperCI(round(cii[2],2))
-      lowerCI(round(cii[1],2))
-      
-      output$ciMeanSim <- renderPlot(
-        expr = {
-          ggplot() +
-            geom_histogram(
-              data = data.frame(x = bootOut$t), 
-              aes(x = x), 
-              bins = 15, fill = boastPalette[1], color = "black"
-            ) +
-            geom_vline(
-              xintercept = quantile(bootOut$t, c(lower, upper)), 
-              color = "red", 
-              linetype = "dashed"
-            ) +
-            labs(x = "Bootstrap Mean", y = "Frequency")
+      eventExpr = input$simCIMean,
+      handlerExpr = {
+        #### Sample size error check ----
+        if (input$ciMeanNS != 10) {
+          sendSweetAlert(
+            session = session,
+            title = "Wrong Sample Size",
+            type = "error",
+            text = "The sample size you entered doesn't match that of the context.
+            Please re-read the context and adjust the sample size."
+          )
+        } else {
+          #### Bootstrap ----
+          bootOut <- boot::boot(
+            data = meanData,
+            statistic = bootMean,
+            R = input$ciMeanNumRep
+          )
+          bootCI <- boot::boot.ci(
+            boot.out = bootOut,
+            conf = input$ciMeanCL,
+            type = "perc"
+          )
+
+          meanCI(bootCI$percent[4:5])
+
+          #### Plot ----
+          output$ciMeanSim <- renderPlot(
+            expr = {
+              ggplot(
+                data = data.frame(means = bootOut$t),
+                mapping = aes(x = means)
+              ) +
+                geom_histogram(
+                  bins = 15,
+                  fill = boastPalette[1],
+                  color = "black"
+                ) +
+                geom_vline(
+                  xintercept = bootCI$percent[4:5],
+                  color = "red",
+                  linetype = "dashed"
+                ) +
+                labs(x = "Bootstrap Mean", y = "Frequency") +
+                theme_bw() +
+                theme(
+                  text = element_text(size = 20)
+                ) +
+                scale_y_continuous(
+                  expand = expansion(mult = 0, add = c(0, 2))
+                )
+            },
+            alt = "Coming soon"
+          )
+          #### Result statement ----
+          output$ciMeanResults <- renderUI(
+            expr = {
+              tagList(
+                p(tags$strong("Lower Confidence Interval:"),
+                  round(bootCI$percent[4], digits = 2)),
+                p(tags$strong("Upper Confidence Interval:"),
+                  round(bootCI$percent[5], digits = 2)),
+              )
+            }
+          )
         }
-      )
-      output$ciMeanResults <- renderText({
-        paste("Lower Confidence Interval:", round(cii[1], 2), "\n",
-              "Upper Confidence Interval:", round(cii[2], 2))
-      })
-    })
-  
-  #### Guessing Feedback
-  observeEvent(
-    input$ciMeanGuessSubmit,
-    handlerExpr = {
-      numSamp <- input$ciMeanNS
-      numRep <- input$ciMeanNumRep
-      cl <- input$ciMeanCL
-      
-      upper <- input$ciMeanUpper
-      lower <- input$ciMeanLower
-      
-      if (numRep >= 100 && lowerCI() == lower && upperCI() == upper && cl == .98 && numSamp == 10) {
-        output$ciMeanLowerIcon <- renderIcon(icon = "correct", width = 30)
-        output$ciMeanUpperIcon <- renderIcon(icon = "correct", width = 30)
-        output$ciMeanGuessFeedback <- renderText("Correct!")
-      } else if (numRep > 100 && numSamp == 10 && cl == .98 && (upperCI() != upper || lowerCI() != lower)) {
-        output$ciMeanLowerIcon <- renderIcon(icon = "incorrect", width = 30)
-        output$ciMeanUpperIcon <- renderIcon(icon = "incorrect", width = 30)
-        output$ciMeanGuessFeedback <- renderText("Make sure bounds match the output below the graph")
-      } else if (numSamp != 10) {
-        output$ciMeanLowerIcon <- renderIcon(icon = "incorrect", width = 30)
-        output$ciMeanUpperIcon <- renderIcon(icon = "incorrect", width = 30)
-        output$ciMeanGuessFeedback <- renderText("Think of conditions needed to be met in order to boostrap such as replacement and sample size in relation to the original size.")
-      } else if (numRep < 100) {
-        output$ciMeanLowerIcon <- renderIcon(icon = "incorrect", width = 30)
-        output$ciMeanUpperIcon <- renderIcon(icon = "incorrect", width = 30)
-        output$ciMeanGuessFeedback <- renderText("Think of how many replications are needed to be representative.")
-      } else if (cl != .98) {
-        output$ciMeanLowerIcon <- renderIcon(icon = "incorrect", width = 30)
-        output$ciMeanUpperIcon <- renderIcon(icon = "incorrect", width = 30)
-        output$ciMeanGuessFeedback <- renderText("Reread the context and verify inputs match")
-      } else {
-        output$ciMeanLowerIcon <- renderIcon(icon = "incorrect", width = 30)
-        output$ciMeanUpperIcon <- renderIcon(icon = "incorrect", width = 30)
-        output$ciMeanGuessFeedback <- renderText("Incorrect, reread the context and make adjustments to inputs. References the prerequsities as needed.")
       }
-    }
-  )
-  
-  ## Confidence Interval for Proportion----
-  observeEvent(
-    input$ciPropSubmit,
-    handlerExpr = {
-      selectedOption <- input$ciPropPop
-      if (selectedOption == "All U.S. Burger Kings with drive thru represented by a “1” if a mistake would be made and a “0” if the order would be handled correctly") {
-        output$ciPropPopIcon <- renderIcon(icon = "correct", width = 30)
-      } else {
-        output$ciPropPopIcon <- renderIcon(icon = "incorrect", width = 30)
-      }
-    }
-  )
-  observeEvent(
-    input$ciPropSubmit,
-    handlerExpr = {
-      selectedOption <- input$ciPropPara
-      if (selectedOption == "The proportion of 1's in the population out of 6500 values") {
-        output$ciPropParaIcon <- renderIcon(icon = "correct", width = 30)
-      } else {
-        output$ciPropParaIcon <- renderIcon(icon = "incorrect", width = 30)
-      }
-    }
-  )
-  observeEvent(
-    input$ciPropSubmit,
-    handlerExpr = {
-      selectedOption <- input$ciPropSamp
-      if (selectedOption == "Sixteen 1's and 149 0's") {
-        output$ciPropSampIcon <- renderIcon(icon = "correct", width = 30)
-      } else {
-        output$ciPropSampIcon <- renderIcon(icon = "incorrect", width = 30)
-      }
-    }
-  )
-  observeEvent(
-    input$ciPropSubmit,
-    handlerExpr = {
-      selectedOption <- input$ciPropStat
-      if (selectedOption == "16/165") {
-        output$ciPropStatIcon <- renderIcon(icon = "correct", width = 30)
-      } else {
-        output$ciPropStatIcon <- renderIcon(icon = "incorrect", width = 30)
-      }
-    }
-  )
-  observeEvent(
-    input$ciPropSubmit,
-    handlerExpr = {
-      selectedOption <- input$ciPropBsRep
-      if (selectedOption == "165 values sampled from a list of sixteen 1's and 149 0's") {
-        output$ciPropBsRepIcon <- renderIcon(icon = "correct", width = 30)
-      } else {
-        output$ciPropBsRepIcon <- renderIcon(icon = "incorrect", width = 30)
-      }
-    }
-  )
-  
-  observeEvent(
-    input$ciPropSubmit,
-    handlerExpr = {
-      selectedOption <- input$ciPropBs
-      if (selectedOption == "With replacement") {
-        output$ciPropBsIcon <- renderIcon(icon = "correct", width = 30)
-      } else {
-        output$ciPropBsIcon <- renderIcon(icon = "incorrect", width = 30)
-      }
-    }
-  )
-  observeEvent(
-    input$ciPropSubmit,
-    handlerExpr = {
-      selectedOption <- input$ciPropSampMeth
-      if (selectedOption == "Without replacement") {
-        output$ciPropSampMethIcon <- renderIcon(icon = "correct", width = 30)
-      } else {
-        output$ciPropSampMethIcon <- renderIcon(icon = "incorrect", width = 30)
-      }
-    }
-  )
-  
-  
-  #### Feedback
-  observeEvent(
-    input$ciPropSubmit,
-    handlerExpr = {
-      pop <- input$ciPropPop
-      para <- input$ciPropPara
-      samp <- input$ciPropSamp
-      stat <- input$ciPropStat
-      bsRep <- input$ciPropBsRep 
-      bs <- input$ciPropBs
-      method <- input$ciPropSampMeth
+    )
 
-      if (pop != "All U.S. Burger Kings with drive thru represented by a “1” if a mistake would be made and a “0” if the order would be handled correctly" ||
-          para != "The proportion of 1's in the population out of 6500 values" ||
-          samp != "Sixteen 1's and 149 0's" || stat != "16/165" || 
-          bsRep != "165 values sampled from a list of sixteen 1's and 149 0's") {
-        output$ciPropCompFeed <- renderText("Remember that population relates to a whole and sample relates to a small section of the population.")
-      } else {
-        output$ciPropCompFeed <- renderText("Correct!")
-      }  
-    }
-  )
-  #### Reset
-  observeEvent(
-    eventExpr = input$ciPropReset,
-    handlerExpr = {
-      output$ciPropPopIcon <- renderIcon()
-      output$ciPropParaIcon <- renderIcon()
-      output$ciPropSampIcon <- renderIcon()
-      output$ciPropStatIcon <- renderIcon()
-      output$ciPropBsRepIcon <- renderIcon()
-      output$ciPropBsIcon <- renderIcon()
-      output$ciPropSampMethIcon <- renderIcon()
-    }
-  )
-
-  ### Simulation ----
-  upperCI <- reactiveVal(0)
-  lowerCI <- reactiveVal(0)
-  
-  observeEvent(
-    input$simCIProp, 
-    handlerExpr = {
-      numSamp <- input$ciPropNS
-      numRep <- input$ciPropNumRep
-      cl <- input$ciPropCL
-      
-      propData <- data.frame(Success = c(
-        rep(1, 16), 
-        rep(0, 149)),
-        Total = rep(1, 165)
-      )
-      
-      stat <- function(data, index, num_samples) {
-        subset_data <- data[index, , drop = FALSE]  
-        subset_data <- subset_data[sample(1:nrow(subset_data), num_samples, replace = TRUE), ]
-        
-        successes <- sum(subset_data$Success)
-        total <- sum(subset_data$Total)
-        proportion_value <- successes / total
-        return(proportion_value)
-      }
-      
-      set.seed(461)
-      
-      bootOut <- boot::boot(
-        data = propData,
-        statistic = function(data, index) stat(data, index, numSamp),
-        R = numRep
-      )
-      
-      bootCI <- boot::boot.ci(
-        boot.out = bootOut,
-        conf = cl,
-        type = "perc"
-      )
-      
-      lower <- (1 - cl)/2
-      upper <- cl + lower
-      cii <- quantile(bootOut$t, c(lower, upper))
-      
-      upperCI(round(cii[2], 2))
-      lowerCI(round(cii[1], 2))
-      
-      output$ciPropSim <- renderPlot({
-        ggplot() +
-          geom_histogram(
-            data = data.frame(x = bootOut$t), 
-            aes(x = x), 
-            bins = 15, 
-            fill = boastPalette[1],
-            color = "black"
-          ) +
-          geom_vline(
-            xintercept = quantile(bootOut$t, c(lower, upper)), 
-            color = "red", 
-            linetype = "dashed"
-          ) +
-          labs(x = "Bootstrap Proportion", y = "Frequency")
-      })
-      output$ciPropResults <- renderText({
-        paste("Lower Confidence Interval:", round(cii[1], 2), "\n",
-              "Upper Confidence Interval:", round(cii[2], 2))
-      })
-    })
-    
-    #### Guessing Feedback
+    ### Step 3: Feedback ----
     observeEvent(
-      input$ciPropGuessSubmit,
+      eventExpr = input$ciMeanGuessSubmit,
+      handlerExpr = {
+        lowerError <- abs(input$ciMeanLower - meanCI()[1])
+        upperError <- abs(input$ciMeanUpper - meanCI()[2])
+
+        if (lowerError <= TOL1 && upperError <= TOL1 &&
+            input$ciMeanCL == 0.98 && input$ciMeanNumRep >= 100) {
+          output$ciMeanLowerIcon <- renderIcon(icon = "correct", width = 30)
+          output$ciMeanUpperIcon <- renderIcon(icon = "correct", width = 30)
+          output$ciMeanGuessFeedback <- renderText({"Correct!"})
+        } else if (!(lowerError <= TOL1 && upperError <= TOL1) &&
+                   input$ciMeanCL == 0.98 && input$ciMeanNumRep >= 100) {
+          output$ciMeanLowerIcon <- renderIcon(icon = "incorrect", width = 30)
+          output$ciMeanUpperIcon <- renderIcon(icon = "incorrect", width = 30)
+          output$ciMeanGuessFeedback <- renderText({"Make sure bounds match the output below the graph."})
+        } else if (input$ciMeanCL != 0.98) {
+          output$ciMeanLowerIcon <- renderIcon(icon = "partial", width = 30)
+          output$ciMeanUpperIcon <- renderIcon(icon = "partial", width = 30)
+          output$ciMeanGuessFeedback <- renderText({"Reread the context and verify inputs match."})
+        } else if (input$ciMeanNumRep < 100) {
+          output$ciMeanLowerIcon <- renderIcon(icon = "partial", width = 30)
+          output$ciMeanUpperIcon <- renderIcon(icon = "partial", width = 30)
+          output$ciMeanGuessFeedback <- renderText({"Think of how many replications are needed to be representative."})
+        } else {
+          output$ciMeanLowerIcon <- renderIcon(icon = "incorrect", width = 30)
+          output$ciMeanUpperIcon <- renderIcon(icon = "incorrect", width = 30)
+          output$ciMeanGuessFeedback <- renderText({"Incorrect, reread the context and make adjustments to inputs. Reference the prerequsities as needed."})
+        }
+      }
+    )
+
+    ### Reset Step 3 ----
+    observeEvent(
+      eventExpr = c(input$ciMeanLower, input$ciMeanUpper),
+      handlerExpr = {
+        output$ciMeanLowerIcon <- renderIcon()
+        output$ciMeanUpperIcon <- renderIcon()
+        output$ciMeanGuessFeedback <- renderText({NULL})
+      }
+    )
+
+    ## CI Proportion----
+    ### Step 1: Submit ----
+    observeEvent(
+      eventExpr = input$ciPropSubmit,
+      handlerExpr = {
+        #### Check for user mistakes ----
+        pop <- input$ciPropPop == "All U.S. Burger Kings with drive thru represented by a “1” if a mistake would be made and a “0” if the order would be handled correctly"
+        para <- input$ciPropPara == "The proportion of 1's in the population out of 6500 values"
+        samp <- input$ciPropSamp == "Sixteen 1's and 149 0's"
+        stat <- input$ciPropStat == "16/165"
+        sampMeth <- input$ciPropSampMeth == "Without replacement"
+        bsMeth <- input$ciPropBs == "With replacement"
+        rep <- input$ciPropBsRep == "165 values sampled from a list of sixteen 1's and 149 0's"
+
+        #### Component Icons ----
+        output$ciPropPopIcon <- renderIcon(
+          icon = ifelse(test = pop, yes = "correct", no = "incorrect"),
+          width = 30
+        )
+        output$ciPropParaIcon <- renderIcon(
+          icon = ifelse(test = para, yes = "correct", no = "incorrect"),
+          width = 30
+        )
+        output$ciPropSampIcon <- renderIcon(
+          icon = ifelse(test = samp, yes = "correct", no = "incorrect"),
+          width = 30
+        )
+        output$ciPropStatIcon <- renderIcon(
+          icon = ifelse(test = stat, yes = "correct", no = "incorrect"),
+          width = 30
+        )
+        output$ciPropBsRepIcon <- renderIcon(
+          icon = ifelse(test = rep, yes = "correct", no = "incorrect"),
+          width = 30
+        )
+        output$ciPropBsIcon <- renderIcon(
+          icon = ifelse(test = bsMeth, yes = "correct", no = "incorrect"),
+          width = 30
+        )
+        output$ciPropSampMethIcon <- renderIcon(
+          icon = ifelse(test = sampMeth, yes = "correct", no = "incorrect"),
+          width = 30
+        )
+
+        #### Component Feedback ----
+        if (!pop || !para || !samp || !stat) {
+         feedback <- "Remember that population relates to a whole and sample relates to a small section of the population."
+        } else if (!sampMeth || !bsMeth || !rep) {
+          feedback <- "Think carefully through the process of selecting the original 165 restaurants and then simulating."
+        } else {
+          feedback <- "All Correct!"
+        }
+
+        output$ciPropCompFeed <- renderUI(
+          expr = {
+            p(tags$strong("Feedback on your choices:"), feedback)
+          }
+        )
+      }
+    )
+
+    ### Step 1: Reset ----
+    observeEvent(
+      eventExpr = c(input$ciPropReset, input$ciPropPop, input$ciPropPara,
+                    input$ciPropSamp, input$ciPropStat, input$ciPropSampMeth,
+                    input$ciPropBs, input$ciPropBsRep),
+      handlerExpr = {
+        output$ciPropPopIcon <- renderIcon()
+        output$ciPropParaIcon <- renderIcon()
+        output$ciPropSampIcon <- renderIcon()
+        output$ciPropStatIcon <- renderIcon()
+        output$ciPropBsRepIcon <- renderIcon()
+        output$ciPropBsIcon <- renderIcon()
+        output$ciPropSampMethIcon <- renderIcon()
+        output$ciPropCompFeed <- renderUI({NULL})
+      }
+    )
+
+    ### Step 2: Simulation ----
+    propCI <- reactiveVal(NULL)
+
+    observeEvent(
+      eventExpr = input$simCIProp,
+      handlerExpr = {
+        if (input$ciPropNS != 165) {
+          sendSweetAlert(
+            session = session,
+            title = "Wrong Sample Size",
+            type = "error",
+            text = "The sample size you entered doesn't match that of the context.
+                   Please re-read the context and adjust the sample size."
+          )
+        } else {
+          #### Bootstrap ----
+          bootOut <- boot::boot(
+            data = propData,
+            statistic = bootMean,
+            R = input$ciPropNumRep
+          )
+          bootCI <- boot::boot.ci(
+            boot.out = bootOut,
+            conf = input$ciPropCL,
+            type = "perc"
+          )
+
+          propCI(bootCI$percent[4:5])
+
+          #### Plot ----
+          output$ciPropSim <- renderPlot(
+            expr = {
+              ggplot(
+                data = data.frame(means = bootOut$t),
+                mapping = aes(x = means)
+              ) +
+                geom_histogram(
+                  bins = 15,
+                  fill = boastPalette[1],
+                  color = "black"
+                ) +
+                geom_vline(
+                  xintercept = bootCI$percent[4:5],
+                  color = "red",
+                  linetype = "dashed"
+                ) +
+                labs(x = "Bootstrap Proportion", y = "Frequency") +
+                theme_bw() +
+                theme(
+                  text = element_text(size = 20)
+                ) +
+                scale_y_continuous(
+                  expand = expansion(mult = 0, add = c(0, 2))
+                )
+            },
+            alt = "coming soon"
+          )
+          #### Result statement ----
+          output$ciPropResults <- renderUI(
+            expr = {
+              tagList(
+                p(tags$strong("Lower Confidence Interval:"),
+                  round(bootCI$percent[4], digits = 2)),
+                p(tags$strong("Upper Confidence Interval:"),
+                  round(bootCI$percent[5], digits = 2))
+              )
+            }
+          )
+        }
+      }
+    )
+
+    ### Step 3: Feedback ----
+    observeEvent(
+      eventExpr = input$ciPropGuessSubmit,
       handlerExpr = {
         numSamp <- input$ciPropNS
         numRep <- input$ciPropNumRep
         cl <- input$ciPropCL
-        
+
         upper <- input$ciPropUpper
         lower <- input$ciPropLower
-        
-        if (numRep >= 100 && lowerCI() == lower && upperCI() == upper && cl == .90 && numSamp == 165) {
+
+        lowerError <- abs(input$ciPropLower - propCI()[1])
+        upperError <- abs(input$ciPropUpper - propCI()[2])
+
+        if (lowerError <= TOL2 && upperError <= TOL2 &&
+            input$ciPropCL == 0.9 && input$ciPropNumRep >= 100) {
           output$ciPropLowerIcon <- renderIcon(icon = "correct", width = 30)
           output$ciPropUpperIcon <- renderIcon(icon = "correct", width = 30)
-          output$ciPropGuessFeedback <- renderText("Correct!")
-        } else if (numRep >= 100 && numSamp == 165 && cl == .90 && (upperCI() != upper || lowerCI() != lower)) {
+          output$ciPropGuessFeedback <- renderText({"Correct!"})
+        } else if (!(lowerError <= TOL2 && upperError <= TOL2) &&
+                   input$ciPropCL == 0.9 && input$ciPropNumRep >= 100) {
           output$ciPropLowerIcon <- renderIcon(icon = "incorrect", width = 30)
           output$ciPropUpperIcon <- renderIcon(icon = "incorrect", width = 30)
-          output$ciPropGuessFeedback <- renderText("Make sure bounds match the output below the graph")
-        } else if (numSamp != 165) {
-          output$ciPropLowerIcon <- renderIcon(icon = "incorrect", width = 30)
-          output$ciPropUpperIcon <- renderIcon(icon = "incorrect", width = 30)
-          output$ciPropGuessFeedback <- renderText("Think of conditions needed to be met in order to boostrap such as replacement and sample size in relation to the original size.")
-        } else if (numRep == 10) {
-          output$ciPropLowerIcon <- renderIcon(icon = "incorrect", width = 30)
-          output$ciPropUpperIcon <- renderIcon(icon = "incorrect", width = 30)
-          output$ciPropGuessFeedback <- renderText("Think of how many replications are needed to be representative.")
-        } else if (cl != .90) {
-          output$ciPropLowerIcon <- renderIcon(icon = "incorrect", width = 30)
-          output$ciPropUpperIcon <- renderIcon(icon = "incorrect", width = 30)
-          output$ciPropGuessFeedback <- renderText("Reread the context and verify inputs match")
+          output$ciPropGuessFeedback <- renderText({"Make sure bounds match the output below the graph."})
+        } else if (input$ciPropCL != 0.9) {
+          output$ciPropLowerIcon <- renderIcon(icon = "partial", width = 30)
+          output$ciPropUpperIcon <- renderIcon(icon = "partial", width = 30)
+          output$ciPropGuessFeedback <- renderText({"Reread the context and verify inputs match."})
+        } else if (input$ciPropNumRep < 100) {
+          output$ciPropLowerIcon <- renderIcon(icon = "partial", width = 30)
+          output$ciPropUpperIcon <- renderIcon(icon = "partial", width = 30)
+          output$ciPropGuessFeedback <- renderText({"Think of how many replications are needed to be representative."})
         } else {
           output$ciPropLowerIcon <- renderIcon(icon = "incorrect", width = 30)
           output$ciPropUpperIcon <- renderIcon(icon = "incorrect", width = 30)
-          output$ciPropGuessFeedback <- renderText("Incorrect, reread the context and make adjustments to inputs. References the prerequsities as needed.")
+          output$ciPropGuessFeedback <- renderText({"Incorrect, reread the context and make adjustments to inputs. Reference the prerequsities as needed."})
         }
       }
     )
-    
+
+    ### Reset Step 3 ----
+    observeEvent(
+      eventExpr = c(input$ciPropLower, input$ciPropUpper),
+      handlerExpr = {
+        output$ciPropLowerIcon <- renderIcon()
+        output$ciPropUpperIcon <- renderIcon()
+        output$ciPropGuessFeedback <- renderText({NULL})
+      }
+    )
+
     ## Probability ----
-    probability <- reactiveVal(0)
-    
+    ### Step 1: Submit ----
     observeEvent(
-      input$probSubmit,
+      eventExpr = input$probSubmit,
       handlerExpr = {
-        selectedOption <- input$probPop
-        if (selectedOption == "Possible outcomes 1, 2, 3, 4, 5, or 6 when a die is rolled") {
-          output$probPopIcon <- renderIcon(icon = "correct", width = 30)
+        #### Check for user mistakes ----
+        pop <- input$probPop == "Possible outcomes 1, 2, 3, 4, 5, or 6 when a die is rolled"
+        samp <- input$probSamp == "Results for each of eleven draws from the population"
+        event <- input$probEvent == "Whether the sum of the first five draws is larger than the sum of the next six draws from the population"
+        sampMeth <- input$probReplace == "Draw with replacement"
+
+        #### Component Icons ----
+        output$probPopIcon <- renderIcon(
+          icon = ifelse(test = pop, yes = "correct", no = "incorrect"),
+          width = 30
+        )
+        output$probSampIcon <- renderIcon(
+          icon = ifelse(test = samp, yes = "correct", no = "incorrect"),
+          width = 30
+        )
+        output$probEventIcon <- renderIcon(
+          icon = ifelse(test = event, yes = "correct", no = "incorrect"),
+          width = 30
+        )
+        output$probReplaceIcon <- renderIcon(
+          icon = ifelse(test = sampMeth, yes = "correct", no = "incorrect"),
+          width = 30
+        )
+
+        #### Component Feedback ----
+        if (pop && samp && event && sampMeth) {
+          feedback <- "All Correct!"
         } else {
-          output$probPopIcon <- renderIcon(icon = "incorrect", width = 30)
+          feedback <- "Remember that population relates to a whole, sample relates to a small
+            section of the population, and an event is is a specific outcome to analyze"
         }
+
+        output$probCompFeed <- renderUI(
+          expr = {
+            p(tags$strong("Feedback on your choices:"), feedback)
+          }
+        )
       }
     )
+
+    ### Step 1: Reset ----
     observeEvent(
-      input$probSubmit,
-      handlerExpr = {
-        selectedOption <- input$probSamp
-        if (selectedOption == "Results for each of eleven draws from the population") {
-          output$probSampIcon <- renderIcon(icon = "correct", width = 30)
-        } else {
-          output$probSampIcon <- renderIcon(icon = "incorrect", width = 30)
-        }
-      }
-    )
-    observeEvent(
-      input$probSubmit,
-      handlerExpr = {
-        selectedOption <- input$probEvent
-        if (selectedOption == "Whether the sum of the first five draws is larger than the sum of the next six draws from the population") {
-          output$probEventIcon <- renderIcon(icon = "correct", width = 30)
-        } else {
-          output$probEventIcon <- renderIcon(icon = "incorrect", width = 30)
-        }
-      }
-    )
-    observeEvent(
-      input$probSubmit,
-      handlerExpr = {
-        selectedOption <- input$probReplace
-        if (selectedOption == "Draw with replacement") {
-          output$probReplaceIcon <- renderIcon(icon = "correct", width = 30)
-        } else {
-          output$probReplaceIcon <- renderIcon(icon = "incorrect", width = 30)
-        }
-      }
-    )
-    
-    ### Feedback
-    observeEvent(
-      input$probSubmit,
-      handlerExpr = {
-        pop <- input$probPop
-        samp <- input$probSamp
-        event <- input$probEvent
-        replace <- input$probReplace
-        
-        if (pop != "Possible outcomes 1, 2, 3, 4, 5, or 6 when a die is rolled" ||
-            samp != "Results for each of eleven draws from the population" ||
-            event != "Whether the sum of the first five draws is larger than the sum of the next six draws from the population" || 
-            replace != "Draw with replacement") {
-          output$probCompFeed <- renderText(
-            "Remember that population relates to a whole, sample relates to a small 
-            section of the population, and an event is is a specific outcome to analyze")
-        } else {
-          output$probCompFeed <- renderText("Correct!")
-        }  
-      }
-    )
-    ### Feedback
-    observeEvent(
-      eventExpr = input$probReset,
+      eventExpr = c(input$probReset, input$probPop, input$probSamp,
+                    input$probEvent, input$probReplace),
       handlerExpr = {
         output$probPopIcon <- renderIcon()
-        output$probStatIcon <- renderIcon()
+        output$probSampIcon <- renderIcon()
         output$probEventIcon <- renderIcon()
         output$probReplaceIcon <- renderIcon()
+        output$probCompFeed <- renderUI({NULL})
       }
     )
-    
-    
-    ### Simulation ----
+
+    ### Step 2: Simulation ----
+    probability <- reactiveVal(NULL)
     observeEvent(
-      input$simProb, 
+      eventExpr = input$simProb,
       handlerExpr = {
-        trials <- input$simsProb
-        nickRolls <- input$nickRollsProb
-        jennRolls <- input$jennRollsProb
-        
-        nickWin <- 0
-        tie <- 0 
-        jennWin <- 0
-        totalScore <- numeric(trials)
-        
-        for (i in 1:trials) {
-          nickResults <- sample(1:6, nickRolls, replace = TRUE)
-          jennResults <- sample(1:6, jennRolls, replace = TRUE)
-          nickSum <- sum(nickResults)
-          jennSum <- sum(jennResults)
-          
-          if (nickSum > jennSum) {
-            nickWin <- nickWin + 1
-          } else if (jennSum > nickSum) {
-            jennWin <- jennWin + 1
-          } else {
-            tie <- tie + 1
+        simResults <- replicate(
+          n = input$simsProb,
+          expr = diceGame(
+            p1Name = "Nick",
+            p1Times = input$nickRolls,
+            p2Name = "Jennifer",
+            p2Times = input$jennRolls
+          )
+        )
+
+        probability((table(simResults)/length(simResults))["Nick Wins"])
+
+        #### Simulation plot ----
+        output$probSim <- renderPlot(
+          expr = {
+            ggplot(
+              data = data.frame(results = simResults),
+              mapping = aes(x = results)
+            ) +
+              geom_bar(fill = boastPalette[1]) +
+              labs(x = "Outcome", y = "Frequency") +
+              theme_bw() +
+              theme(
+                text = element_text(size = 20)
+              ) +
+              scale_y_continuous(
+                expand = expansion(mult = c(0, 0.02), add = 0)
+              )
+          },
+          alt = "coming soon"
+        )
+
+        ### Result statement ----
+        output$resultProb <- renderUI(
+          expr = {
+            p(tags$strong("Estimated probability that Nick gets a higher total:"),
+              round(probability(), digits = 2))
           }
-          totalScore[i] <- nickSum - jennSum
-        }
-        
-        probability(nickWin / trials)
-        
-        output$resultProb <- renderText({
-          paste("Estimated probability that Nick gets a higher total:", round(probability(),2), "\n")
-        })
-        
-        output$probSim <- renderPlot({
-          results <- data.frame(
-            outcome = c("Nick Wins", "Jennifer Wins", "Tie"),
-            frequency = c(nickWin, jennWin, tie))
-          barplot(results$frequency, names.arg = results$outcome,
-                  main = "Distribution of Outcomes",
-                  xlab = "Outcome", 
-                  ylab = "Frequency", 
-                  col = "blue", 
-                  ylim = c(0, max(results$frequency) * 1.1))
-        })
-      })
-    
-  observeEvent(
-    input$guessSubmitProb,
-    handlerExpr = {
-      guess <- input$guessProb
-      trials <- input$simsProb
-      nickRolls <- input$nickRollsProb
-      jennRolls <- input$jennRollsProb
-      
-      #### Guessing Feedback
-      if (trials >= 100 && nickRolls == 5 && jennRolls == 6 && abs(probability() - guess) < 0.001) {
-        output$guessIconProb <- renderIcon(icon = "correct", width = 30)
-        output$guessProbFeedback <- renderText("Correct!")
-      } else if (trials >= 100 && nickRolls == 5 && jennRolls == 6) { 
-        output$guessIconProb <- renderIcon(icon = "incorrect", width = 30)
-        output$guessProbFeedback <- renderText("Look at the estimated probability below the chart")
-      } else if (trials == 10 && nickRolls == 5 && jennRolls == 6) { 
-        output$guessIconProb <- renderIcon(icon = "incorrect", width = 30)
-        output$guessProbFeedback <- renderText("Keep in mind how many replications there should be")
-      } else if ((nickRolls != 5 | jennRolls != 6) & trials > 100) {
-        output$guessIconProb <- renderIcon(icon = "incorrect", width = 30)
-        output$guessProbFeedback <- renderText("Double check the number of rolls for Nick and Jennifer")
-      } else {
-        output$guessIconProb <- renderIcon(icon = "incorrect", width = 30)
-        output$guessProbFeedback <- renderText("Set the simulation options according to the context")
+        )
       }
-    }
-  )
+    )
+
+    ### Step 3: Feedback ----
+    observeEvent(
+      eventExpr = input$guessSubmitProb,
+      handlerExpr = {
+        guess <- input$guessProb
+        trials <- input$simsProb
+        nickRolls <- input$nickRolls
+        jennRolls <- input$jennRolls
+
+        guessError <- abs(input$guessProb - probability())
+
+        if (guessError <= TOL2 && input$nickRolls == 5 && input$jennRolls == 6 &&
+            input$simsProb >= 100) {
+          output$guessIconProb <- renderIcon(icon = "correct", width = 30)
+          output$guessProbFeedback <- renderText({"Correct!"})
+        } else if (!(input$nickRolls == 5 && input$jennRolls == 6)) {
+          output$guessIconProb <- renderIcon(icon = "incorrect", width = 30)
+          output$guessProbFeedback <- renderText({"Double check the number of rolls for Nick and Jennifer."})
+        } else if (guessError > TOL2) {
+          output$guessIconProb <- renderIcon(icon = "incorrect", width = 30)
+          output$guessProbFeedback <- renderText({"Look at the estimated probability below the chart."})
+        } else if (input$simProb < 100) {
+          output$guessIconProb <- renderIcon(icon = "partial", width = 30)
+          output$guessProbFeedback <- renderText({"Think about how many times you would need the simulation to run to convince you."})
+        } else {
+          output$guessIconProb <- renderIcon(icon = "incorrect", width = 30)
+          output$guessProbFeedback <- renderText({"Set the simulation options according to the context."})
+        }
+      }
+    )
+
+    ### Reset Step 3 ----
+    observeEvent(
+      eventExpr = input$guessProb,
+      handlerExpr = {
+        output$guessIconProb <- renderIcon()
+        output$guessProbFeedback <- renderText({NULL})
+      }
+    )
 }
 
 # Boast App Call ----
