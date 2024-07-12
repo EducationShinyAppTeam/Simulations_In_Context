@@ -154,9 +154,8 @@ ui <- list(
                       something about the population."),
               tags$li(tags$strong("Sample:"), "The part of the population that
                       we are actually examining."),
-              tags$li(tags$strong("Statistic:"), "A number that describes
-                      something about the sample."),
-              #tags$li(tags$strong("Statistic:"), "A function that measures an aspect about a sample."),
+              tags$li(tags$strong("Statistic:"), "A function that measures an
+                      aspect about a sample by reporting a single value."),
               tags$li(tags$strong("Confidence Interval:"), "The interval/set of
                       values for the population parameter that are compatible
                       with the test statistic with a certain level of confidence."),
