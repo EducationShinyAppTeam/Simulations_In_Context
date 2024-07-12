@@ -70,8 +70,10 @@ ui <- list(
       ),
       tags$li(
         class = "dropdown",
-        tags$a(href = 'https://shinyapps.science.psu.edu/',
-               icon("house")
+        tags$a(
+          id = "home",
+          href = 'https://shinyapps.science.psu.edu/',
+          icon("house")
         )
       )
     ),
